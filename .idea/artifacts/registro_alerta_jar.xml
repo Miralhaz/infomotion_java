@@ -1,0 +1,12 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="registro_alerta:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/registro_alerta_jar</output-path>
+    <root id="archive" name="registro_alerta.jar">
+      <element id="directory" name="META-INF">
+        <element id="file-copy" path="$PROJECT_DIR$/META-INF/MANIFEST.MF" />
+      </element>
+      <element id="module-output" name="registro_alerta" />
+      <element id="archive" name="registro_logs.jar" />
+    </root>
+  </artifact>
+</component>

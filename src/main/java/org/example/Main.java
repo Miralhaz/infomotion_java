@@ -10,12 +10,7 @@ public class Main {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         String dataFormatada = agora.format(formatter);
 
-        System.out.println("Você gostária de ordenar a lista através " +
-                "\n 1 - CPU" +
-                "\n 2 - RAM" +
-                "\n 3 - DISCO" +
-                "\nDigite um número para selecionar: ");
-        Integer escolhaUsar = sc.nextInt();
+
 
         List<RegistroLogs> logs = new ArrayList<>();
         logs.add(new RegistroLogs("Verônica", "111.222.333-54", 77.3, 56.7, 81.2, dataFormatada));
@@ -31,59 +26,82 @@ public class Main {
         logs.add(new RegistroLogs("Gabriel", "000.111.222-43", 79.7, 40.6, 91.8, dataFormatada));
 
 
-
 // CPU MAIS ALTA
         int indiceMenor;
-        if (escolhaUsar == 1) {
-            for (int i = 0; i < logs.size() - 1; i++) {
-                indiceMenor = i;
-                for (int j = i + 1; j < logs.size(); j++) {
-                    if (logs.get(j).getCpu() > logs.get(indiceMenor).getCpu()) {
-                        indiceMenor = j;
+        boolean continuar = true;
+        while (continuar) {
+
+            System.out.println("""
+                    Você gostária de ordenar a lista através \
+                    
+                     1 - CPU\
+                    
+                     2 - RAM\
+                    
+                     3 - DISCO\
+                    
+                     4 - Sair\
+                    
+                    Digite um número para selecionar:\s""");
+            int escolhaUsar = sc.nextInt();
+
+            if (escolhaUsar == 1) {
+                for (int i = 0; i < logs.size() - 1; i++) {
+                    indiceMenor = i;
+                    for (int j = i + 1; j < logs.size(); j++) {
+                        if (logs.get(j).getCpu() > logs.get(indiceMenor).getCpu()) {
+                            indiceMenor = j;
+                        }
                     }
-                }
-                if (i != indiceMenor) {
-                    RegistroLogs aux = logs.get(i);
-                    logs.set(i, logs.get(indiceMenor));
-                    logs.set(indiceMenor, aux);
-                }
-
-            }System.out.println(logs);
-        }else if (escolhaUsar == 2) {
-            // RAM MAIS ALTA
-            for (int i = 0; i < logs.size() - 1; i++) {
-                indiceMenor = i;
-                for (int j = i + 1; j < logs.size(); j++) {
-                    if (logs.get(j).getRam() > logs.get(indiceMenor).getRam()) {
-                        indiceMenor = j;
+                    if (i != indiceMenor) {
+                        RegistroLogs aux = logs.get(i);
+                        logs.set(i, logs.get(indiceMenor));
+                        logs.set(indiceMenor, aux);
                     }
-                }
-                if (i != indiceMenor) {
-                    RegistroLogs aux = logs.get(i);
-                    logs.set(i, logs.get(indiceMenor));
-                    logs.set(indiceMenor, aux);
-                }
 
-            }System.out.println(logs);
-        }else if (escolhaUsar == 3) {
-        //DISCO MAIS ALTO
-        for (int i = 0; i < logs.size()-1; i++) {
-            indiceMenor = i;
-            for (int j = i+1; j < logs.size(); j++) {
-                if (logs.get(j).getDisco() > logs.get(indiceMenor).getDisco()) {
-                    indiceMenor = j;
                 }
+                System.out.println(logs);
+            } else if (escolhaUsar == 2) {
+                // RAM MAIS ALTA
+                for (int i = 0; i < logs.size() - 1; i++) {
+                    indiceMenor = i;
+                    for (int j = i + 1; j < logs.size(); j++) {
+                        if (logs.get(j).getRam() > logs.get(indiceMenor).getRam()) {
+                            indiceMenor = j;
+                        }
+                    }
+                    if (i != indiceMenor) {
+                        RegistroLogs aux = logs.get(i);
+                        logs.set(i, logs.get(indiceMenor));
+                        logs.set(indiceMenor, aux);
+                    }
+
+                }
+                System.out.println(logs);
+            } else if (escolhaUsar == 3) {
+                //DISCO MAIS ALTO
+                for (int i = 0; i < logs.size() - 1; i++) {
+                    indiceMenor = i;
+                    for (int j = i + 1; j < logs.size(); j++) {
+                        if (logs.get(j).getDisco() > logs.get(indiceMenor).getDisco()) {
+                            indiceMenor = j;
+                        }
+                    }
+                    if (i != indiceMenor) {
+                        RegistroLogs aux = logs.get(i);
+                        logs.set(i, logs.get(indiceMenor));
+                        logs.set(indiceMenor, aux);
+                    }
+
+                }
+                System.out.println(logs);
+
+            } else if(escolhaUsar == 4){
+                continuar = false;
+                System.out.println("Saindo...");
+            }else {
+                System.out.println("Escolha inválida");
             }
-            if (i != indiceMenor){
-                RegistroLogs aux = logs.get(i);
-                logs.set(i, logs.get(indiceMenor));
-                logs.set(indiceMenor, aux);
-            }
-
-        }System.out.println(logs);
-
-    }else {
-            System.out.println("Escolha inválida");
         }
-}
+    }
 }
