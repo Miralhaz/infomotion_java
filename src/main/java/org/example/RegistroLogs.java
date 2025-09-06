@@ -7,15 +7,15 @@ public class RegistroLogs {
     private Double cpu;
     private Double ram;
     private Double disco;
-    private Date data;
+    private String dataHora;
 
-    public RegistroLogs(String usuario, String ip, Double cpu, Double ram, Double disco, Date data) {
+    public RegistroLogs(String usuario, String ip, Double cpu, Double ram, Double disco, String dataHora) {
         this.usuario = usuario;
         this.ip = ip;
         this.cpu = cpu;
         this.ram = ram;
         this.disco = disco;
-        this.data = data;
+        this.dataHora = dataHora;
     }
 
     public String getUsuario() {
@@ -38,11 +38,11 @@ public class RegistroLogs {
         return this.disco;
     }
 
-    public Date getData() {
-        return data;
+    public String getData() {
+        return this.dataHora;
     }
 
     public String toString() {
-        return "USER: " + this.usuario + " | " +"IP: " + this.ip + " | " +"CPU: " + this.cpu+"%" + " | " +"RAM: " + this.ram +" | "+ "DISCO: " + this.disco+"%"+ " | " +"DATA: " + this.data+ "\n";
+        return "USER: " + this.usuario + " | " +"IP: " + this.ip + " | " +"CPU: " + this.cpu+"%" + " | " +"RAM: " + this.ram +" | "+ "DISCO: " + this.disco+"%"+ " | " +"DATA: " + this.dataHora+ "\n";
     }
 }
