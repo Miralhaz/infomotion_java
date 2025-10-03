@@ -1,0 +1,58 @@
+[
+  {
+    "usuario": "Verônica",
+    "ip": "111.222.333-54",
+    "cpu": 77.3,
+    "ram": 56.7,
+    "disco": 81.2,
+    "dataHora": "2025-10-01"
+  },
+  {
+    "usuario": "Gabriel",
+    "ip": "888.999.000-21",
+    "cpu": 95.0,
+    "ram": 75.0,
+    "disco": 90.0,
+    "dataHora": "2025-10-01"
+  },
+  {
+    "usuario": "Verônica",
+    "ip": "111.222.333-54",
+    "cpu": 84.5,
+    "ram": 58.7,
+    "disco": 89.2,
+    "dataHora": "2025-10-01"
+  },
+  {
+    "usuario": "Verônica",
+    "ip": "222.333.444-65",
+    "cpu": 77.3,
+    "ram": 56.7,
+    "disco": 99.2,
+    "dataHora": "2025-10-01"
+  },
+  {
+    "usuario": "Verônica",
+    "ip": "333.444.555-76",
+    "cpu": 90.1,
+    "ram": 70.2,
+    "disco": 80.5,
+    "dataHora": "2025-10-01"
+  },
+  {
+    "usuario": "Gabriel",
+    "ip": "666.777.888-09",
+    "cpu": 81.9,
+    "ram": 60.2,
+    "disco": 92.1,
+    "dataHora": "2025-10-01"
+  },
+  {
+    "usuario": "Gabriel",
+    "ip": "999.000.111-32",
+    "cpu": 88.2,
+    "ram": 64.8,
+    "disco": 95.4,
+    "dataHora": "2025-10-01"
+  }
+]
