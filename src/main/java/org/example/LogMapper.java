@@ -8,14 +8,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class LogMapper {
 
-        public List<Logs> mapearLogs(InputStream inputStream) throws IOException {
+
+    public List<Logs> mapearLogs(InputStream inputStream) throws IOException {
             ObjectMapper objectMapper = new ObjectMapper();
             List<Logs> logsDoJson = objectMapper.readValue(
                     inputStream, new TypeReference<List<Logs>>() {
                     });
             return logsDoJson;
 
+
         }
+
+
 
 
 }
