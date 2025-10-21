@@ -1,13 +1,10 @@
 package org.example;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.logging.Log;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -21,7 +18,7 @@ public class Main {
             saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
 
         }catch (IOException erro){
-            System.out.println("Erro ao abrir o arquivo");
+            System.out.println("Erro ao abrir o arquivo gravaArquivoCsv");
             System.exit(1);
         }
 
@@ -50,7 +47,7 @@ public class Main {
     public static List<Logs> lerJason() {
         FileInputStream inputStream = null;
         try {
-            inputStream = new FileInputStream("logs.json");
+            inputStream = new FileInputStream("data.json");
         } catch (FileNotFoundException erro) {
             System.out.println("Arquivo nao encontrado");
             System.exit(1);
@@ -62,7 +59,7 @@ public class Main {
             listaLog = logMapper.mapearLogs(inputStream);
 
         } catch (IOException erro) {
-            System.out.println("Erro ao mapear o json");
+            System.out.println("Erro ao mapear o json lerJason");
             erro.printStackTrace();
         } finally {
             try {
@@ -88,24 +85,40 @@ public class Main {
             saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
 
         } catch (IOException erro) {
-            System.out.println("Erro ao abrir o arquivo");
+            System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
             System.exit(1);
         }
 
         try {
             saida.append("[");
+            Integer contador = 0;
             for (Logs log : lista) {
-                saida.write(String.format("""
+                contador ++;
+                if (contador == lista.size()){
+                    saida.write(String.format(Locale.US,"""
                            {
-                           "user": %s ,
-                           "timestamp": %s,
-                           "cpu": %.2f,
-                           "ram": %.2f,
-                           "disco": %.2f,
-                           "temperatura_cpu": %.2f,
-                           "temperatura_disco": %.2f,
-                           "memoria_swap": %.2f,
-                           "quantidade_processos": %d}""",log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                           "user": "%s" ,
+                           "timestamp": "%s",
+                           "cpu": "%.2f",
+                           "ram": "%.2f",
+                           "disco": "%.2f",
+                           "temperatura_cpu": "%.2f",
+                           "temperatura_disco": "%.2f",
+                           "memoria_swap": "%.2f",
+                           "quantidade_processos": "%d"}""",log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                }else {
+                    saida.write(String.format(Locale.US,"""
+                               {
+                               "user": "%s" ,
+                               "timestamp": "%s",
+                               "cpu": "%.2f",
+                               "ram": "%.2f",
+                               "disco": "%.2f",
+                               "temperatura_cpu": "%.2f",
+                               "temperatura_disco": "%.2f",
+                               "memoria_swap": "%.2f",
+                               "quantidade_processos": "%d"},""",log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                }
             }
             saida.append("]");
         } catch (IOException erro) {
@@ -134,7 +147,7 @@ public class Main {
             arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
-            System.out.println("Erro a o abrir o arquivo");
+            System.out.println("Erro a o abrir o arquivo leImportaArquivoCsv");
             System.exit(1);
         }
 
@@ -146,8 +159,8 @@ public class Main {
             // separa cada  da linha usando o delimitador ";"
             resgistro = linha.split(";");
             // printa os titulos da coluna
-            System.out.printf("%16s | %16s | %16s | %16s | $16s | %16s | %16s | %16s | %16s ", resgistro[0],resgistro[1],
-                    resgistro[2],resgistro[3],resgistro[4],resgistro[5], resgistro[6],resgistro[7]);
+            System.out.printf("%16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s", resgistro[0],resgistro[1],
+                    resgistro[2],resgistro[3],resgistro[4],resgistro[5], resgistro[6],resgistro[7],resgistro[8]);
 
             linha = entrada.readLine();
             // converte de string para integer
@@ -161,8 +174,8 @@ public class Main {
                  Double disco = Double.valueOf(resgistro[4]);
                  Double tmp_cpu = Double.valueOf(resgistro[5]);
                  Double tmp_disco = Double.valueOf(resgistro[6]);
-                 Double memoria_swap = Double.valueOf(resgistro[6]);
-                 Integer qtd_processos = Integer.valueOf(resgistro[7]);
+                 Double memoria_swap = Double.valueOf(resgistro[7]);
+                 Integer qtd_processos = Integer.valueOf(resgistro[8]);
                  Logs Log = new Logs(user,dataHoraString,cpu,ram,disco,tmp_cpu,tmp_disco,memoria_swap,qtd_processos);
                 listaLogs.add(Log);
                 linha = entrada.readLine();
@@ -185,7 +198,7 @@ public class Main {
 
     public static void main(String[] args) {
         List<Logs> lista =leImportaArquivoCsv("data");
-        gravaArquivoJson(lista,"Logs");
+        gravaArquivoJson(lista,"data");
         List<Logs> listaLogs = lerJason();
         int indiceMenor;
         for (int i = 0; i < listaLogs.size() - 1; i++) {
@@ -206,20 +219,77 @@ public class Main {
         Connection connection = new Connection();
         JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
 
-        List<Metricas> metrica = con.query("SELECT componente,max,duracao_min FROM parametro_alerta WHERE id = 1;",
-                new BeanPropertyRowMapper(Metricas.class));
 
-        String componente = metrica.get(0).getComponente();
-        Double max = metrica.get(0).getMax();
-        LocalTime duracao_min = metrica.get(0).getDuracao_min();
 
-        List<Logs> listaAlertas = new ArrayList<>();
-        for (int i = 0; i < listaLogs.size(); i++) {
-            Logs logAtual = listaLogs.get(0);
-            if (logAtual.getCpu() > max || logAtual.getDisco() > max || logAtual.getRam() > max || logAtual.getTmp_cpu() > max || logAtual.getTmp_disco() > max){
-              listaAlertas.add(logAtual);
+        List<Parametro_alerta> metrica = con.query("SELECT * FROM parametro_alerta;",
+                new BeanPropertyRowMapper(Parametro_alerta.class));
+
+
+        for (int i = 0; i < metrica.size(); i++) {
+
+            Integer fk_componente = metrica.get(i).getFk_componente();
+            Double max = metrica.get(i).getMax();
+            Double duracao_min = metrica.get(i).getDuracao_min();
+
+            List<Logs> listaAlertas = new ArrayList<>();
+            for (int j = 0; j < listaLogs.size(); j++) {
+
+                String selectTipo = (
+                "select tipo from parametro_alerta pa\n" +
+                "inner join componentes c on c.id = pa.fk_componente where fk_componente = (?);"
+                );
+                String tipo = con.queryForObject(selectTipo, String.class, fk_componente );
+
+                String selectUnidadeMedida = (
+                        "select unidade_medida from parametro_alerta pa\n" +
+                                "inner join componentes c on c.id = pa.fk_componente where fk_componente = (?);"
+                );
+                String unidadeMedida = con.queryForObject(selectTipo, String.class, fk_componente );
+
+                Logs logAtual = listaLogs.get(j);
+                if (tipo == "CPU") {
+                    if (unidadeMedida == "%") {
+                        if (logAtual.getCpu() > max){
+                            listaAlertas.add(logAtual);
+                        }
+                    }
+                    else {
+                        if (logAtual.getTmp_cpu() > max){
+                            listaAlertas.add(logAtual);
+                        }
+                    }
+                }
+                if (tipo == "RAM") {
+
+                        if (logAtual.getRam() > max){
+                            listaAlertas.add(logAtual);
+                        }
+                }
+                if (tipo == "DISCO") {
+                    if (unidadeMedida == "%") {
+                        if (logAtual.getDisco() > max){
+                            listaAlertas.add(logAtual);
+                        }
+                    }
+                    else {
+                        if (logAtual.getTmp_disco() > max){
+                            listaAlertas.add(logAtual);
+                        }
+                    }
+                }
+                if (tipo == "SWAP") {
+
+                    if (logAtual.getMemoria_swap() > max){
+                        listaAlertas.add(logAtual);
+                    }
+                }
             }
+            gravaArquivoCsv(listaAlertas,"alertas");
         }
-        gravaArquivoCsv(listaAlertas,"alertas");
+
+
+
+
+
     }
 }

@@ -8,10 +8,10 @@ public class Connection {
 
     public Connection(){
         dataSource = new BasicDataSource();
-        dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setUrl("jdbc:mysql://localhost:3360//infomotion");
-        dataSource.setUsername("");
-        dataSource.setPassword("");
+        dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        dataSource.setUrl("jdbc:mysql://localhost:3306/infomotion");
+        dataSource.setUsername("Aluno");
+        dataSource.setPassword("1234");
     }
 
     public BasicDataSource getDataSource() {
