@@ -196,7 +196,7 @@ public class Main {
         }
       return listaLogs;
     }
-    
+
 
     public static void main(String[] args) {
         List<Logs> lista =leImportaArquivoCsv("data");
