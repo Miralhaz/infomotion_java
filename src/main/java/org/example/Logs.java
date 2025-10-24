@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Logs {
-    @JsonProperty("user")
+    @JsonProperty("nomeMaquina")
     private String user;
     @JsonProperty("timestamp")
     private String dataHoraString;
@@ -27,10 +27,12 @@ public class Logs {
     private Double memoria_swap;
     @JsonProperty("quantidade_processos")
     private Integer qtd_processos;
+    @JsonProperty("fk_servidor")
+    private Integer fk_servidor;
 
     private LocalDateTime dataHora;
 
-    public Logs(String user, String dataHoraString, Double cpu, Double ram, Double disco, Double tmp_cpu, Double tmp_disco, Double memoria_swap, Integer qtd_processos) {
+    public Logs(Integer fk_servidor,String user, String dataHoraString, Double cpu, Double ram, Double disco, Double tmp_cpu, Double tmp_disco, Double memoria_swap, Integer qtd_processos) {
         this.user = user;
         this.dataHoraString = dataHoraString;
         this.cpu = cpu;
@@ -40,6 +42,7 @@ public class Logs {
         this.tmp_disco = tmp_disco;
         this.memoria_swap = memoria_swap;
         this.qtd_processos = qtd_processos;
+        this.fk_servidor = fk_servidor;
         DateTimeFormatter LocalDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         LocalDateTime dataUnformatter = LocalDateTime.parse(dataHoraString,LocalDateTimeFormatter);
@@ -55,7 +58,6 @@ public class Logs {
     public String getUser() {
         return user;
     }
-
 
     public Double getCpu() {
         return cpu;
@@ -139,6 +141,14 @@ public class Logs {
         this.qtd_processos = qtd_processos;
     }
 
+    public Integer getFk_servidor() {
+        return fk_servidor;
+    }
+
+    public void setFk_servidor(Integer fk_servidor) {
+        this.fk_servidor = fk_servidor;
+    }
+
     @Override
     public String
     toString() {
@@ -151,6 +161,7 @@ public class Logs {
                 " | temperatura de cpu:" + tmp_cpu +
                 " | temperatura de disco:" + tmp_disco +
                 " | memoria swap:" + memoria_swap +
-                " | quantidade de processos:" + qtd_processos;
+                " | quantidade de processos:" + qtd_processos +
+                " | ID do servidor:" + fk_servidor;
     }
 }

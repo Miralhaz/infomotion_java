@@ -8,15 +8,16 @@ public class Connection {
     Scanner scanner = new Scanner(System.in);
 
     public String dbUserName(){
-        System.out.println("Digite o nome do usuario do banco de dados");
+        System.out.println("\nDigite o nome do usuario do banco de dados");
         return scanner.next();
     }
 
     public String dbSenha(){
-        System.out.println("Digite o nome do usuario do banco de dados");
+        System.out.println("\nDigite a senha do banco de dados");
         return scanner.next();
     }
-    
+
+
 
     private BasicDataSource dataSource;
 

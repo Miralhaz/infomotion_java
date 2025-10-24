@@ -8,6 +8,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
 public class Main {
 
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
@@ -27,7 +33,8 @@ public class Main {
             saida.append("user;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos\n");
             for (Logs log : lista){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                saida.write(String.format("%s;%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%d\n",log.getUser(),log.getDataHora().format(formatter), log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                saida.write(String.format("%d;%s;%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%d\n",
+                        log.getFk_servidor(), log.getUser(),log.getDataHora().format(formatter), log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
             }
         }catch (IOException erro){
             System.out.println("Erro ao gravar o arquivo");
@@ -98,6 +105,7 @@ public class Main {
                 if (contador == lista.size()){
                     saida.write(String.format(Locale.US,"""
                            {
+                           "fk_servidor": "%d",
                            "user": "%s" ,
                            "timestamp": "%s",
                            "cpu": "%.2f",
@@ -106,10 +114,12 @@ public class Main {
                            "temperatura_cpu": "%.2f",
                            "temperatura_disco": "%.2f",
                            "memoria_swap": "%.2f",
-                           "quantidade_processos": "%d"}""",log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                           "quantidade_processos": "%d"}""",
+                            log.getFk_servidor(), log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos() ));
                 }else {
                     saida.write(String.format(Locale.US,"""
                                {
+                               "fk_servidor": "%d",
                                "user": "%s" ,
                                "timestamp": "%s",
                                "cpu": "%.2f",
@@ -118,7 +128,8 @@ public class Main {
                                "temperatura_cpu": "%.2f",
                                "temperatura_disco": "%.2f",
                                "memoria_swap": "%.2f",
-                               "quantidade_processos": "%d"},""",log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                               "quantidade_processos": "%d"},""",
+                            log.getFk_servidor(), log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
                 }
             }
             saida.append("]");
@@ -160,24 +171,25 @@ public class Main {
             // separa cada  da linha usando o delimitador ";"
             resgistro = linha.split(";");
             // printa os titulos da coluna
-            System.out.printf("%16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s", resgistro[0],resgistro[1],
-                    resgistro[2],resgistro[3],resgistro[4],resgistro[5], resgistro[6],resgistro[7],resgistro[8]);
+            System.out.printf("%16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s", resgistro[1],resgistro[2],
+                    resgistro[3],resgistro[4],resgistro[5],resgistro[6], resgistro[7],resgistro[8],resgistro[9],resgistro[10]);
 
             linha = entrada.readLine();
             // converte de string para integer
             //  caso seja de string para int usasse parseint
             while (linha != null) {
                 resgistro = linha.split(";");
-                String user = resgistro[0];
-                String dataHoraString = resgistro[1];
-                Double cpu = Double.valueOf(resgistro[2]);
-                Double ram = Double.valueOf(resgistro[3]);
-                Double disco = Double.valueOf(resgistro[4]);
-                Double tmp_cpu = Double.valueOf(resgistro[5]);
-                Double tmp_disco = Double.valueOf(resgistro[6]);
-                Double memoria_swap = Double.valueOf(resgistro[7]);
-                Integer qtd_processos = Integer.valueOf(resgistro[8]);
-                Logs Log = new Logs(user, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos);
+                Integer fk_servidor = Integer.valueOf(resgistro[1]);
+                String user = resgistro[2];
+                String dataHoraString = resgistro[3];
+                Double cpu = Double.valueOf(resgistro[4]);
+                Double ram = Double.valueOf(resgistro[5]);
+                Double disco = Double.valueOf(resgistro[6]);
+                Double tmp_cpu = Double.valueOf(resgistro[7]);
+                Double tmp_disco = Double.valueOf(resgistro[8]);
+                Double memoria_swap = Double.valueOf(resgistro[9]);
+                Integer qtd_processos = Integer.valueOf(resgistro[10]);
+                Logs Log = new Logs(fk_servidor, user, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos);
                 listaLogs.add(Log);
                 linha = entrada.readLine();
             }
@@ -198,7 +210,7 @@ public class Main {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         List<Logs> lista =leImportaArquivoCsv("data");
         gravaArquivoJson(lista,"data");
         List<Logs> listaLogs = lerJason();
@@ -225,10 +237,10 @@ public class Main {
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
         // Pegando o id do servidor
-//        Integer fk_servidor = listaLogs.getFk_servidor();
+         Integer fk_servidor = listaLogs.get(1).getFk_servidor();
 
         String selectParametroPorServidor = "SELECT * FROM parametro_alerta where fk_servidor = (?);";
-        List<Parametro_alerta> metrica = con.queryForList(selectParametroPorServidor, Parametro_alerta.class, /*fk_servidor*/);
+        List<Parametro_alerta> metrica = con.queryForList(selectParametroPorServidor, Parametro_alerta.class, fk_servidor);
 
         Integer contador = 1;
 
@@ -292,18 +304,18 @@ public class Main {
                     if (unidadeMedida.equalsIgnoreCase("%")) {
                         if (logAtual.getCpu() > max) {
                             contadorCPUPorcentagem++;
-                            if (logAtual.getCpu() > maxCPUPorcentagem){
+                            if (logAtual.getCpu() > maxCPUPorcentagem) {
                                 maxCPUPorcentagem = logAtual.getCpu();
-                            } else if (logAtual.getCpu() < minCPUPorcentagem){
+                            } else if (logAtual.getCpu() < minCPUPorcentagem) {
                                 minCPUPorcentagem = logAtual.getCpu();
                             }
                         }
                     } else {
                         if (logAtual.getTmp_cpu() > max) {
                             contadorCPUTemperatura++;
-                            if (logAtual.getTmp_cpu() > maxCPUTemperatura){
+                            if (logAtual.getTmp_cpu() > maxCPUTemperatura) {
                                 maxCPUTemperatura = logAtual.getTmp_cpu();
-                            } else if (logAtual.getTmp_cpu() < minCPUTemperatura){
+                            } else if (logAtual.getTmp_cpu() < minCPUTemperatura) {
                                 minCPUTemperatura = logAtual.getTmp_cpu();
                             }
                         }
@@ -311,9 +323,9 @@ public class Main {
                 } else if (tipo.equalsIgnoreCase("RAM")) {
                     if (logAtual.getRam() > max) {
                         contadorRamPorcentagem++;
-                        if (logAtual.getRam() > maxRamPorcentagem){
+                        if (logAtual.getRam() > maxRamPorcentagem) {
                             maxRamPorcentagem = logAtual.getRam();
-                        } else if (logAtual.getRam() < minRamPorcentagem){
+                        } else if (logAtual.getRam() < minRamPorcentagem) {
                             minRamPorcentagem = logAtual.getRam();
                         }
                     }
@@ -327,9 +339,9 @@ public class Main {
                     } else {
                         if (logAtual.getTmp_disco() > max) {
                             contadorDiscoTemperatura++;
-                            if (logAtual.getTmp_disco() > maxDiscoTemperatura){
+                            if (logAtual.getTmp_disco() > maxDiscoTemperatura) {
                                 maxDiscoTemperatura = logAtual.getTmp_disco();
-                            } else if (logAtual.getTmp_disco() < minDiscoTemperatura){
+                            } else if (logAtual.getTmp_disco() < minDiscoTemperatura) {
                                 minDiscoTemperatura = logAtual.getTmp_disco();
                             }
                         }
@@ -338,9 +350,9 @@ public class Main {
                 if (tipo.equalsIgnoreCase("SWAP")) {
                     if (logAtual.getMemoria_swap() > max) {
                         contadorSwap++;
-                        if (logAtual.getMemoria_swap() > maxSwap){
+                        if (logAtual.getMemoria_swap() > maxSwap) {
                             maxSwap = logAtual.getMemoria_swap();
-                        } else if (logAtual.getMemoria_swap() < minSwap){
+                        } else if (logAtual.getMemoria_swap() < minSwap) {
                             minSwap = logAtual.getMemoria_swap();
                         }
                     }
@@ -351,17 +363,73 @@ public class Main {
                 String insertCPUPorcentagem = "INSERT INTO alertas (fk_parametro, max, min)\n" +
                         "VALUES\n" +
                         "((?),(?),(?));";
-                con.execute(insertCPUPorcentagem, fk_parametroAlerta,  ,);
-            }
-                    || contadorCPUTemperatura.equals(duracao_min) || existeAlertaDisco ||
-                contadorDiscoTemperatura.equals(duracao_min) || contadorRamPorcentagem.equals(duracao_min) || contadorSwap.equals(duracao_min)) {
-                System.out.println("algum passou"); // Válida se atingiu quantidade minima do parametro
+                con.update(insertCPUPorcentagem, fk_parametroAlerta, maxCPUPorcentagem, minCPUPorcentagem);
+                String mensagemSlack = "Alerta de uso da CPU no servidor: " + fk_servidor +
+                        "\nPico do alerta:" + maxCPUPorcentagem +
+                        "\nMínimo do alerta:" + minCPUPorcentagem +
+                        "\nDuração do alerta: " + duracao_min;
+                SlackNotifier.sendSlackMessage(mensagemSlack);
+                listaAlertas.add((Logs) miniLista);
+            } else if (contadorCPUTemperatura.equals(duracao_min)) {
+                String insertCPUTemperatura = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                        "VALUES\n" +
+                        "((?),(?),(?));";
+                con.update(insertCPUTemperatura, fk_parametroAlerta, maxCPUTemperatura, minCPUTemperatura);
+                String mensagemSlack = "Alerta de temperatura da CPU no servidor: " + fk_servidor +
+                        "\nPico do alerta:" + maxCPUTemperatura +
+                        "\nMínimo do alerta:" + minCPUTemperatura +
+                        "\nDuração do alerta: " + duracao_min;
+                SlackNotifier.sendSlackMessage(mensagemSlack);
+                listaAlertas.add((Logs) miniLista);
+            } else if (contadorDiscoTemperatura.equals(duracao_min)) {
+                String insertDiscoTemperatura = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                        "VALUES\n" +
+                        "((?),(?),(?));";
+                con.update(insertDiscoTemperatura, fk_parametroAlerta, maxDiscoTemperatura, minDiscoTemperatura);
+                String mensagemSlack = "Alerta de temperatura do Disco no servidor: " + fk_servidor +
+                        "\nPico do alerta:" + maxDiscoTemperatura +
+                        "\nMínimo do alerta:" + minDiscoTemperatura +
+                        "\nDuração do alerta: " + duracao_min;
+                SlackNotifier.sendSlackMessage(mensagemSlack);
+                listaAlertas.add((Logs) miniLista);
+            } else if (existeAlertaDisco) {
+                String insertDisco = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                        "VALUES\n" +
+                        "((?),(?),(?));";
+                con.update(insertDisco, fk_parametroAlerta, maxDiscoPorcentagem, minDiscoPorcentagem);
+                String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
+                        "\nPico do alerta:" + maxDiscoPorcentagem +
+                        "\nMínimo do alerta:" + minDiscoPorcentagem +
+                        "\nDuração do alerta: " + duracao_min;
+                SlackNotifier.sendSlackMessage(mensagemSlack);
+                listaAlertas.add((Logs) miniLista);
+            } else if (contadorRamPorcentagem.equals(duracao_min)) {
+                String insertRamPorcentagem = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                        "VALUES\n" +
+                        "((?),(?),(?));";
+                con.update(insertRamPorcentagem, fk_parametroAlerta, maxRamPorcentagem, minRamPorcentagem);
+                String mensagemSlack = "Alerta de uso da RAM no servidor: " + fk_servidor +
+                        "\nPico do alerta:" + maxRamPorcentagem +
+                        "\nMínimo do alerta:" + minRamPorcentagem +
+                        "\nDuração do alerta: " + duracao_min;
+                SlackNotifier.sendSlackMessage(mensagemSlack);
+                listaAlertas.add((Logs) miniLista);
+            } else if (contadorSwap.equals(duracao_min)) {
+                String insertSwap = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                        "VALUES\n" +
+                        "((?),(?),(?));";
+                con.update(insertSwap, fk_parametroAlerta, maxSwap, minSwap);
+                String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
+                        "\nPico do alerta:" + maxSwap +
+                        "\nMínimo do alerta:" + minSwap +
+                        "\nDuração do alerta: " + duracao_min;
+                SlackNotifier.sendSlackMessage(mensagemSlack);
                 listaAlertas.add((Logs) miniLista);
             }
-
+        }
             System.out.println(listaAlertas);
             gravaArquivoCsv(listaAlertas, "alertas");
         }
 
-    }
+
 }
