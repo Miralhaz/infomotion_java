@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Logs {
-    @JsonProperty("nomeMaquina")
+    @JsonProperty("user")
     private String user;
     @JsonProperty("timestamp")
     private String dataHoraString;

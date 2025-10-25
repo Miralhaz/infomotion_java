@@ -8,11 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Duration;
 
 public class Main {
 
@@ -30,7 +25,7 @@ public class Main {
         }
 
         try {
-            saida.append("user;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos\n");
+            saida.append("fk_servidor;user;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos\n");
             for (Logs log : lista){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
                 saida.write(String.format("%d;%s;%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%d\n",
@@ -190,6 +185,7 @@ public class Main {
                 Double memoria_swap = Double.valueOf(resgistro[9]);
                 Integer qtd_processos = Integer.valueOf(resgistro[10]);
                 Logs Log = new Logs(fk_servidor, user, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos);
+                System.out.println("Criando novo log, novo usuario: " + user);
                 listaLogs.add(Log);
                 linha = entrada.readLine();
             }
@@ -240,19 +236,16 @@ public class Main {
          Integer fk_servidor = listaLogs.get(1).getFk_servidor();
 
         String selectParametroPorServidor = "SELECT * FROM parametro_alerta where fk_servidor = (?);";
-        List<Parametro_alerta> metrica = con.queryForList(selectParametroPorServidor, Parametro_alerta.class, fk_servidor);
+        List<Parametro_alerta> metrica = con.query(selectParametroPorServidor,
+                new BeanPropertyRowMapper<>(Parametro_alerta.class),
+                fk_servidor);
 
-        Integer contador = 1;
+
+
 
         Boolean existeAlertaDisco = false;
-
-        for (int i = 0; i < metrica.size(); i++) { // For das metricas por servidor
-
-
-            Integer fk_componente = metrica.get(i).getFk_componente();
-            Double max = metrica.get(i).getMax();
-            Double duracao_min = metrica.get(i).getDuracao_min(); // Define a quantidade de capturas em seguida que devem ser maior que o parametro para ser considerado um alerta
-            Integer fk_parametroAlerta = metrica.get(i).getId();
+        for (int i = 0; i < metrica.size(); i++) {
+            Integer contador = 1;
 
             Integer contadorCPUPorcentagem = 0;
             Integer contadorCPUTemperatura = 0;
@@ -260,175 +253,192 @@ public class Main {
             Integer contadorDiscoTemperatura = 0;
             Integer contadorSwap = 0;
 
-            Double maxCPUPorcentagem = 0.0;
-            Double minCPUPorcentagem = 0.0;
-            Double maxCPUTemperatura = 0.0;
-            Double minCPUTemperatura = 0.0;
-            Double maxRamPorcentagem = 0.0;
-            Double minRamPorcentagem = 0.0;
-            Double maxDiscoPorcentagem = 0.0;
-            Double minDiscoPorcentagem = 0.0;
-            Double maxDiscoTemperatura = 0.0;
-            Double minDiscoTemperatura = 0.0;
-            Double maxSwap = 0.0;
-            Double minSwap = 0.0;
+            for (int l = 0; l < listaLogs.size() - contador; l++) { // For das metricas por servidor
 
-            List<Logs> miniLista = new ArrayList<>();
-            for (int k = 1; k <= duracao_min; k++) { // for para criar a mini-lista
-                try {
-                    miniLista.add(listaLogs.get(contador));
-                    contador++;
-                } catch (IndexOutOfBoundsException erro) {
-                }
-            }
+                System.out.println("USER NA LISTA LOGS DO MAIN" + listaLogs.get(l).getUser());
+
+                Integer fk_componente = metrica.get(i).getFk_componente();
+                Double max = metrica.get(i).getMax();
+                Integer duracao_min = metrica.get(i).getDuracao_min(); // Define a quantidade de capturas em seguida que devem ser maior que o parametro para ser considerado um alerta
+                Integer fk_parametroAlerta = metrica.get(i).getId();
 
 
-            for (int j = 0; j < miniLista.size(); j++) { // For de análise da minilista
 
+                Double maxCPUPorcentagem = 0.0;
+                Double minCPUPorcentagem = 100.0;
+                Double maxCPUTemperatura = 0.0;
+                Double minCPUTemperatura = 100.0;
+                Double maxRamPorcentagem = 0.0;
+                Double minRamPorcentagem = 100.0;
+                Double maxDiscoPorcentagem = 0.0;
+                Double minDiscoPorcentagem = 100.0;
+                Double maxDiscoTemperatura = 0.0;
+                Double minDiscoTemperatura = 100.0;
+                Double maxSwap = 0.0;
+                Double minSwap = 99999999.9;
 
-                String selectTipo = (
-                        "select tipo from parametro_alerta pa\n" +
-                                "inner join componentes c on c.id = pa.fk_componente where fk_componente = (?);"
-                );
-                String tipo = con.queryForObject(selectTipo, String.class, fk_componente);
-
-                String selectUnidadeMedida = (
-                        "select unidade_medida from parametro_alerta pa\n" +
-                                "inner join componentes c on c.id = pa.fk_componente where fk_componente = (?);"
-                );
-                String unidadeMedida = con.queryForObject(selectUnidadeMedida, String.class, fk_componente);
-
-                Logs logAtual = miniLista.get(j);
-
-                if (tipo.equalsIgnoreCase("CPU")) {
-                    if (unidadeMedida.equalsIgnoreCase("%")) {
-                        if (logAtual.getCpu() > max) {
-                            contadorCPUPorcentagem++;
-                            if (logAtual.getCpu() > maxCPUPorcentagem) {
-                                maxCPUPorcentagem = logAtual.getCpu();
-                            } else if (logAtual.getCpu() < minCPUPorcentagem) {
-                                minCPUPorcentagem = logAtual.getCpu();
-                            }
-                        }
-                    } else {
-                        if (logAtual.getTmp_cpu() > max) {
-                            contadorCPUTemperatura++;
-                            if (logAtual.getTmp_cpu() > maxCPUTemperatura) {
-                                maxCPUTemperatura = logAtual.getTmp_cpu();
-                            } else if (logAtual.getTmp_cpu() < minCPUTemperatura) {
-                                minCPUTemperatura = logAtual.getTmp_cpu();
-                            }
-                        }
-                    }
-                } else if (tipo.equalsIgnoreCase("RAM")) {
-                    if (logAtual.getRam() > max) {
-                        contadorRamPorcentagem++;
-                        if (logAtual.getRam() > maxRamPorcentagem) {
-                            maxRamPorcentagem = logAtual.getRam();
-                        } else if (logAtual.getRam() < minRamPorcentagem) {
-                            minRamPorcentagem = logAtual.getRam();
-                        }
-                    }
-                } else if (tipo.equalsIgnoreCase("DISCO")) {
-                    if (unidadeMedida.equalsIgnoreCase("%")) {
-                        if (logAtual.getDisco() > max) {
-                            existeAlertaDisco = true;
-                        }
-                        maxDiscoPorcentagem = logAtual.getDisco();
-                        minDiscoPorcentagem = logAtual.getDisco();
-                    } else {
-                        if (logAtual.getTmp_disco() > max) {
-                            contadorDiscoTemperatura++;
-                            if (logAtual.getTmp_disco() > maxDiscoTemperatura) {
-                                maxDiscoTemperatura = logAtual.getTmp_disco();
-                            } else if (logAtual.getTmp_disco() < minDiscoTemperatura) {
-                                minDiscoTemperatura = logAtual.getTmp_disco();
-                            }
-                        }
+                List<Logs> miniLista = new ArrayList<>();
+                for (int k = 1; k <= duracao_min; k++) { // for para criar a mini-lista
+                    try {
+                        miniLista.add(listaLogs.get(contador));
+                        contador++;
+                    } catch (IndexOutOfBoundsException erro) {
                     }
                 }
-                if (tipo.equalsIgnoreCase("SWAP")) {
-                    if (logAtual.getMemoria_swap() > max) {
-                        contadorSwap++;
-                        if (logAtual.getMemoria_swap() > maxSwap) {
-                            maxSwap = logAtual.getMemoria_swap();
-                        } else if (logAtual.getMemoria_swap() < minSwap) {
-                            minSwap = logAtual.getMemoria_swap();
+
+
+
+                for (int j = 0; j < miniLista.size(); j++) { // For de análise da minilista
+
+
+                    String selectTipo = (
+                            "select tipo from parametro_alerta pa\n" +
+                                    "inner join componentes c on c.id = pa.fk_componente where fk_componente = (?);"
+                    );
+                    String tipo = con.queryForObject(selectTipo, String.class, fk_componente);
+
+                    String selectUnidadeMedida = (
+                            "select unidade_medida from parametro_alerta pa\n" +
+                                    "inner join componentes c on c.id = pa.fk_componente where fk_componente = (?);"
+                    );
+                    String unidadeMedida = con.queryForObject(selectUnidadeMedida, String.class, fk_componente);
+
+                    Logs logAtual = miniLista.get(j);
+
+                    if (tipo.equalsIgnoreCase("CPU")) {
+                        if (unidadeMedida.equalsIgnoreCase("%")) {
+                            if (logAtual.getCpu() > max) {
+                                contadorCPUPorcentagem++;
+                                if (logAtual.getCpu() > maxCPUPorcentagem) {
+                                    maxCPUPorcentagem = logAtual.getCpu();
+                                } else if (logAtual.getCpu() < minCPUPorcentagem) {
+                                    minCPUPorcentagem = logAtual.getCpu();
+                                }
+                            }
+                        } else {
+                            if (logAtual.getTmp_cpu() > max) {
+                                contadorCPUTemperatura++;
+
+                                if (logAtual.getTmp_cpu() > maxCPUTemperatura) {
+                                    maxCPUTemperatura = logAtual.getTmp_cpu();
+                                } else if (logAtual.getTmp_cpu() < minCPUTemperatura) {
+                                    minCPUTemperatura = logAtual.getTmp_cpu();
+                                }
+                            }
+                        }
+                    } else if (tipo.equalsIgnoreCase("RAM")) {
+                        if (logAtual.getRam() > max) {
+                            contadorRamPorcentagem++;
+                            if (logAtual.getRam() > maxRamPorcentagem) {
+                                maxRamPorcentagem = logAtual.getRam();
+                            } else if (logAtual.getRam() < minRamPorcentagem) {
+                                minRamPorcentagem = logAtual.getRam();
+                            }
+                        }
+                    } else if (tipo.equalsIgnoreCase("DISCO")) {
+                        if (unidadeMedida.equalsIgnoreCase("%")) {
+                            if (logAtual.getDisco() > max) {
+                                existeAlertaDisco = true;
+                            }
+                            maxDiscoPorcentagem = logAtual.getDisco();
+                            minDiscoPorcentagem = logAtual.getDisco();
+                        } else {
+                            if (logAtual.getTmp_disco() > max) {
+                                contadorDiscoTemperatura++;
+                                if (logAtual.getTmp_disco() > maxDiscoTemperatura) {
+                                    maxDiscoTemperatura = logAtual.getTmp_disco();
+                                } else if (logAtual.getTmp_disco() < minDiscoTemperatura) {
+                                    minDiscoTemperatura = logAtual.getTmp_disco();
+                                }
+                            }
+                        }
+                    } else if (tipo.equalsIgnoreCase("SWAP")) {
+                        if (logAtual.getMemoria_swap() > max) {
+                            contadorSwap++;
+                            if (logAtual.getMemoria_swap() > maxSwap) {
+                                maxSwap = logAtual.getMemoria_swap();
+                            } else if (logAtual.getMemoria_swap() < minSwap) {
+                                minSwap = logAtual.getMemoria_swap();
+                            }
                         }
                     }
-                }
-            }
 
-            if (contadorCPUPorcentagem.equals(duracao_min)) {
-                String insertCPUPorcentagem = "INSERT INTO alertas (fk_parametro, max, min)\n" +
-                        "VALUES\n" +
-                        "((?),(?),(?));";
-                con.update(insertCPUPorcentagem, fk_parametroAlerta, maxCPUPorcentagem, minCPUPorcentagem);
-                String mensagemSlack = "Alerta de uso da CPU no servidor: " + fk_servidor +
-                        "\nPico do alerta:" + maxCPUPorcentagem +
-                        "\nMínimo do alerta:" + minCPUPorcentagem +
-                        "\nDuração do alerta: " + duracao_min;
-                SlackNotifier.sendSlackMessage(mensagemSlack);
-                listaAlertas.add((Logs) miniLista);
-            } else if (contadorCPUTemperatura.equals(duracao_min)) {
-                String insertCPUTemperatura = "INSERT INTO alertas (fk_parametro, max, min)\n" +
-                        "VALUES\n" +
-                        "((?),(?),(?));";
-                con.update(insertCPUTemperatura, fk_parametroAlerta, maxCPUTemperatura, minCPUTemperatura);
-                String mensagemSlack = "Alerta de temperatura da CPU no servidor: " + fk_servidor +
-                        "\nPico do alerta:" + maxCPUTemperatura +
-                        "\nMínimo do alerta:" + minCPUTemperatura +
-                        "\nDuração do alerta: " + duracao_min;
-                SlackNotifier.sendSlackMessage(mensagemSlack);
-                listaAlertas.add((Logs) miniLista);
-            } else if (contadorDiscoTemperatura.equals(duracao_min)) {
-                String insertDiscoTemperatura = "INSERT INTO alertas (fk_parametro, max, min)\n" +
-                        "VALUES\n" +
-                        "((?),(?),(?));";
-                con.update(insertDiscoTemperatura, fk_parametroAlerta, maxDiscoTemperatura, minDiscoTemperatura);
-                String mensagemSlack = "Alerta de temperatura do Disco no servidor: " + fk_servidor +
-                        "\nPico do alerta:" + maxDiscoTemperatura +
-                        "\nMínimo do alerta:" + minDiscoTemperatura +
-                        "\nDuração do alerta: " + duracao_min;
-                SlackNotifier.sendSlackMessage(mensagemSlack);
-                listaAlertas.add((Logs) miniLista);
-            } else if (existeAlertaDisco) {
-                String insertDisco = "INSERT INTO alertas (fk_parametro, max, min)\n" +
-                        "VALUES\n" +
-                        "((?),(?),(?));";
-                con.update(insertDisco, fk_parametroAlerta, maxDiscoPorcentagem, minDiscoPorcentagem);
-                String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
-                        "\nPico do alerta:" + maxDiscoPorcentagem +
-                        "\nMínimo do alerta:" + minDiscoPorcentagem +
-                        "\nDuração do alerta: " + duracao_min;
-                SlackNotifier.sendSlackMessage(mensagemSlack);
-                listaAlertas.add((Logs) miniLista);
-            } else if (contadorRamPorcentagem.equals(duracao_min)) {
-                String insertRamPorcentagem = "INSERT INTO alertas (fk_parametro, max, min)\n" +
-                        "VALUES\n" +
-                        "((?),(?),(?));";
-                con.update(insertRamPorcentagem, fk_parametroAlerta, maxRamPorcentagem, minRamPorcentagem);
-                String mensagemSlack = "Alerta de uso da RAM no servidor: " + fk_servidor +
-                        "\nPico do alerta:" + maxRamPorcentagem +
-                        "\nMínimo do alerta:" + minRamPorcentagem +
-                        "\nDuração do alerta: " + duracao_min;
-                SlackNotifier.sendSlackMessage(mensagemSlack);
-                listaAlertas.add((Logs) miniLista);
-            } else if (contadorSwap.equals(duracao_min)) {
-                String insertSwap = "INSERT INTO alertas (fk_parametro, max, min)\n" +
-                        "VALUES\n" +
-                        "((?),(?),(?));";
-                con.update(insertSwap, fk_parametroAlerta, maxSwap, minSwap);
-                String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
-                        "\nPico do alerta:" + maxSwap +
-                        "\nMínimo do alerta:" + minSwap +
-                        "\nDuração do alerta: " + duracao_min;
-                SlackNotifier.sendSlackMessage(mensagemSlack);
-                listaAlertas.add((Logs) miniLista);
+                    if (contadorCPUPorcentagem.equals(duracao_min)) {
+                        contadorCPUPorcentagem = 0;
+                        String insertCPUPorcentagem = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                                "VALUES\n" +
+                                "((?),(?),(?));";
+                        con.update(insertCPUPorcentagem, fk_parametroAlerta, maxCPUPorcentagem, minCPUPorcentagem);
+                        String mensagemSlack = "Alerta de uso da CPU no servidor: " + fk_servidor +
+                                "\nPico do alerta:" + maxCPUPorcentagem +
+                                "\nMínimo do alerta:" + minCPUPorcentagem +
+                                "\nDuração do alerta: " + duracao_min;
+                        SlackNotifier.sendSlackMessage(mensagemSlack);
+                        listaAlertas.addAll(miniLista);
+                    } else if (contadorCPUTemperatura.equals(duracao_min)) {
+                        String insertCPUTemperatura = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                                "VALUES\n" +
+                                "((?),(?),(?));";
+                        con.update(insertCPUTemperatura, fk_parametroAlerta, maxCPUTemperatura, minCPUTemperatura);
+                        String mensagemSlack = "Alerta de temperatura da CPU no servidor: " + fk_servidor +
+                                "\nPico do alerta:" + maxCPUTemperatura +
+                                "\nMínimo do alerta:" + minCPUTemperatura +
+                                "\nDuração do alerta: " + duracao_min;
+                        SlackNotifier.sendSlackMessage(mensagemSlack);
+                        listaAlertas.add((Logs) miniLista);
+                    } else if (contadorDiscoTemperatura.equals(duracao_min)) {
+                        String insertDiscoTemperatura = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                                "VALUES\n" +
+                                "((?),(?),(?));";
+                        con.update(insertDiscoTemperatura, fk_parametroAlerta, maxDiscoTemperatura, minDiscoTemperatura);
+                        String mensagemSlack = "Alerta de temperatura do Disco no servidor: " + fk_servidor +
+                                "\nPico do alerta:" + maxDiscoTemperatura +
+                                "\nMínimo do alerta:" + minDiscoTemperatura +
+                                "\nDuração do alerta: " + duracao_min;
+                        SlackNotifier.sendSlackMessage(mensagemSlack);
+                        listaAlertas.add((Logs) miniLista);
+                    } else if (existeAlertaDisco) {
+                        String insertDisco = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                                "VALUES\n" +
+                                "((?),(?),(?));";
+                        con.update(insertDisco, fk_parametroAlerta, maxDiscoPorcentagem, minDiscoPorcentagem);
+                        String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
+                                "\nPico do alerta:" + maxDiscoPorcentagem +
+                                "\nMínimo do alerta:" + minDiscoPorcentagem +
+                                "\nDuração do alerta: " + duracao_min;
+                        SlackNotifier.sendSlackMessage(mensagemSlack);
+                        listaAlertas.add((Logs) miniLista);
+                    } else if (contadorRamPorcentagem.equals(duracao_min)) {
+                        String insertRamPorcentagem = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                                "VALUES\n" +
+                                "((?),(?),(?));";
+                        con.update(insertRamPorcentagem, fk_parametroAlerta, maxRamPorcentagem, minRamPorcentagem);
+                        String mensagemSlack = "Alerta de uso da RAM no servidor: " + fk_servidor +
+                                "\nPico do alerta:" + maxRamPorcentagem +
+                                "\nMínimo do alerta:" + minRamPorcentagem +
+                                "\nDuração do alerta: " + duracao_min;
+                        SlackNotifier.sendSlackMessage(mensagemSlack);
+                        listaAlertas.add((Logs) miniLista);
+                    } else if (contadorSwap.equals(duracao_min)) {
+                        String insertSwap = "INSERT INTO alertas (fk_parametro, max, min)\n" +
+                                "VALUES\n" +
+                                "((?),(?),(?));";
+                        con.update(insertSwap, fk_parametroAlerta, maxSwap, minSwap);
+                        String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
+                                "\nPico do alerta:" + maxSwap +
+                                "\nMínimo do alerta:" + minSwap +
+                                "\nDuração do alerta: " + duracao_min;
+                        SlackNotifier.sendSlackMessage(mensagemSlack);
+                        listaAlertas.add((Logs) miniLista);
+                    }
+                }
+
+
             }
-        }
             System.out.println(listaAlertas);
             gravaArquivoCsv(listaAlertas, "alertas");
+        }
+
         }
 
 

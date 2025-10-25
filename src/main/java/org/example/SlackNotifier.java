@@ -8,7 +8,7 @@ import java.time.Duration;
 
 public class SlackNotifier {
 
-    // private static final String SLACK_TOKEN = "";
+    //private static final String SLACK_TOKEN = "xoxb-9411844966034-9766757433092-BGDm1FpBxA5dOxavjtJgZazn";
     private static final String CHANNEL = "#alertas";
 
     public static void sendSlackMessage(String message) throws Exception {

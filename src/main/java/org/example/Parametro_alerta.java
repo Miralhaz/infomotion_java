@@ -47,8 +47,8 @@ public class Parametro_alerta {
         this.max = max;
     }
 
-    public Double getDuracao_min() {
-        return valueOf(duracao_min);
+    public Integer getDuracao_min() {
+        return Integer.parseInt(duracao_min);
     }
 
     public void setDuracao_min(String duracao_min) {
