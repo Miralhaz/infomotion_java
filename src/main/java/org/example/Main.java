@@ -13,7 +13,6 @@ public class Main {
 
     static AwsConnection aws = new AwsConnection();
 
-
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
         OutputStreamWriter saida = null;
         Boolean deuRuim = false;
@@ -50,7 +49,7 @@ public class Main {
             }
         }
     }
-    public static List<Logs> lerJason() {
+    public static List<Logs> lerJson() {
         FileInputStream inputStream = null;
         try {
             inputStream = new FileInputStream("data.json");
@@ -65,7 +64,7 @@ public class Main {
             listaLog = logMapper.mapearLogs(inputStream);
 
         } catch (IOException erro) {
-            System.out.println("Erro ao mapear o json lerJason");
+            System.out.println("Erro ao mapear o json lerJson");
             erro.printStackTrace();
         } finally {
             try {
@@ -213,23 +212,7 @@ public class Main {
         aws.downloadBucket("data.csv");
         List<Logs> lista =leImportaArquivoCsv("data");
         gravaArquivoJson(lista,"data");
-        List<Logs> listaLogs = lerJason();
-
-
-//        int indiceMenor;
-//        for (int i = 0; i < listaLogs.size() - 1; i++) {
-//            indiceMenor = i;
-//            for (int j = i + 1; j < listaLogs.size(); j++) {
-//                if (listaLogs.get(j).getDisco() > listaLogs.get(indiceMenor).getDisco()) {
-//                    indiceMenor = j;
-//                }
-//            }
-//            if (i != indiceMenor) {
-//                Logs aux = listaLogs.get(i);
-//                listaLogs.set(i, listaLogs.get(indiceMenor));
-//                listaLogs.set(indiceMenor, aux);
-//            }
-//        }
+        List<Logs> listaLogs = lerJson();
 
         Connection connection = new Connection();
         JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
@@ -243,8 +226,6 @@ public class Main {
         List<Parametro_alerta> metrica = con.query(selectParametroPorServidor,
                 new BeanPropertyRowMapper<>(Parametro_alerta.class),
                 fk_servidor);
-
-
 
 
         Boolean existeAlertaDisco = false;
@@ -265,8 +246,6 @@ public class Main {
                 Double max = metrica.get(i).getMax();
                 Integer duracao_min = metrica.get(i).getDuracao_min(); // Define a quantidade de capturas em seguida que devem ser maior que o parametro para ser considerado um alerta
                 Integer fk_parametroAlerta = metrica.get(i).getId();
-
-
 
                 Double maxCPUPorcentagem = 0.0;
                 Double minCPUPorcentagem = 100.0;
@@ -289,7 +268,6 @@ public class Main {
                     } catch (IndexOutOfBoundsException erro) {
                     }
                 }
-
 
 
                 for (int j = 0; j < miniLista.size(); j++) { // For de análise da minilista
@@ -445,6 +423,5 @@ public class Main {
         }
 
         }
-
 
 }
