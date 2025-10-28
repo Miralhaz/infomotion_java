@@ -11,6 +11,9 @@ import java.util.*;
 
 public class Main {
 
+    static AwsConnection aws = new AwsConnection();
+
+
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
         OutputStreamWriter saida = null;
         Boolean deuRuim = false;
@@ -207,6 +210,7 @@ public class Main {
 
 
     public static void main(String[] args) throws Exception {
+        aws.downloadBucket("data.csv");
         List<Logs> lista =leImportaArquivoCsv("data");
         gravaArquivoJson(lista,"data");
         List<Logs> listaLogs = lerJason();
@@ -385,7 +389,7 @@ public class Main {
                                 "\nMínimo do alerta:" + minCPUTemperatura +
                                 "\nDuração do alerta: " + duracao_min;
                         SlackNotifier.sendSlackMessage(mensagemSlack);
-                        listaAlertas.add((Logs) miniLista);
+                        listaAlertas.addAll(miniLista);
                     } else if (contadorDiscoTemperatura.equals(duracao_min)) {
                         String insertDiscoTemperatura = "INSERT INTO alertas (fk_parametro, max, min)\n" +
                                 "VALUES\n" +
@@ -396,7 +400,7 @@ public class Main {
                                 "\nMínimo do alerta:" + minDiscoTemperatura +
                                 "\nDuração do alerta: " + duracao_min;
                         SlackNotifier.sendSlackMessage(mensagemSlack);
-                        listaAlertas.add((Logs) miniLista);
+                        listaAlertas.addAll(miniLista);
                     } else if (existeAlertaDisco) {
                         String insertDisco = "INSERT INTO alertas (fk_parametro, max, min)\n" +
                                 "VALUES\n" +
@@ -407,7 +411,7 @@ public class Main {
                                 "\nMínimo do alerta:" + minDiscoPorcentagem +
                                 "\nDuração do alerta: " + duracao_min;
                         SlackNotifier.sendSlackMessage(mensagemSlack);
-                        listaAlertas.add((Logs) miniLista);
+                        listaAlertas.addAll(miniLista);
                     } else if (contadorRamPorcentagem.equals(duracao_min)) {
                         String insertRamPorcentagem = "INSERT INTO alertas (fk_parametro, max, min)\n" +
                                 "VALUES\n" +
@@ -418,7 +422,7 @@ public class Main {
                                 "\nMínimo do alerta:" + minRamPorcentagem +
                                 "\nDuração do alerta: " + duracao_min;
                         SlackNotifier.sendSlackMessage(mensagemSlack);
-                        listaAlertas.add((Logs) miniLista);
+                        listaAlertas.addAll(miniLista);
                     } else if (contadorSwap.equals(duracao_min)) {
                         String insertSwap = "INSERT INTO alertas (fk_parametro, max, min)\n" +
                                 "VALUES\n" +
@@ -429,7 +433,7 @@ public class Main {
                                 "\nMínimo do alerta:" + minSwap +
                                 "\nDuração do alerta: " + duracao_min;
                         SlackNotifier.sendSlackMessage(mensagemSlack);
-                        listaAlertas.add((Logs) miniLista);
+                        listaAlertas.addAll(miniLista);
                     }
                 }
 
@@ -437,6 +441,7 @@ public class Main {
             }
             System.out.println(listaAlertas);
             gravaArquivoCsv(listaAlertas, "alertas");
+            aws.uploadBucket("alertas.csv");
         }
 
         }

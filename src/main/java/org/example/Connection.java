@@ -27,8 +27,8 @@ public class Connection {
         dataSource.setUrl("jdbc:mysql://localhost:3306/infomotion");
 //        dataSource.setUsername(dbUserName());
 //        dataSource.setPassword(dbSenha());
-          dataSource.setUsername("Aluno");
-          dataSource.setPassword("1234");
+          dataSource.setUsername("root");
+          dataSource.setPassword("Ren@n2005");
     }
 
     public BasicDataSource getDataSource() {
