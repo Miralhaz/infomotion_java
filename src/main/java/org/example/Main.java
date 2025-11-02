@@ -351,6 +351,25 @@ public class Main {
                                 "VALUES\n" +
                                 "((?),(?),(?));";
                         con.update(insertCPUPorcentagem, fk_parametroAlerta, maxCPUPorcentagem, minCPUPorcentagem);
+                        Logs ultimoLog = miniLista.get(miniLista.size() - 1);
+                        String tituloJira = String.format("Alerta Crítico: CPU em %.2f%% no Servidor %d",
+                                maxCPUPorcentagem, fk_servidor);
+                        String descricaoCorpo = String.format(
+                                "Alerta de CPU Ativado.\n" +
+                                        "Pico: %.2f%%\n" +
+                                        "Duração: %d logs\n" +
+                                        "Usuário: %s\n" +
+                                        "Timestamp: %s",
+                                maxCPUPorcentagem,
+                                duracao_min,
+                                ultimoLog.getUser(),
+                                ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                        );
+                        try {
+                            JiraService.createAlertTicket(tituloJira, descricaoCorpo);
+                        } catch (Exception e) {
+                            System.err.println("Falha ao criar ticket Jira para CPU %: " + e.getMessage());
+                        }
                         String mensagemSlack = "Alerta de uso da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUPorcentagem +
                                 "\nMínimo do alerta:" + minCPUPorcentagem +
@@ -362,6 +381,26 @@ public class Main {
                                 "VALUES\n" +
                                 "((?),(?),(?));";
                         con.update(insertCPUTemperatura, fk_parametroAlerta, maxCPUTemperatura, minCPUTemperatura);
+                        Logs ultimoLog = miniLista.get(miniLista.size() - 1); // Pega o último log
+
+                        String tituloJira = String.format("Alerta Crítico: Temp. CPU em %.2fºC no Servidor %d",
+                                maxCPUTemperatura, fk_servidor);
+                        String descricaoCorpo = String.format(
+                                "Alerta de Temperatura da CPU Ativado.\n" +
+                                        "Pico: %.2fºC\n" +
+                                        "Duração: %d logs\n" +
+                                        "Usuário: %s\n" +
+                                        "Timestamp: %s",
+                                maxCPUTemperatura,
+                                duracao_min,
+                                ultimoLog.getUser(),
+                                ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                        );
+                        try {
+                            JiraService.createAlertTicket(tituloJira, descricaoCorpo);
+                        } catch (Exception e) {
+                            System.err.println("Falha ao criar ticket Jira para Temp. CPU: " + e.getMessage());
+                        }
                         String mensagemSlack = "Alerta de temperatura da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUTemperatura +
                                 "\nMínimo do alerta:" + minCPUTemperatura +
@@ -373,6 +412,26 @@ public class Main {
                                 "VALUES\n" +
                                 "((?),(?),(?));";
                         con.update(insertDiscoTemperatura, fk_parametroAlerta, maxDiscoTemperatura, minDiscoTemperatura);
+                        Logs ultimoLog = miniLista.get(miniLista.size() - 1); // Pega o último log
+                        // --- LÓGICA JIRA: TEMPERATURA DISCO ---
+                        String tituloJira = String.format("Alerta Crítico: Temp. Disco em %.2fºC no Servidor %d",
+                                maxDiscoTemperatura, fk_servidor);
+                        String descricaoCorpo = String.format(
+                                "Alerta de Temperatura do Disco Ativado.\n" +
+                                        "Pico: %.2fºC\n" +
+                                        "Duração: %d logs\n" +
+                                        "Usuário: %s\n" +
+                                        "Timestamp: %s",
+                                maxDiscoTemperatura,
+                                duracao_min,
+                                ultimoLog.getUser(),
+                                ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                        );
+                        try {
+                            JiraService.createAlertTicket(tituloJira, descricaoCorpo);
+                        } catch (Exception e) {
+                            System.err.println(" Falha ao criar ticket Jira para Temp. Disco: " + e.getMessage());
+                        }
                         String mensagemSlack = "Alerta de temperatura do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoTemperatura +
                                 "\nMínimo do alerta:" + minDiscoTemperatura +
@@ -384,6 +443,26 @@ public class Main {
                                 "VALUES\n" +
                                 "((?),(?),(?));";
                         con.update(insertDisco, fk_parametroAlerta, maxDiscoPorcentagem, minDiscoPorcentagem);
+                        Logs ultimoLog = miniLista.get(miniLista.size() - 1);
+
+                        String tituloJira = String.format("Alerta Crítico: Disco em %.2f%% no Servidor %d",
+                                maxDiscoPorcentagem, fk_servidor);
+                        String descricaoCorpo = String.format(
+                                "Alerta de Uso do Disco Ativado.\n" +
+                                        "Pico: %.2f%%\n" +
+                                        "Duração: %d logs\n" +
+                                        "Usuário: %s\n" +
+                                        "Timestamp: %s",
+                                maxDiscoPorcentagem,
+                                duracao_min,
+                                ultimoLog.getUser(),
+                                ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                        );
+                        try {
+                            JiraService.createAlertTicket(tituloJira, descricaoCorpo);
+                        } catch (Exception e) {
+                            System.err.println(" Falha ao criar ticket Jira para Uso do Disco: " + e.getMessage());
+                        }
                         String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoPorcentagem +
                                 "\nMínimo do alerta:" + minDiscoPorcentagem +
@@ -395,6 +474,26 @@ public class Main {
                                 "VALUES\n" +
                                 "((?),(?),(?));";
                         con.update(insertRamPorcentagem, fk_parametroAlerta, maxRamPorcentagem, minRamPorcentagem);
+                        Logs ultimoLog = miniLista.get(miniLista.size() - 1);
+
+                        String tituloJira = String.format("Alerta Crítico: RAM em %.2f%% no Servidor %d",
+                                maxRamPorcentagem, fk_servidor);
+                        String descricaoCorpo = String.format(
+                                "Alerta de Uso da RAM Ativado.\n" +
+                                        "Pico: %.2f%%\n" +
+                                        "Duração: %d logs\n" +
+                                        "Usuário: %s\n" +
+                                        "Timestamp: %s",
+                                maxRamPorcentagem,
+                                duracao_min,
+                                ultimoLog.getUser(),
+                                ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                        );
+                        try {
+                            JiraService.createAlertTicket(tituloJira, descricaoCorpo);
+                        } catch (Exception e) {
+                            System.err.println(" Falha ao criar ticket Jira para RAM %: " + e.getMessage());
+                        }
                         String mensagemSlack = "Alerta de uso da RAM no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxRamPorcentagem +
                                 "\nMínimo do alerta:" + minRamPorcentagem +
@@ -406,6 +505,26 @@ public class Main {
                                 "VALUES\n" +
                                 "((?),(?),(?));";
                         con.update(insertSwap, fk_parametroAlerta, maxSwap, minSwap);
+                        Logs ultimoLog = miniLista.get(miniLista.size() - 1);
+
+                        String tituloJira = String.format("Alerta Crítico: SWAP em %.2f%% no Servidor %d",
+                                maxSwap, fk_servidor);
+                        String descricaoCorpo = String.format(
+                                "Alerta de Uso do SWAP Ativado.\n" +
+                                        "Pico: %.2f%%\n" +
+                                        "Duração: %d logs\n" +
+                                        "Usuário: %s\n" +
+                                        "Timestamp: %s",
+                                maxSwap,
+                                duracao_min,
+                                ultimoLog.getUser(),
+                                ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
+                        );
+                        try {
+                            JiraService.createAlertTicket(tituloJira, descricaoCorpo);
+                        } catch (Exception e) {
+                            System.err.println(" Falha ao criar ticket Jira para SWAP: " + e.getMessage());
+                        }
                         String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxSwap +
                                 "\nMínimo do alerta:" + minSwap +
