@@ -355,9 +355,9 @@ public class Main {
                         String tituloJira = String.format("Alerta Crítico: CPU em %.2f%% no Servidor %d",
                                 maxCPUPorcentagem, fk_servidor);
                         String descricaoCorpo = String.format(
-                                "Alerta de CPU Ativado.\n" +
+                                "Alerta de CPU.\n" +
                                         "Pico: %.2f%%\n" +
-                                        "Duração: %d logs\n" +
+                                        "Duração: %d minutos\n" +
                                         "Usuário: %s\n" +
                                         "Timestamp: %s",
                                 maxCPUPorcentagem,
@@ -373,7 +373,7 @@ public class Main {
                         String mensagemSlack = "Alerta de uso da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUPorcentagem +
                                 "\nMínimo do alerta:" + minCPUPorcentagem +
-                                "\nDuração do alerta: " + duracao_min;
+                                "\nDuração do alerta: " + duracao_min + " minutos";
                         SlackNotifier.sendSlackMessage(mensagemSlack);
                         listaAlertas.addAll(miniLista);
                     } else if (contadorCPUTemperatura.equals(duracao_min)) {
@@ -386,11 +386,11 @@ public class Main {
                         String tituloJira = String.format("Alerta Crítico: Temp. CPU em %.2fºC no Servidor %d",
                                 maxCPUTemperatura, fk_servidor);
                         String descricaoCorpo = String.format(
-                                "Alerta de Temperatura da CPU Ativado.\n" +
+                                "Alerta de Temperatura da CPU.\n" +
                                         "Pico: %.2fºC\n" +
-                                        "Duração: %d logs\n" +
+                                        "Duração: %d minutos\n" +
                                         "Usuário: %s\n" +
-                                        "Timestamp: %s",
+                                        "Data e hora do alerta: %s",
                                 maxCPUTemperatura,
                                 duracao_min,
                                 ultimoLog.getUser(),
@@ -404,7 +404,7 @@ public class Main {
                         String mensagemSlack = "Alerta de temperatura da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUTemperatura +
                                 "\nMínimo do alerta:" + minCPUTemperatura +
-                                "\nDuração do alerta: " + duracao_min;
+                                "\nDuração do alerta: " + duracao_min + " minutos";
                         SlackNotifier.sendSlackMessage(mensagemSlack);
                         listaAlertas.addAll(miniLista);
                     } else if (contadorDiscoTemperatura.equals(duracao_min)) {
@@ -417,11 +417,11 @@ public class Main {
                         String tituloJira = String.format("Alerta Crítico: Temp. Disco em %.2fºC no Servidor %d",
                                 maxDiscoTemperatura, fk_servidor);
                         String descricaoCorpo = String.format(
-                                "Alerta de Temperatura do Disco Ativado.\n" +
+                                "Alerta de Temperatura do Disco.\n" +
                                         "Pico: %.2fºC\n" +
-                                        "Duração: %d logs\n" +
+                                        "Duração: %d minutos\n" +
                                         "Usuário: %s\n" +
-                                        "Timestamp: %s",
+                                        "Data e hora do alerta: %s",
                                 maxDiscoTemperatura,
                                 duracao_min,
                                 ultimoLog.getUser(),
@@ -435,7 +435,7 @@ public class Main {
                         String mensagemSlack = "Alerta de temperatura do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoTemperatura +
                                 "\nMínimo do alerta:" + minDiscoTemperatura +
-                                "\nDuração do alerta: " + duracao_min;
+                                "\nDuração do alerta: " + duracao_min + " minutos";
                         SlackNotifier.sendSlackMessage(mensagemSlack);
                         listaAlertas.addAll(miniLista);
                     } else if (existeAlertaDisco) {
@@ -448,11 +448,11 @@ public class Main {
                         String tituloJira = String.format("Alerta Crítico: Disco em %.2f%% no Servidor %d",
                                 maxDiscoPorcentagem, fk_servidor);
                         String descricaoCorpo = String.format(
-                                "Alerta de Uso do Disco Ativado.\n" +
+                                "Alerta de Uso do Disco.\n" +
                                         "Pico: %.2f%%\n" +
-                                        "Duração: %d logs\n" +
+                                        "Duração: %d minutos\n" +
                                         "Usuário: %s\n" +
-                                        "Timestamp: %s",
+                                        "Data e hora do alerta: %s",
                                 maxDiscoPorcentagem,
                                 duracao_min,
                                 ultimoLog.getUser(),
@@ -466,7 +466,7 @@ public class Main {
                         String mensagemSlack = "Alerta de uso do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoPorcentagem +
                                 "\nMínimo do alerta:" + minDiscoPorcentagem +
-                                "\nDuração do alerta: " + duracao_min;
+                                "\nDuração do alerta: " + duracao_min + " minutos";
                         SlackNotifier.sendSlackMessage(mensagemSlack);
                         listaAlertas.addAll(miniLista);
                     } else if (contadorRamPorcentagem.equals(duracao_min)) {
@@ -479,11 +479,11 @@ public class Main {
                         String tituloJira = String.format("Alerta Crítico: RAM em %.2f%% no Servidor %d",
                                 maxRamPorcentagem, fk_servidor);
                         String descricaoCorpo = String.format(
-                                "Alerta de Uso da RAM Ativado.\n" +
+                                "Alerta de Uso da RAM.\n" +
                                         "Pico: %.2f%%\n" +
-                                        "Duração: %d logs\n" +
+                                        "Duração: %d minutos\n" +
                                         "Usuário: %s\n" +
-                                        "Timestamp: %s",
+                                        "Data e hora do alerta: %s",
                                 maxRamPorcentagem,
                                 duracao_min,
                                 ultimoLog.getUser(),
@@ -497,7 +497,7 @@ public class Main {
                         String mensagemSlack = "Alerta de uso da RAM no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxRamPorcentagem +
                                 "\nMínimo do alerta:" + minRamPorcentagem +
-                                "\nDuração do alerta: " + duracao_min;
+                                "\nDuração do alerta: " + duracao_min + " minutos";
                         SlackNotifier.sendSlackMessage(mensagemSlack);
                         listaAlertas.addAll(miniLista);
                     } else if (contadorSwap.equals(duracao_min)) {
@@ -510,11 +510,11 @@ public class Main {
                         String tituloJira = String.format("Alerta Crítico: SWAP em %.2f%% no Servidor %d",
                                 maxSwap, fk_servidor);
                         String descricaoCorpo = String.format(
-                                "Alerta de Uso do SWAP Ativado.\n" +
+                                "Alerta de Uso da Swap.\n" +
                                         "Pico: %.2f%%\n" +
-                                        "Duração: %d logs\n" +
+                                        "Duração: %d minutos\n" +
                                         "Usuário: %s\n" +
-                                        "Timestamp: %s",
+                                        "Data e hora do alerta: %s",
                                 maxSwap,
                                 duracao_min,
                                 ultimoLog.getUser(),
@@ -528,7 +528,7 @@ public class Main {
                         String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxSwap +
                                 "\nMínimo do alerta:" + minSwap +
-                                "\nDuração do alerta: " + duracao_min;
+                                "\nDuração do alerta: " + duracao_min + " minutos";
                         SlackNotifier.sendSlackMessage(mensagemSlack);
                         listaAlertas.addAll(miniLista);
                     }
