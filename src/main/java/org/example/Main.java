@@ -370,7 +370,7 @@ public class Main {
                         } catch (Exception e) {
                             System.err.println("Falha ao criar ticket Jira para CPU %: " + e.getMessage());
                         }
-                        String mensagemSlack = "Alerta de uso da CPU no servidor: " + fk_servidor +
+                        String mensagemSlack = "⚠\uFE0F Alerta de uso da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUPorcentagem +
                                 "\nMínimo do alerta:" + minCPUPorcentagem +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -401,7 +401,7 @@ public class Main {
                         } catch (Exception e) {
                             System.err.println("Falha ao criar ticket Jira para Temp. CPU: " + e.getMessage());
                         }
-                        String mensagemSlack = "Alerta de temperatura da CPU no servidor: " + fk_servidor +
+                        String mensagemSlack = "⚠\uFE0F Alerta de temperatura da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUTemperatura +
                                 "\nMínimo do alerta:" + minCPUTemperatura +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -432,7 +432,7 @@ public class Main {
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para Temp. Disco: " + e.getMessage());
                         }
-                        String mensagemSlack = "Alerta de temperatura do Disco no servidor: " + fk_servidor +
+                        String mensagemSlack = "⚠\uFE0F Alerta de temperatura do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoTemperatura +
                                 "\nMínimo do alerta:" + minDiscoTemperatura +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -463,7 +463,7 @@ public class Main {
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para Uso do Disco: " + e.getMessage());
                         }
-                        String mensagemSlack = "Alerta de uso do Disco no servidor: " + fk_servidor +
+                        String mensagemSlack = "⚠\uFE0F Alerta de uso do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoPorcentagem +
                                 "\nMínimo do alerta:" + minDiscoPorcentagem +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -494,7 +494,7 @@ public class Main {
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para RAM %: " + e.getMessage());
                         }
-                        String mensagemSlack = "Alerta de uso da RAM no servidor: " + fk_servidor +
+                        String mensagemSlack = "⚠\uFE0F Alerta de uso da RAM no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxRamPorcentagem +
                                 "\nMínimo do alerta:" + minRamPorcentagem +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -525,7 +525,7 @@ public class Main {
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para SWAP: " + e.getMessage());
                         }
-                        String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
+                        String mensagemSlack = "⚠\uFE0F Alerta de uso do Swap no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxSwap +
                                 "\nMínimo do alerta:" + minSwap +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
