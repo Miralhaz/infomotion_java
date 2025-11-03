@@ -463,7 +463,7 @@ public class Main {
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para Uso do Disco: " + e.getMessage());
                         }
-                        String mensagemSlack = "Alerta de uso do Swap no servidor: " + fk_servidor +
+                        String mensagemSlack = "Alerta de uso do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoPorcentagem +
                                 "\nMínimo do alerta:" + minDiscoPorcentagem +
                                 "\nDuração do alerta: " + duracao_min;
