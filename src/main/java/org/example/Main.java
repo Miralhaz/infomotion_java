@@ -165,11 +165,10 @@ public class Main {
             //readLine é usado para ler uma linha do arquivo
             String linha = entrada.readLine();
 
-            // separa cada  da linha usando o delimitador ";"
-            resgistro = linha.split(";");
+            // separa cada da linha usando o delimitador ";"
+            // resgistro = linha.split(";");
             // printa os titulos da coluna
-            System.out.printf("%16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s | %16s", resgistro[1],resgistro[2],
-                    resgistro[3],resgistro[4],resgistro[5],resgistro[6], resgistro[7],resgistro[8],resgistro[9],resgistro[10]);
+             System.out.println("Lendo e Importando CSV de dados do bucket-raw");
 
             linha = entrada.readLine();
             // converte de string para integer
@@ -187,7 +186,6 @@ public class Main {
                 Double memoria_swap = Double.valueOf(resgistro[9]);
                 Integer qtd_processos = Integer.valueOf(resgistro[10]);
                 Logs Log = new Logs(fk_servidor, user, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos);
-                System.out.println("Criando novo log, novo usuario: " + user);
                 listaLogs.add(Log);
                 linha = entrada.readLine();
             }
@@ -198,6 +196,7 @@ public class Main {
 
         }finally {
             try {
+                System.out.println("Arquivo importado com sucesso!\n");
                 entrada.close();
                 arq.close();
             } catch (IOException e) {
@@ -214,8 +213,10 @@ public class Main {
         gravaArquivoJson(lista,"data");
         List<Logs> listaLogs = lerJson();
 
+        System.out.println("Estabelecendo conexão ao banco...");
         Connection connection = new Connection();
         JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
+        System.out.println("Conexão estabelecida com sucesso!\n");
 
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
@@ -230,6 +231,7 @@ public class Main {
 
         Boolean existeAlertaDisco = false;
         for (int i = 0; i < metrica.size(); i++) {
+            System.out.printf("ETL em processamento: %d/%d\n", i + 1, metrica.size());
             Integer contador = 1;
 
             Integer contadorCPUPorcentagem = 0;
@@ -239,8 +241,6 @@ public class Main {
             Integer contadorSwap = 0;
 
             for (int l = 0; l < listaLogs.size() - contador; l++) { // For das metricas por servidor
-
-                System.out.println("USER NA LISTA LOGS DO MAIN" + listaLogs.get(l).getUser());
 
                 Integer fk_componente = metrica.get(i).getFk_componente();
                 Double max = metrica.get(i).getMax();
@@ -365,12 +365,13 @@ public class Main {
                                 ultimoLog.getUser(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
+                        System.out.println("Alerta de Uso de CPU!");
                         try {
                             JiraService.createAlertTicket(tituloJira, descricaoCorpo);
                         } catch (Exception e) {
                             System.err.println("Falha ao criar ticket Jira para CPU %: " + e.getMessage());
                         }
-                        String mensagemSlack = "⚠\uFE0F Alerta de uso da CPU no servidor: " + fk_servidor +
+                        String mensagemSlack = "\n ⚠\uFE0F Alerta de uso da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUPorcentagem +
                                 "\nMínimo do alerta:" + minCPUPorcentagem +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -396,12 +397,13 @@ public class Main {
                                 ultimoLog.getUser(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
+                        System.out.println("\nAlerta de Temperatura de CPU!");
                         try {
                             JiraService.createAlertTicket(tituloJira, descricaoCorpo);
                         } catch (Exception e) {
                             System.err.println("Falha ao criar ticket Jira para Temp. CPU: " + e.getMessage());
                         }
-                        String mensagemSlack = "⚠\uFE0F Alerta de temperatura da CPU no servidor: " + fk_servidor +
+                        String mensagemSlack = "\n ⚠\uFE0F Alerta de temperatura da CPU no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxCPUTemperatura +
                                 "\nMínimo do alerta:" + minCPUTemperatura +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -427,12 +429,13 @@ public class Main {
                                 ultimoLog.getUser(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
+                        System.out.println("\nAlerta de Temperatura de Disco!");
                         try {
                             JiraService.createAlertTicket(tituloJira, descricaoCorpo);
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para Temp. Disco: " + e.getMessage());
                         }
-                        String mensagemSlack = "⚠\uFE0F Alerta de temperatura do Disco no servidor: " + fk_servidor +
+                        String mensagemSlack = "\n ⚠\uFE0F Alerta de temperatura do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoTemperatura +
                                 "\nMínimo do alerta:" + minDiscoTemperatura +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -458,12 +461,13 @@ public class Main {
                                 ultimoLog.getUser(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
+                        System.out.println("\nAlerta de Uso de Disco!");
                         try {
                             JiraService.createAlertTicket(tituloJira, descricaoCorpo);
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para Uso do Disco: " + e.getMessage());
                         }
-                        String mensagemSlack = "⚠\uFE0F Alerta de uso do Disco no servidor: " + fk_servidor +
+                        String mensagemSlack = "\n ⚠\uFE0F Alerta de uso do Disco no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxDiscoPorcentagem +
                                 "\nMínimo do alerta:" + minDiscoPorcentagem +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -489,12 +493,13 @@ public class Main {
                                 ultimoLog.getUser(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
+                        System.out.println("\nAlerta de Uso de RAM!");
                         try {
                             JiraService.createAlertTicket(tituloJira, descricaoCorpo);
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para RAM %: " + e.getMessage());
                         }
-                        String mensagemSlack = "⚠\uFE0F Alerta de uso da RAM no servidor: " + fk_servidor +
+                        String mensagemSlack = "\n ⚠\uFE0F Alerta de uso da RAM no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxRamPorcentagem +
                                 "\nMínimo do alerta:" + minRamPorcentagem +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -520,12 +525,13 @@ public class Main {
                                 ultimoLog.getUser(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
+                        System.out.println("\nAlerta de Uso de SWAP!");
                         try {
                             JiraService.createAlertTicket(tituloJira, descricaoCorpo);
                         } catch (Exception e) {
                             System.err.println(" Falha ao criar ticket Jira para SWAP: " + e.getMessage());
                         }
-                        String mensagemSlack = "⚠\uFE0F Alerta de uso do Swap no servidor: " + fk_servidor +
+                        String mensagemSlack = "\n ⚠\uFE0F Alerta de uso do Swap no servidor: " + fk_servidor +
                                 "\nPico do alerta:" + maxSwap +
                                 "\nMínimo do alerta:" + minSwap +
                                 "\nDuração do alerta: " + duracao_min + " minutos";
@@ -536,7 +542,6 @@ public class Main {
 
 
             }
-            System.out.println(listaAlertas);
             gravaArquivoCsv(listaAlertas, "alertas");
             aws.uploadBucket("alertas.csv");
         }

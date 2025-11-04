@@ -1,5 +1,0 @@
-;fk_servidor;nomeMaquina;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos
-0;1;willian-Aspire-A315-58;2025-10-31 11:54:09;15.0;74.8;51.0;87.0;31.85;565.51;274
-1;1;willian-Aspire-A315-58;2025-10-31 11:54:12;5.4;74.8;51.0;79.0;31.85;565.51;274
-2;1;willian-Aspire-A315-58;2025-10-31 11:54:15;3.3;75.0;51.0;77.0;31.85;565.51;275
-3;1;willian-Aspire-A315-58;2025-10-31 11:54:18;3.8;74.7;51.0;79.0;32.85;565.51;275
