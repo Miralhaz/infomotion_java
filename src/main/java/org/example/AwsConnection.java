@@ -10,19 +10,7 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class AwsConnection {
-
-    private final Scanner scanner = new Scanner(System.in);
     private final S3Client s3 = S3Utils.createClient();
-
-    public String dbUserName() {
-        System.out.println("\nDigite o nome do usuario do banco de dados:");
-        return scanner.next();
-    }
-
-    public String dbSenha() {
-        System.out.println("\nDigite a senha do banco de dados:");
-        return scanner.next();
-    }
 
     public void downloadBucket(String nomeArq) {
         String key = String.format(nomeArq);
@@ -38,14 +26,52 @@ public class AwsConnection {
 
     public void uploadBucket(String nomeArq) {
         String key = String.format("alertas/%s", nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-trusted-infomotion")
+                            .key(key)
+                            .contentType("text/csv")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
 
-        s3.putObject(
-                PutObjectRequest.builder()
-                        .bucket("s3-trusted-infomotion")
-                        .key(key)
-                        .contentType("text/csv")
-                        .build(),
-                RequestBody.fromFile(Path.of(nomeArq))
-        );
+        System.out.println("Upload concluído: " + nomeArq);
+        deleteCsvLocal(nomeArq);
+        }
+     catch (Exception e) {
+        System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
+        }
+    }
+
+    public void deleteCsvLocal(String nomeArq){
+        String key = String.format("alertas/%s", nomeArq);
+        try {
+            Path caminho = Path.of(nomeArq);
+            java.nio.file.Files.deleteIfExists(caminho);
+            System.out.println("Arquivo deletado com sucesso: " + nomeArq);
+        } catch (Exception e) {
+            System.err.println("Erro ao deletar o arquivo " + nomeArq + ": " + e.getMessage());
+        }
+    }
+
+    public void limparTemporarios() {
+        try {
+            var arquivos = java.nio.file.Files.list(Path.of("."))
+                    .filter(p -> p.toString().endsWith(".csv") || p.toString().endsWith(".json"))
+                    .toList();
+
+            for (Path p : arquivos) {
+                try {
+                    java.nio.file.Files.deleteIfExists(p);
+                    System.out.println("Arquivo temporário removido: " + p.getFileName());
+                } catch (Exception e) {
+                    System.err.println("Erro ao deletar " + p.getFileName() + ": " + e.getMessage());
+                }
+            }
+
+        } catch (Exception e) {
+            System.err.println("Erro ao limpar arquivos temporários: " + e.getMessage());
+        }
     }
 }

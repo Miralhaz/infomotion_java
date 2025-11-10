@@ -13,6 +13,7 @@ public class Main {
 
     static AwsConnection aws = new AwsConnection();
 
+
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
         OutputStreamWriter saida = null;
         Boolean deuRuim = false;
@@ -545,7 +546,7 @@ public class Main {
             gravaArquivoCsv(listaAlertas, "alertas");
             aws.uploadBucket("alertas.csv");
         }
-
+        aws.limparTemporarios();
         }
 
 }
