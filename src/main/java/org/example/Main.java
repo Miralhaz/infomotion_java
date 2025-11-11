@@ -547,6 +547,26 @@ public class Main {
             aws.uploadBucket("alertas.csv");
         }
         aws.limparTemporarios();
+
+
+        System.out.println("\nChamando a ETL do Trusted para Cliente...");
+
+        try {
+            // 2. Instancia a nova ETL
+            TrustedParaCliente Etlcliente = new TrustedParaCliente(aws);
+
+            // 3. Executa a ETL para o arquivo de teste
+            Etlcliente.rodarProcesso("alertas.csv");
+
+        } catch (Exception e) {
+            System.err.println("Ocorreu um erro no Main: " + e.getMessage());
+            // O tratamento de erro detalhado já está dentro do runEtl
+        } finally {
+            // Chamada para limpeza geral, se for o caso
+            // awsConnection.limparTemporarios(); registro_alerta-1.0-SNAPSHOT.jar
         }
+
+        System.out.println("\n--- Processo Principal Finalizado ---");
+    }
 
 }
