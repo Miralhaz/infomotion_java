@@ -44,11 +44,31 @@ public class AwsConnection {
         }
     }
 
+    public void uploadTemperaturaBucket(String nomeArq) {
+        String key = String.format("%s", nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-trusted-infomotion")
+                            .key(key)
+                            .contentType("csv")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("Upload concluído: " + nomeArq + "\n");
+            deleteCsvLocal(nomeArq);
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
+        }
+    }
+
     public void deleteCsvLocal(String nomeArq){
         try {
             Path caminho = Path.of(nomeArq);
             java.nio.file.Files.deleteIfExists(caminho);
-            System.out.println("Arquivo deletado com sucesso: " + nomeArq);
+            System.out.println("Arquivo deletado com sucesso: " + nomeArq + "\n");
         } catch (Exception e) {
             System.err.println("Erro ao deletar o arquivo " + nomeArq + ": " + e.getMessage());
         }

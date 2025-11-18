@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.classesMiralha.TratamentoTemperaturaCpu;
+import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -7,6 +9,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.math.BigInteger;
 
 
 public class Main {
@@ -17,7 +20,7 @@ public class Main {
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
         OutputStreamWriter saida = null;
         Boolean deuRuim = false;
-        nomeArq+=".csv";
+        nomeArq += ".csv";
 
         try {
             saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
@@ -28,12 +31,14 @@ public class Main {
         }
 
         try {
-            saida.append("fk_servidor;user;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos\n");
+            saida.append("fk_servidor;user;nomeMaquina;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos;download_bytes;upload_bytes;pacotes_recebidos;pacotes_enviados;errin;errout;dropin;dropout;numero_leituras;numero_escritas;bytes_lidos;bytes_escritos;tempo_leitura;tempo_escrita\n");
+
             for (Logs log : lista){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                saida.write(String.format("%d;%s;%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%d\n",
-                        log.getFk_servidor(), log.getUser(),log.getDataHora().format(formatter), log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                saida.write(String.format("%d;%s;%s;%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
+                        log.getFk_servidor(), log.getUser(), log.getNomeMaquina(), log.getDataHora().format(formatter), log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getErrin(), log.getErrout(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
             }
+
         }catch (IOException erro){
             System.out.println("Erro ao gravar o arquivo");
             erro.printStackTrace();
@@ -55,7 +60,7 @@ public class Main {
         try {
             inputStream = new FileInputStream("data.json");
         } catch (FileNotFoundException erro) {
-            System.out.println("Arquivo nao encontrado");
+            System.out.println("Arquivo não encontrado");
             System.exit(1);
         }
 
@@ -105,6 +110,7 @@ public class Main {
                            {
                            "fk_servidor": "%d",
                            "user": "%s" ,
+                           "nomeMaquina": "%s",
                            "timestamp": "%s",
                            "cpu": "%.2f",
                            "ram": "%.2f",
@@ -112,13 +118,29 @@ public class Main {
                            "temperatura_cpu": "%.2f",
                            "temperatura_disco": "%.2f",
                            "memoria_swap": "%.2f",
-                           "quantidade_processos": "%d"}""",
-                            log.getFk_servidor(), log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos() ));
+                           "quantidade_processos": "%d",
+                           "download_bytes": "%d",
+                           "upload_bytes" : "%d",
+                           "pacotes_recebidos": "%d",
+                           "pacotes_enviados": "%d",
+                           "errin": "%d",
+                           "errout": "%d",
+                           "dropin": "%d",
+                           "dropout": "%d",
+                           "numero_leituras": "%d",
+                           "numero_escritas": "%d",
+                           "bytes_lidos": "%d",
+                           "bytes_escritos": "%d",
+                           "tempo_leitura": "%d",
+                           "tempo_escrita": "%d"
+                           }""",
+                            log.getFk_servidor(), log.getUser(), log.getNomeMaquina(), log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getErrin(), log.getErrout(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
                 }else {
                     saida.write(String.format(Locale.US,"""
                                {
                                "fk_servidor": "%d",
-                               "user": "%s" ,
+                               "user": "%s",
+                               "nomeMaquina": "%s",
                                "timestamp": "%s",
                                "cpu": "%.2f",
                                "ram": "%.2f",
@@ -126,8 +148,23 @@ public class Main {
                                "temperatura_cpu": "%.2f",
                                "temperatura_disco": "%.2f",
                                "memoria_swap": "%.2f",
-                               "quantidade_processos": "%d"},""",
-                            log.getFk_servidor(), log.getUser(),log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos()));
+                               "quantidade_processos": "%d",
+                               "download_bytes": "%d",
+                               "upload_bytes" : "%d",
+                               "pacotes_recebidos": "%d",
+                               "pacotes_enviados": "%d",
+                               "errin": "%d",
+                               "errout": "%d",
+                               "dropin": "%d",
+                               "dropout": "%d",
+                               "numero_leituras": "%d",
+                               "numero_escritas": "%d",
+                               "bytes_lidos": "%d",
+                               "bytes_escritos": "%d",
+                               "tempo_leitura": "%d",
+                               "tempo_escrita": "%d"
+                               },""",
+                            log.getFk_servidor(), log.getUser(), log.getNomeMaquina(), log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getErrin(), log.getErrout(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
                 }
             }
             saida.append("]");
@@ -157,12 +194,12 @@ public class Main {
             arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
-            System.out.println("Erro a o abrir o arquivo leImportaArquivoCsv");
+            System.out.println("Erro ao abrir o arquivo leImportaArquivoCsv");
             System.exit(1);
         }
 
         try {
-            String[] resgistro;
+            String[] registro;
             //readLine é usado para ler uma linha do arquivo
             String linha = entrada.readLine();
 
@@ -173,20 +210,36 @@ public class Main {
 
             linha = entrada.readLine();
             // converte de string para integer
-            //  caso seja de string para int usasse parseint
+            // caso fosse de string para int usa-se parseint
             while (linha != null) {
-                resgistro = linha.split(";");
-                Integer fk_servidor = Integer.valueOf(resgistro[1]);
-                String user = resgistro[2];
-                String dataHoraString = resgistro[3];
-                Double cpu = Double.valueOf(resgistro[4]);
-                Double ram = Double.valueOf(resgistro[5]);
-                Double disco = Double.valueOf(resgistro[6]);
-                Double tmp_cpu = Double.valueOf(resgistro[7]);
-                Double tmp_disco = Double.valueOf(resgistro[8]);
-                Double memoria_swap = Double.valueOf(resgistro[9]);
-                Integer qtd_processos = Integer.valueOf(resgistro[10]);
-                Logs Log = new Logs(fk_servidor, user, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos);
+
+                registro = linha.split(";");
+                Integer fk_servidor = Integer.valueOf(registro[1]);
+                String user = registro[2];
+                String nomeMaquina = registro[3];
+                String dataHoraString = registro[4];
+                Double cpu = Double.valueOf(registro[5]);
+                Double ram = Double.valueOf(registro[6]);
+                Double disco = Double.valueOf(registro[7]);
+                Double tmp_cpu = Double.valueOf(registro[8]);
+                Double tmp_disco = Double.valueOf(registro[9]);
+                Double memoria_swap = Double.valueOf(registro[10]);
+                Integer qtd_processos = Integer.valueOf(registro[11]);
+                BigInteger download_bytes = new BigInteger(registro[12]);
+                BigInteger upload_bytes = new BigInteger(registro[13]);
+                BigInteger pacotes_recebidos = new BigInteger(registro[14]);
+                BigInteger pacotes_enviados = new BigInteger(registro[15]);
+                Integer errin = Integer.valueOf(registro[16]);
+                Integer errout = Integer.valueOf(registro[17]);
+                Integer dropin = Integer.valueOf(registro[18]);
+                Integer dropout = Integer.valueOf(registro[19]);
+                BigInteger numero_leituras = new BigInteger(registro[20]);
+                BigInteger numero_escritas = new BigInteger(registro[21]);
+                BigInteger bytes_lidos = new BigInteger(registro[22]);
+                BigInteger bytes_escritos = new BigInteger(registro[23]);
+                Integer tempo_leitura = Integer.valueOf(registro[24]);
+                Integer tempo_escrita = Integer.valueOf(registro[25]);
+                Logs Log = new Logs(fk_servidor, user, nomeMaquina, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos, download_bytes, upload_bytes, pacotes_recebidos, pacotes_enviados, errin, errout, dropin, dropout, numero_leituras, numero_escritas, bytes_lidos, bytes_escritos, tempo_leitura, tempo_escrita);
                 listaLogs.add(Log);
                 linha = entrada.readLine();
             }
@@ -210,14 +263,27 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         aws.downloadBucket("data.csv");
-        List<Logs> lista =leImportaArquivoCsv("data");
+        List<Logs> lista = leImportaArquivoCsv("data");
         gravaArquivoJson(lista,"data");
-        List<Logs> listaLogs = lerJson();
+        List<Logs> listaLogs = lerJson(); // Transforma o obj em json
 
         System.out.println("Estabelecendo conexão ao banco...");
         Connection connection = new Connection();
         JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
         System.out.println("Conexão estabelecida com sucesso!\n");
+
+
+
+
+        // Área de tratamento MIRALHA
+        TratamentoTemperaturaCpu tratarTemperatura = new TratamentoTemperaturaCpu(aws, con);
+        tratarTemperatura.tratamentoDeTemperaturaCpu(listaLogs, "temperaturaUsoCpu");
+
+        TratamentoTemperaturaDisco tratarTemperaturaDisco = new TratamentoTemperaturaDisco(aws, con);
+        tratarTemperaturaDisco.tratamentoDeTemperaturaDisco(listaLogs, "temperaturaUsoDisco");
+
+
+
 
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
@@ -241,7 +307,7 @@ public class Main {
             Integer contadorDiscoTemperatura = 0;
             Integer contadorSwap = 0;
 
-            for (int l = 0; l < listaLogs.size() - contador; l++) { // For das metricas por servidor
+            for (int l = 0; l < listaLogs.size() - contador; l++) { // For das métricas por servidor
 
                 Integer fk_componente = metrica.get(i).getFk_componente();
                 Double max = metrica.get(i).getMax();
@@ -271,7 +337,7 @@ public class Main {
                 }
 
 
-                for (int j = 0; j < miniLista.size(); j++) { // For de análise da minilista
+                for (int j = 0; j < miniLista.size(); j++) { // For de análise da mini-lista
 
 
                     String selectTipo = (
@@ -549,7 +615,7 @@ public class Main {
         aws.limparTemporarios();
 
 
-        System.out.println("\nChamando a ETL do Trusted para Cliente...");
+        System.out.println("\nChamando a ETL do Trusted para Client...");
 
         try {
             // 2. Instancia a nova ETL

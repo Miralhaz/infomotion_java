@@ -16,7 +16,7 @@ public class SlackNotifier {
                 "{\"channel\":\"%s\",\"text\":\"%s\"}",
                 CHANNEL,
                 message.replace("\"", "\\\"")
-                        .replace("\n", "\\n")  // Adicione isso
+                        .replace("\n", "\\n")
                         .replace("\r", "\\r")
                         .replace("\t", "\\t")
         );
