@@ -51,8 +51,8 @@ public class TratamentoTemperaturaDisco {
             LogsMiralhaDisco logReduzido = new LogsMiralhaDisco(
                     log.getFk_servidor(),
                     dataHoraStr,
-                    log.getCpu(),
-                    log.getTmp_cpu()
+                    log.getDisco(),
+                    log.getTmp_disco()
             );
             reduzidos.add(logReduzido);
         }
