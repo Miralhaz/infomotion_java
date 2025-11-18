@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.math.BigInteger;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Logs {
@@ -33,29 +32,25 @@ public class Logs {
     @JsonProperty("nomeMaquina")
     private String nomeMaquina;
     @JsonProperty("download_bytes")
-    private BigInteger download_bytes;
+    private Integer download_bytes;
     @JsonProperty("upload_bytes")
-    private BigInteger upload_bytes;
+    private Integer upload_bytes;
     @JsonProperty("pacotes_recebidos")
-    private BigInteger pacotes_recebidos;
+    private Integer pacotes_recebidos;
     @JsonProperty("pacotes_enviados")
-    private BigInteger pacotes_enviados;
-    @JsonProperty("errin")
-    private Integer errin;
-    @JsonProperty("errout")
-    private Integer errout;
+    private Integer pacotes_enviados;
     @JsonProperty("dropin")
     private Integer dropin;
     @JsonProperty("dropout")
     private Integer dropout;
     @JsonProperty("numero_leituras")
-    private BigInteger numero_leituras;
+    private Integer numero_leituras;
     @JsonProperty("numero_escritas")
-    private BigInteger numero_escritas;
+    private Integer numero_escritas;
     @JsonProperty("bytes_lidos")
-    private BigInteger bytes_lidos;
+    private Long bytes_lidos;
     @JsonProperty("bytes_escritos")
-    private BigInteger bytes_escritos;
+    private Long bytes_escritos;
     @JsonProperty("tempo_leitura")
     private Integer tempo_leitura;
     @JsonProperty("tempo_escrita")
@@ -74,18 +69,16 @@ public class Logs {
                 Double tmp_disco,
                 Double memoria_swap,
                 Integer qtd_processos,
-                BigInteger download_bytes,
-                BigInteger upload_bytes,
-                BigInteger pacotes_recebidos,
-                BigInteger pacotes_enviados,
-                Integer errin,
-                Integer errout,
+                Integer download_bytes,
+                Integer upload_bytes,
+                Integer pacotes_recebidos,
+                Integer pacotes_enviados,
                 Integer dropin,
                 Integer dropout,
-                BigInteger numero_leituras,
-                BigInteger numero_escritas,
-                BigInteger bytes_lidos,
-                BigInteger bytes_escritos,
+                Integer numero_leituras,
+                Integer numero_escritas,
+                Long bytes_lidos,
+                Long bytes_escritos,
                 Integer tempo_leitura,
                 Integer tempo_escrita) {
         this.fk_servidor = fk_servidor;
@@ -103,8 +96,6 @@ public class Logs {
         this.upload_bytes = upload_bytes;
         this.pacotes_recebidos = pacotes_recebidos;
         this.pacotes_enviados = pacotes_enviados;
-        this.errin = errin;
-        this.errout = errout;
         this.dropin = dropin;
         this.dropout = dropout;
         this.numero_leituras = numero_leituras;
@@ -225,52 +216,36 @@ public class Logs {
         this.nomeMaquina = nomeMaquina;
     }
 
-    public BigInteger getDownload_bytes() {
+    public Integer getDownload_bytes() {
         return download_bytes;
     }
 
-    public void setDownload_bytes(BigInteger download_bytes) {
+    public void setDownload_bytes(Integer download_bytes) {
         this.download_bytes = download_bytes;
     }
 
-    public BigInteger getUpload_bytes() {
+    public Integer getUpload_bytes() {
         return upload_bytes;
     }
 
-    public void setUpload_bytes(BigInteger upload_bytes) {
+    public void setUpload_bytes(Integer upload_bytes) {
         this.upload_bytes = upload_bytes;
     }
 
-    public BigInteger getPacotes_recebidos() {
+    public Integer getPacotes_recebidos() {
         return pacotes_recebidos;
     }
 
-    public void setPacotes_recebidos(BigInteger pacotes_recebidos) {
+    public void setPacotes_recebidos(Integer pacotes_recebidos) {
         this.pacotes_recebidos = pacotes_recebidos;
     }
 
-    public BigInteger getPacotes_enviados() {
+    public Integer getPacotes_enviados() {
         return pacotes_enviados;
     }
 
-    public void setPacotes_enviados(BigInteger pacotes_enviados) {
+    public void setPacotes_enviados(Integer pacotes_enviados) {
         this.pacotes_enviados = pacotes_enviados;
-    }
-
-    public Integer getErrin() {
-        return errin;
-    }
-
-    public void setErrin(Integer errin) {
-        this.errin = errin;
-    }
-
-    public Integer getErrout() {
-        return errout;
-    }
-
-    public void setErrout(Integer errout) {
-        this.errout = errout;
     }
 
     public Integer getDropin() {
@@ -289,35 +264,35 @@ public class Logs {
         this.dropout = dropout;
     }
 
-    public BigInteger getNumero_leituras() {
+    public Integer getNumero_leituras() {
         return numero_leituras;
     }
 
-    public void setNumero_leituras(BigInteger numero_leituras) {
+    public void setNumero_leituras(Integer numero_leituras) {
         this.numero_leituras = numero_leituras;
     }
 
-    public BigInteger getNumero_escritas() {
+    public Integer getNumero_escritas() {
         return numero_escritas;
     }
 
-    public void setNumero_escritas(BigInteger numero_escritas) {
+    public void setNumero_escritas(Integer numero_escritas) {
         this.numero_escritas = numero_escritas;
     }
 
-    public BigInteger getBytes_lidos() {
+    public Long getBytes_lidos() {
         return bytes_lidos;
     }
 
-    public void setBytes_lidos(BigInteger bytes_lidos) {
+    public void setBytes_lidos(Long bytes_lidos) {
         this.bytes_lidos = bytes_lidos;
     }
 
-    public BigInteger getBytes_escritos() {
+    public Long getBytes_escritos() {
         return bytes_escritos;
     }
 
-    public void setBytes_escritos(BigInteger bytes_escritos) {
+    public void setBytes_escritos(Long bytes_escritos) {
         this.bytes_escritos = bytes_escritos;
     }
 
@@ -355,8 +330,6 @@ public class Logs {
                 " | Upload Bytes:" + upload_bytes +
                 " | Pacotes Recebidos:" + pacotes_recebidos +
                 " | Pacotes Enviados:" + pacotes_enviados +
-                " | errin:" + errin +
-                " | errout:" + errout +
                 " | dropin:" + dropin +
                 " | dropout:" + dropout +
                 " | Número Leituras:" + numero_leituras +
