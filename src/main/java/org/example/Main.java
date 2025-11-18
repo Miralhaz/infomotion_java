@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.classesMiralha.TratamentoTemperaturaCpu;
+import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -210,7 +212,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         aws.downloadBucket("data.csv");
-        List<Logs> lista =leImportaArquivoCsv("data");
+        List<Logs> lista = leImportaArquivoCsv("data");
         gravaArquivoJson(lista,"data");
         List<Logs> listaLogs = lerJson();
 
@@ -218,6 +220,19 @@ public class Main {
         Connection connection = new Connection();
         JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
         System.out.println("Conexão estabelecida com sucesso!\n");
+
+
+
+
+        // Área de tratamento MIRALHA
+        TratamentoTemperaturaCpu tratarTemperatura = new TratamentoTemperaturaCpu(aws, con);
+        tratarTemperatura.tratamentoDeTemperaturaCpu(listaLogs, "temperaturaUsoCpu");
+
+        TratamentoTemperaturaDisco tratarTemperaturaDisco = new TratamentoTemperaturaDisco(aws, con);
+        tratarTemperaturaDisco.tratamentoDeTemperaturaDisco(listaLogs, "temperaturaUsoDisco");
+
+
+
 
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
