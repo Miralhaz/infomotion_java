@@ -30,12 +30,12 @@ public class Main {
         }
 
         try {
-            saida.append("fk_servidor;user;nomeMaquina;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos;download_bytes;upload_bytes;pacotes_recebidos;pacotes_enviados;dropin;dropout;numero_leituras;numero_escritas;bytes_lidos;bytes_escritos;tempo_leitura;tempo_escrita\n");
+            saida.append("fk_servidor;nomeMaquina;timestamp;cpu;ram;disco;temperatura_cpu;temperatura_disco;memoria_swap;quantidade_processos;download_bytes;upload_bytes;pacotes_recebidos;pacotes_enviados;dropin;dropout;numero_leituras;numero_escritas;bytes_lidos;bytes_escritos;tempo_leitura;tempo_escrita\n");
 
             for (Logs log : lista){
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                saida.write(String.format("%d;%s;%s;%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
-                        log.getFk_servidor(), log.getUser(), log.getNomeMaquina(), log.getDataHora().format(formatter), log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
+                saida.write(String.format("%d;%s;%s;%.2f;%.2f;%.2f;%.2f;%.2f;%.2f;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d;%d\n",
+                        log.getFk_servidor(), log.getNomeMaquina(), log.getDataHora().format(formatter), log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
             }
 
         }catch (IOException erro){
@@ -108,7 +108,6 @@ public class Main {
                     saida.write(String.format(Locale.US,"""
                            {
                            "fk_servidor": "%d",
-                           "user": "%s" ,
                            "nomeMaquina": "%s",
                            "timestamp": "%s",
                            "cpu": "%.2f",
@@ -131,12 +130,11 @@ public class Main {
                            "tempo_leitura": "%d",
                            "tempo_escrita": "%d"
                            }""",
-                            log.getFk_servidor(), log.getUser(), log.getNomeMaquina(), log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
+                            log.getFk_servidor(), log.getNomeMaquina(), log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
                 }else {
                     saida.write(String.format(Locale.US,"""
                                {
                                "fk_servidor": "%d",
-                               "user": "%s",
                                "nomeMaquina": "%s",
                                "timestamp": "%s",
                                "cpu": "%.2f",
@@ -159,7 +157,7 @@ public class Main {
                                "tempo_leitura": "%d",
                                "tempo_escrita": "%d"
                                },""",
-                            log.getFk_servidor(), log.getUser(), log.getNomeMaquina(), log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
+                            log.getFk_servidor(), log.getNomeMaquina(), log.getDataHoraString(),log.getCpu(),log.getRam(),log.getDisco(),log.getTmp_cpu(),log.getTmp_disco(),log.getMemoria_swap(),log.getQtd_processos(), log.getDownload_bytes(), log.getUpload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getNumero_leituras(), log.getNumero_escritas(), log.getBytes_lidos(), log.getBytes_escritos(), log.getTempo_leitura(), log.getTempo_escrita()));
                 }
             }
             saida.append("]");
@@ -210,29 +208,28 @@ public class Main {
 
                 registro = linha.split(";");
                 Integer fk_servidor = Integer.valueOf(registro[1]);
-                String user = registro[2];
-                String nomeMaquina = registro[3];
-                String dataHoraString = registro[4];
-                Double cpu = Double.valueOf(registro[5]);
-                Double ram = Double.valueOf(registro[6]);
-                Double disco = Double.valueOf(registro[7]);
-                Double tmp_cpu = Double.valueOf(registro[8]);
-                Double tmp_disco = Double.valueOf(registro[9]);
-                Double memoria_swap = Double.valueOf(registro[10]);
-                Integer qtd_processos = Integer.valueOf(registro[11]);
-                Integer download_bytes = Integer.valueOf(registro[12]);
-                Integer upload_bytes = Integer.valueOf(registro[13]);
-                Integer pacotes_recebidos = Integer.valueOf(registro[14]);
-                Integer pacotes_enviados = Integer.valueOf(registro[15]);
-                Integer dropin = Integer.valueOf(registro[16]);
-                Integer dropout = Integer.valueOf(registro[17]);
-                Integer numero_leituras = Integer.valueOf(registro[18]);
-                Integer numero_escritas = Integer.valueOf(registro[19]);
-                Long bytes_lidos = Long.valueOf(registro[20]);
-                Long bytes_escritos = Long.valueOf(registro[21]);
-                Integer tempo_leitura = Integer.valueOf(registro[22]);
-                Integer tempo_escrita = Integer.valueOf(registro[23]);
-                Logs Log = new Logs(fk_servidor, user, nomeMaquina, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos, download_bytes, upload_bytes, pacotes_recebidos, pacotes_enviados, dropin, dropout, numero_leituras, numero_escritas, bytes_lidos, bytes_escritos, tempo_leitura, tempo_escrita);
+                String nomeMaquina = registro[2];
+                String dataHoraString = registro[3];
+                Double cpu = Double.valueOf(registro[4]);
+                Double ram = Double.valueOf(registro[5]);
+                Double disco = Double.valueOf(registro[6]);
+                Double tmp_cpu = Double.valueOf(registro[7]);
+                Double tmp_disco = Double.valueOf(registro[8]);
+                Double memoria_swap = Double.valueOf(registro[9]);
+                Integer qtd_processos = Integer.valueOf(registro[10]);
+                Integer download_bytes = Integer.valueOf(registro[11]);
+                Integer upload_bytes = Integer.valueOf(registro[12]);
+                Integer pacotes_recebidos = Integer.valueOf(registro[13]);
+                Integer pacotes_enviados = Integer.valueOf(registro[14]);
+                Integer dropin = Integer.valueOf(registro[15]);
+                Integer dropout = Integer.valueOf(registro[16]);
+                Integer numero_leituras = Integer.valueOf(registro[17]);
+                Integer numero_escritas = Integer.valueOf(registro[18]);
+                Long bytes_lidos = Long.valueOf(registro[19]);
+                Long bytes_escritos = Long.valueOf(registro[20]);
+                Integer tempo_leitura = Integer.valueOf(registro[21]);
+                Integer tempo_escrita = Integer.valueOf(registro[22]);
+                Logs Log = new Logs(fk_servidor, nomeMaquina, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos, download_bytes, upload_bytes, pacotes_recebidos, pacotes_enviados, dropin, dropout, numero_leituras, numero_escritas, bytes_lidos, bytes_escritos, tempo_leitura, tempo_escrita);
                 listaLogs.add(Log);
                 linha = entrada.readLine();
             }
@@ -423,7 +420,7 @@ public class Main {
                                         "Timestamp: %s",
                                 maxCPUPorcentagem,
                                 duracao_min,
-                                ultimoLog.getUser(),
+                                ultimoLog.getNomeMaquina(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
                         System.out.println("Alerta de Uso de CPU!");
@@ -455,7 +452,7 @@ public class Main {
                                         "Data e hora do alerta: %s",
                                 maxCPUTemperatura,
                                 duracao_min,
-                                ultimoLog.getUser(),
+                                ultimoLog.getNomeMaquina(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
                         System.out.println("\nAlerta de Temperatura de CPU!");
@@ -487,7 +484,7 @@ public class Main {
                                         "Data e hora do alerta: %s",
                                 maxDiscoTemperatura,
                                 duracao_min,
-                                ultimoLog.getUser(),
+                                ultimoLog.getNomeMaquina(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
                         System.out.println("\nAlerta de Temperatura de Disco!");
@@ -519,7 +516,7 @@ public class Main {
                                         "Data e hora do alerta: %s",
                                 maxDiscoPorcentagem,
                                 duracao_min,
-                                ultimoLog.getUser(),
+                                ultimoLog.getNomeMaquina(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
                         System.out.println("\nAlerta de Uso de Disco!");
@@ -551,7 +548,7 @@ public class Main {
                                         "Data e hora do alerta: %s",
                                 maxRamPorcentagem,
                                 duracao_min,
-                                ultimoLog.getUser(),
+                                ultimoLog.getNomeMaquina(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
                         System.out.println("\nAlerta de Uso de RAM!");
@@ -583,7 +580,7 @@ public class Main {
                                         "Data e hora do alerta: %s",
                                 maxSwap,
                                 duracao_min,
-                                ultimoLog.getUser(),
+                                ultimoLog.getNomeMaquina(),
                                 ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
                         );
                         System.out.println("\nAlerta de Uso de SWAP!");

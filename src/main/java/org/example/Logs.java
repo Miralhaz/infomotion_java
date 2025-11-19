@@ -9,8 +9,8 @@ import java.time.format.DateTimeFormatter;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Logs {
-    @JsonProperty("user")
-    private String user;
+    @JsonProperty("nomeMaquina")
+    private String nomeMaquina;
     @JsonProperty("timestamp")
     private String dataHoraString;
     @JsonProperty("cpu")
@@ -29,8 +29,6 @@ public class Logs {
     private Integer qtd_processos;
     @JsonProperty("fk_servidor")
     private Integer fk_servidor;
-    @JsonProperty("nomeMaquina")
-    private String nomeMaquina;
     @JsonProperty("download_bytes")
     private Integer download_bytes;
     @JsonProperty("upload_bytes")
@@ -59,7 +57,6 @@ public class Logs {
     private LocalDateTime dataHora;
 
     public Logs(Integer fk_servidor,
-                String user,
                 String nomeMaquina,
                 String dataHoraString,
                 Double cpu,
@@ -82,7 +79,6 @@ public class Logs {
                 Integer tempo_leitura,
                 Integer tempo_escrita) {
         this.fk_servidor = fk_servidor;
-        this.user = user;
         this.nomeMaquina = nomeMaquina;
         this.dataHoraString = dataHoraString;
         this.cpu = cpu;
@@ -115,10 +111,6 @@ public class Logs {
     }
 
 
-    public String getUser() {
-        return user;
-    }
-
     public Double getCpu() {
         return cpu;
     }
@@ -133,10 +125,6 @@ public class Logs {
 
     public LocalDateTime getDataHora() {
         return dataHora;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
     }
 
     public String getDataHoraString() {
@@ -315,8 +303,7 @@ public class Logs {
     @Override
     public String toString() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        return "\nUser:" + user +
-                " | Data e Hora:" + dataHora.format(formatter) +
+        return "\n Data e Hora:" + dataHora.format(formatter) +
                 " | CPU:" + cpu +
                 " | RAM:" + ram +
                 " | Disco:" + disco +
