@@ -64,11 +64,10 @@ public class Main {
     }
 
     public static void consolidarArquivosRaw() {
-        final String ARQUIVO_CONSOLIDADO_TRUSTED = "logs_consolidados_servidores"; // Sem .csv
+        final String ARQUIVO_CONSOLIDADO_TRUSTED = "logs_consolidados_servidores";
 
         System.out.println("\n--- INICIANDO CONSOLIDAÇÃO RAW PARA TRUSTED ---");
 
-        // 1. Tenta Baixar o arquivo consolidado anterior (se existir)
         aws.downloadTemperaturaBucket(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
 
         List<String> arquivosRawParaProcessar = aws.listarArquivosRaw();
@@ -81,19 +80,14 @@ public class Main {
 
         System.out.printf("Encontrados %d arquivos RAW para processar.\n", arquivosRawParaProcessar.size());
 
-        // 2. Loop para processar CADA arquivo RAW
         for (String chaveRaw : arquivosRawParaProcessar) {
             try {
-                // A. Baixar o arquivo RAW (ex: data11.csv) localmente
                 aws.downloadBucket(chaveRaw);
 
-                // B. LER os logs deste CSV e adicionar à lista
-                // Chamamos leImportaArquivoCsv com o nome completo e corrigimos a lógica de nomes
                 List<Logs> logsDoArquivo = leImportaArquivoCsv(chaveRaw);
                 logsNovosParaConsolidar.addAll(logsDoArquivo);
                 System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
 
-                // C. Deletar APENAS o arquivo local após leitura (o objeto S3 fica)
                 aws.deleteCsvLocal(chaveRaw);
 
             } catch (Exception e) {
@@ -106,10 +100,7 @@ public class Main {
             return;
         }
 
-        // 3. Gravar o novo arquivo consolidado (APPEND)
         gravaArquivoCsv(logsNovosParaConsolidar, ARQUIVO_CONSOLIDADO_TRUSTED, true);
-
-        // 4. Upload para o TRUSTED
         aws.uploadBucket(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
 
         System.out.println("\n--- CONSOLIDAÇÃO RAW PARA TRUSTED FINALIZADA ---");
