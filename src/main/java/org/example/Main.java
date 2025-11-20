@@ -181,7 +181,7 @@ public class Main {
         }
     }
     public static  List<Logs> leImportaArquivoCsv(String nomeArq){
-        Reader arq = null; // objeto aquivo
+        Reader arq = null; // objeto arquivo
         BufferedReader entrada = null; // objeto leitor de arquivo
         nomeArq += ".csv";
         List<Logs> listaLogs = new ArrayList<>();
