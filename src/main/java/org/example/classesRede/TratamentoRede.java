@@ -1,9 +1,6 @@
 package org.example.classesRede;
 
-import org.example.Connection;
-import org.example.JiraService;
-import org.example.Logs;
-import org.example.SlackNotifier;
+import org.example.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
@@ -11,8 +8,20 @@ import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
-public class TratamentoAlertaRede {
+import static org.example.Main.aws;
+
+public class TratamentoRede {
+    private final AwsConnection awsConnection;
+
+    public TratamentoRede(AwsConnection awsConnection) {
+        this.awsConnection = awsConnection;
+    }
+
+    public AwsConnection getAwsConnection() {
+        return awsConnection;
+    }
 
     public static List<LogConexao> csvJsonConexao (String nomeArq) {
         Reader arq = null; // objeto aquivo
@@ -44,12 +53,14 @@ public class TratamentoAlertaRede {
             while (linha != null) {
 
                 registro = linha.split(";");
-                String nomeConexao = registro[1];
-                String laddr = registro[2];
-                String raddr = registro[3];
-                String status = registro[4];
-                Integer idProcessoConexao = Integer.valueOf(registro[5]);
-                LogConexao logConexao = new LogConexao(nomeConexao, raddr, laddr, status, idProcessoConexao);
+                Integer fk_servidor = Integer.valueOf(registro[0]);
+                String dataHoraString = registro[1];
+                Integer idProcessoConexao = Integer.valueOf(registro[2]);
+                String nomeConexao = registro[3];
+                String raddr = registro[4];
+                String laddr = registro[5];
+                String status = registro[6];
+                LogConexao logConexao = new LogConexao(fk_servidor, idProcessoConexao, nomeConexao, raddr, laddr, status, dataHoraString);
                 listaLogsConexao.add(logConexao);
                 linha = entrada.readLine();
             }
@@ -71,6 +82,68 @@ public class TratamentoAlertaRede {
     }
 
 
+    public static void gravaArquivoJson(List<LogConexao> lista, String nomeArq) {
+
+        OutputStreamWriter saida = null;
+        Boolean deuRuim = false;
+        nomeArq += ".json";
+
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+
+        } catch (IOException erro) {
+            System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
+            System.exit(1);
+        }
+
+        try {
+            saida.append("[");
+            Integer contador = 0;
+            for (LogConexao log : lista) {
+                contador ++;
+                if (contador == lista.size()){
+                    saida.write(String.format(Locale.US,"""
+                           {
+                           "fk_servidor": "%d",
+                           "idProcessoConexao": "%s",
+                           "timeStamp": "%s",
+                           "nomeConexao": "%s",
+                           "laddr": "%s",
+                           "raddr": "%s",
+                           "status": "%s"
+                           }""",
+                            log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
+                }else {
+                    saida.write(String.format(Locale.US,"""
+                               {
+                               "fk_servidor": "%d",
+                               "idProcessoConexao": "%s",
+                               "timeStamp": "%s",
+                               "nomeConexao": "%s",
+                               "raddr": "%s",
+                               "laddr": "%s",
+                               "status": "%s"
+                               },""",
+                            log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
+                }
+            }
+            saida.append("]");
+        } catch (IOException erro) {
+            System.out.println("Erro ao gravar o arquivo");
+            erro.printStackTrace();
+            deuRuim = true;
+        } finally {
+            try {
+                saida.close();
+            } catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+            if (deuRuim) {
+                System.exit(1);
+            }
+        }
+    }
 
 
     public List<LogRede> filtrandoLogRede(List<Logs> lista) {
@@ -299,5 +372,7 @@ public class TratamentoAlertaRede {
             }
             alertasRede.addAll(listaRede);
         }
+        gravaArquivoJson();
+        awsConnection.uploadBucketClient("alertas.json");
     }
 }
