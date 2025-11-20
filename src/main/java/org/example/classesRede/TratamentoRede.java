@@ -250,7 +250,6 @@ public class TratamentoRede {
                             "Timestamp: %s",
                     maxDown,
                     duracao_min,
-                    ultimoLog.getUser(),
                     ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
             );
             System.out.println("Alerta de valor de Download!");
@@ -284,7 +283,6 @@ public class TratamentoRede {
                             "Timestamp: %s",
                     maxUp,
                     duracao_min,
-                    ultimoLog.getUser(),
                     ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
             );
             System.out.println("Alerta de valor de Upload!");
@@ -318,7 +316,6 @@ public class TratamentoRede {
                             "Timestamp: %s",
                     maxpacketSent,
                     duracao_min,
-                    ultimoLog.getUser(),
                     ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
             );
             System.out.println("Alerta de valor de Pacotes enviados!");
@@ -352,7 +349,6 @@ public class TratamentoRede {
                             "Timestamp: %s",
                     maxpacketReceived,
                     duracao_min,
-                    ultimoLog.getUser(),
                     ultimoLog.getDataHora().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"))
             );
             System.out.println("Alerta de valor de Pacotes Recebidos!");

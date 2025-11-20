@@ -59,7 +59,6 @@ public class Logs {
     private LocalDateTime dataHora;
 
     public Logs(Integer fk_servidor,
-                String user,
                 String nomeMaquina,
                 String dataHoraString,
                 Double cpu,
@@ -82,7 +81,6 @@ public class Logs {
                 Integer tempo_leitura,
                 Integer tempo_escrita) {
         this.fk_servidor = fk_servidor;
-        this.user = user;
         this.nomeMaquina = nomeMaquina;
         this.dataHoraString = dataHoraString;
         this.cpu = cpu;
@@ -104,19 +102,17 @@ public class Logs {
         this.bytes_escritos = bytes_escritos;
         this.tempo_leitura = tempo_leitura;
         this.tempo_escrita = tempo_escrita;
-        DateTimeFormatter LocalDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        LocalDateTime dataUnformatter = LocalDateTime.parse(dataHoraString,LocalDateTimeFormatter);
-        String dataTimeFormatterString = dataUnformatter.format(formatter);
-        this.dataHora = LocalDateTime.parse(dataTimeFormatterString,formatter);
+        DateTimeFormatter RAW_INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        try {
+            this.dataHora = LocalDateTime.parse(dataHoraString, RAW_INPUT_FORMATTER);
+        } catch (java.time.format.DateTimeParseException e) {
+            DateTimeFormatter FALLBACK_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            this.dataHora = LocalDateTime.parse(dataHoraString, FALLBACK_FORMATTER);
+        }
     }
 
     public Logs() {
-    }
-
-
-    public String getUser() {
-        return user;
     }
 
     public Double getCpu() {
