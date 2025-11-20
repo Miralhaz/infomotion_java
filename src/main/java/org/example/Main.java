@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.*;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -209,7 +210,7 @@ public class Main {
             while (linha != null) {
 
                 registro = linha.split(";");
-                Integer fk_servidor = Integer.valueOf(registro[1]);
+                Integer fk_servidor = Integer.valueOf(registro[0]);
                 String user = registro[2];
                 String nomeMaquina = registro[3];
                 String dataHoraString = registro[4];
@@ -220,14 +221,14 @@ public class Main {
                 Double tmp_disco = Double.valueOf(registro[9]);
                 Double memoria_swap = Double.valueOf(registro[10]);
                 Integer qtd_processos = Integer.valueOf(registro[11]);
-                Integer download_bytes = Integer.valueOf(registro[12]);
-                Integer upload_bytes = Integer.valueOf(registro[13]);
-                Integer pacotes_recebidos = Integer.valueOf(registro[14]);
-                Integer pacotes_enviados = Integer.valueOf(registro[15]);
+                Long download_bytes = Long.valueOf(registro[12]);
+                Long upload_bytes = Long.valueOf(registro[13]);
+                Long pacotes_recebidos = Long.valueOf(registro[14]);
+                Long pacotes_enviados = Long.valueOf(registro[15]);
                 Integer dropin = Integer.valueOf(registro[16]);
                 Integer dropout = Integer.valueOf(registro[17]);
-                Integer numero_leituras = Integer.valueOf(registro[18]);
-                Integer numero_escritas = Integer.valueOf(registro[19]);
+                Long numero_leituras = Long.valueOf(registro[18]);
+                Long numero_escritas = Long.valueOf(registro[19]);
                 Long bytes_lidos = Long.valueOf(registro[20]);
                 Long bytes_escritos = Long.valueOf(registro[21]);
                 Integer tempo_leitura = Integer.valueOf(registro[22]);
@@ -241,7 +242,8 @@ public class Main {
             e.printStackTrace();
             System.exit(1);
 
-        }finally {
+        }
+        finally {
             try {
                 System.out.println("Arquivo importado com sucesso!\n");
                 entrada.close();
@@ -347,6 +349,7 @@ public class Main {
                     String unidadeMedida = con.queryForObject(selectUnidadeMedida, String.class, fk_componente);
 
                     Logs logAtual = miniLista.get(l);
+
 
                     if (tipo.equalsIgnoreCase("CPU")) {
                         if (unidadeMedida.equalsIgnoreCase("%")) {

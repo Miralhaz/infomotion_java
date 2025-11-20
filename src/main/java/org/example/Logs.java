@@ -3,7 +3,7 @@ package org.example;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -32,21 +32,21 @@ public class Logs {
     @JsonProperty("nomeMaquina")
     private String nomeMaquina;
     @JsonProperty("download_bytes")
-    private Integer download_bytes;
+    private Long download_bytes;
     @JsonProperty("upload_bytes")
-    private Integer upload_bytes;
+    private Long upload_bytes;
     @JsonProperty("pacotes_recebidos")
-    private Integer pacotes_recebidos;
+    private Long pacotes_recebidos;
     @JsonProperty("pacotes_enviados")
-    private Integer pacotes_enviados;
+    private Long pacotes_enviados;
     @JsonProperty("dropin")
     private Integer dropin;
     @JsonProperty("dropout")
     private Integer dropout;
     @JsonProperty("numero_leituras")
-    private Integer numero_leituras;
+    private Long numero_leituras;
     @JsonProperty("numero_escritas")
-    private Integer numero_escritas;
+    private Long numero_escritas;
     @JsonProperty("bytes_lidos")
     private Long bytes_lidos;
     @JsonProperty("bytes_escritos")
@@ -69,14 +69,14 @@ public class Logs {
                 Double tmp_disco,
                 Double memoria_swap,
                 Integer qtd_processos,
-                Integer download_bytes,
-                Integer upload_bytes,
-                Integer pacotes_recebidos,
-                Integer pacotes_enviados,
+                Long download_bytes,
+                Long upload_bytes,
+                Long pacotes_recebidos,
+                Long pacotes_enviados,
                 Integer dropin,
                 Integer dropout,
-                Integer numero_leituras,
-                Integer numero_escritas,
+                Long numero_leituras,
+                Long numero_escritas,
                 Long bytes_lidos,
                 Long bytes_escritos,
                 Integer tempo_leitura,
@@ -216,35 +216,35 @@ public class Logs {
         this.nomeMaquina = nomeMaquina;
     }
 
-    public Integer getDownload_bytes() {
+    public Long getDownload_bytes() {
         return download_bytes;
     }
 
-    public void setDownload_bytes(Integer download_bytes) {
+    public void setDownload_bytes(Long download_bytes) {
         this.download_bytes = download_bytes;
     }
 
-    public Integer getUpload_bytes() {
+    public Long getUpload_bytes() {
         return upload_bytes;
     }
 
-    public void setUpload_bytes(Integer upload_bytes) {
+    public void setUpload_bytes(Long upload_bytes) {
         this.upload_bytes = upload_bytes;
     }
 
-    public Integer getPacotes_recebidos() {
+    public Long getPacotes_recebidos() {
         return pacotes_recebidos;
     }
 
-    public void setPacotes_recebidos(Integer pacotes_recebidos) {
+    public void setPacotes_recebidos(Long pacotes_recebidos) {
         this.pacotes_recebidos = pacotes_recebidos;
     }
 
-    public Integer getPacotes_enviados() {
+    public Long getPacotes_enviados() {
         return pacotes_enviados;
     }
 
-    public void setPacotes_enviados(Integer pacotes_enviados) {
+    public void setPacotes_enviados(Long pacotes_enviados) {
         this.pacotes_enviados = pacotes_enviados;
     }
 
@@ -264,19 +264,19 @@ public class Logs {
         this.dropout = dropout;
     }
 
-    public Integer getNumero_leituras() {
+    public Long getNumero_leituras() {
         return numero_leituras;
     }
 
-    public void setNumero_leituras(Integer numero_leituras) {
+    public void setNumero_leituras(Long numero_leituras) {
         this.numero_leituras = numero_leituras;
     }
 
-    public Integer getNumero_escritas() {
+    public Long getNumero_escritas() {
         return numero_escritas;
     }
 
-    public void setNumero_escritas(Integer numero_escritas) {
+    public void setNumero_escritas(Long numero_escritas) {
         this.numero_escritas = numero_escritas;
     }
 
