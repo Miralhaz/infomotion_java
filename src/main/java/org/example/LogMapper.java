@@ -16,10 +16,6 @@ public class LogMapper {
                     });
             return logsDoJson;
 
-
         }
-
-
-
 
 }
