@@ -3,21 +3,53 @@ package org.example;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class AwsConnection {
     private final S3Client s3 = S3Utils.createClient();
+
+    public List<String> listarArquivosRaw() {
+        List<String> chaves = new ArrayList<>();
+
+        // Expressão Regular:
+        // ^data  -> Começa com 'data'
+        // \d+    -> Seguido por um ou mais dígitos (números)
+        // \.csv$ -> Termina com '.csv' (o ponto '.' precisa de escape '\')
+        String regexFiltro = "^data\\d+\\.csv$";
+
+        ListObjectsV2Request listReq = ListObjectsV2Request.builder()
+                .bucket("s3-raw-infomotion-1")
+                .build();
+
+        s3.listObjectsV2Paginator(listReq)
+                .stream()
+                .forEach(response ->
+                        response.contents().forEach(s3Object -> {
+                            String key = s3Object.key();
+
+                            // Aplicar o filtro de Regex
+                            if (key.matches(regexFiltro)) {
+                                chaves.add(key);
+                            }
+                        })
+                );
+
+        return chaves;
+    }
 
     public void downloadBucket(String nomeArq) {
         String key = String.format(nomeArq);
 
         s3.getObject(
                 GetObjectRequest.builder()
-                        .bucket("s3-raw-infomotion")
+                        .bucket("s3-raw-infomotion-1")
                         .key(key)
                         .build(),
                 Paths.get(nomeArq)
@@ -25,11 +57,11 @@ public class AwsConnection {
     }
 
     public void uploadBucket(String nomeArq) {
-        String key = String.format("alertas/%s", nomeArq);
+        String key = String.format("%s", nomeArq);
         try {
             s3.putObject(
                     PutObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion")
+                            .bucket("s3-trusted-infomotion-1")
                             .key(key)
                             .contentType("text/csv")
                             .build(),
@@ -37,7 +69,6 @@ public class AwsConnection {
             );
 
         System.out.println("Upload concluído: " + nomeArq);
-        deleteCsvLocal(nomeArq);
         }
      catch (Exception e) {
         System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
@@ -49,9 +80,48 @@ public class AwsConnection {
         try {
             s3.putObject(
                     PutObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion")
+                            .bucket("s3-trusted-infomotion-1")
                             .key(key)
-                            .contentType("csv")
+                            .contentType("text/csv")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("Upload concluído: " + nomeArq + "\n");
+            deleteCsvLocal(nomeArq);
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
+        }
+    }
+
+    public void downloadTemperaturaBucket(String nomeArq) {
+        String key = nomeArq;
+
+        try {
+            s3.getObject(
+                    GetObjectRequest.builder()
+                            .bucket("s3-trusted-infomotion-1")
+                            .key(key)
+                            .build(),
+                    Paths.get(nomeArq)
+            );
+        } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
+            System.out.println("Aviso: Arquivo '" + nomeArq + "' não encontrado no S3 Trusted. Será criado um novo.");
+        } catch (Exception e) {
+            System.err.println("Erro inesperado ao baixar '" + nomeArq + "' do Trusted: " + e.getMessage());
+            throw new RuntimeException("Falha no download do Trusted", e);
+        }
+    }
+
+    public void uploadProcessosBucket(String nomeArq) {
+        String key = String.format("%s", nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-trusted-infomotion-1")
+                            .key(key)
+                            .contentType("text/csv")
                             .build(),
                     RequestBody.fromFile(Path.of(nomeArq))
             );
@@ -99,7 +169,7 @@ public class AwsConnection {
         try {
             s3.getObject(
                     GetObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion") // MUDANÇA AQUI: de raw para trusted
+                            .bucket("s3-trusted-infomotion-1") // MUDANÇA AQUI: de raw para trusted
                             .key(key)
                             .build(),
                     Paths.get(nomeArq)
@@ -116,7 +186,7 @@ public class AwsConnection {
         try {
             s3.putObject(
                     PutObjectRequest.builder()
-                            .bucket("s3-client-infomotion") // MUDANÇA AQUI: de trusted para client
+                            .bucket("s3-client-infomotion-1") // MUDANÇA AQUI: de trusted para client
                             .key(key)
                             .contentType("text/csv")
                             .build(),

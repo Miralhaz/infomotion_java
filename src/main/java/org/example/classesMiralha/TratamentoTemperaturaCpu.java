@@ -4,6 +4,7 @@ import org.example.AwsConnection;
 import org.example.Logs;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
@@ -28,6 +29,9 @@ public class TratamentoTemperaturaCpu {
         final String arquivoJsonClient = nomeBase + ".json";
 
         List<LogsMiralhaCpu> listaApenasCpu = transformarParaLogsReduzidos(logsCompletos);
+
+        System.out.println("Verificando se há um arquivo CSV anterior no Trusted para anexar dados...");
+        awsConnection.downloadTemperaturaBucket(arquivoCsvTrusted);
 
         System.out.println("Transformando informações em um arquivo cpu_temperaturas_uso.csv... ");
         writeCsvTemperatureCPU(listaApenasCpu, nomeBase);
@@ -63,10 +67,14 @@ public class TratamentoTemperaturaCpu {
     private void writeCsvTemperatureCPU(List<LogsMiralhaCpu> lista, String nomeArq) {
         OutputStreamWriter saida = null;
         String nomeCompletoArq = nomeArq + ".csv";
+        File arquivoLocal = new File(nomeCompletoArq);
+        boolean append = arquivoLocal.exists();
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
-            saida.append("fk_servidor;timestamp;cpu;temperatura_cpu\n");
+            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq, append), StandardCharsets.UTF_8);
+            if (!append) {
+                saida.append("fk_servidor;timestamp;cpu;temperatura_cpu\n");
+            }
 
             for (LogsMiralhaCpu log : lista) {
                 saida.write(String.format("%d;%s;%.2f;%.2f\n",
