@@ -84,6 +84,9 @@ public class tratamentoNearRealTime {
         try {
             saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
 
+            double uploadMB = log.getUploadByte() / 1024.0 / 1024.0;
+            double downloadMB = log.getDownloadByte() / 1024.0 / 1024.0;
+
             saida.write(String.format(Locale.US, """
             {
                 "fk_servidor": %d,
@@ -93,8 +96,8 @@ public class tratamentoNearRealTime {
                 "disco": %.2f,
                 "temperatura_cpu": %.2f,
                 "temperatura_disco": %.2f,
-                "uploadByte": %d,
-                "downloadByte": %d
+                "uploadMB": %.2f,
+                "downloadMB": %.2f
             }
             """,
                     log.getFk_servidor(),
@@ -104,8 +107,8 @@ public class tratamentoNearRealTime {
                     log.getDisco(),
                     log.getTemperatura_cpu(),
                     log.getTemperatura_disco(),
-                    log.getUploadByte(),
-                    log.getDownloadByte()
+                    uploadMB,
+                    downloadMB
             ));
 
         } catch (IOException e) {
