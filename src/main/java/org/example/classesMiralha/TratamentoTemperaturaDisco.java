@@ -30,9 +30,6 @@ public class TratamentoTemperaturaDisco {
 
         List<LogsMiralhaDisco> listaApenasDisco = transformarParaLogsReduzidos(logsCompletos);
 
-        System.out.println("Verificando se há um arquivo CSV anterior no Trusted para anexar dados...");
-        awsConnection.downloadTemperaturaBucket(arquivoCsvTrusted);
-
         System.out.println("Transformando informações em um arquivo disco_temperaturas_uso.csv... ");
         writeCsvTemperatureCPU(listaApenasDisco, nomeBase);
         System.out.println("Transformação feita com sucesso! Enviando ao bucket trusted...\n");
@@ -40,8 +37,8 @@ public class TratamentoTemperaturaDisco {
 
         System.out.println("Agora passando o tratamento do trusted ao client...");
         writeJsonTemperaturaCpu(listaApenasDisco, nomeBase);
-        System.out.println("Transferência ao client feita com sucesso! Enviando ao bucket client...\n");
-        awsConnection.uploadBucketClient(arquivoJsonClient);
+        System.out.println("Transformação para JSON feita com sucesso! Enviando ao bucket client...\n");
+        awsConnection.uploadTemperaturaBucket(arquivoJsonClient);
         System.out.println("Tratamento de Disco feito com sucesso!!\n");
     }
 
@@ -67,14 +64,9 @@ public class TratamentoTemperaturaDisco {
     private void writeCsvTemperatureCPU(List<LogsMiralhaDisco> lista, String nomeArq) {
         OutputStreamWriter saida = null;
         String nomeCompletoArq = nomeArq + ".csv";
-        File arquivoLocal = new File(nomeCompletoArq);
-        boolean append = arquivoLocal.exists();
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq, append), StandardCharsets.UTF_8);
-            if (!append) {
-                saida.append("fk_servidor;timestamp;disco;temperatura_disco\n");
-            }
+            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaDisco log : lista) {
                 saida.write(String.format("%d;%s;%.2f;%.2f\n",

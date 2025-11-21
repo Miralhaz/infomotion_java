@@ -18,10 +18,6 @@ public class AwsConnection {
     public List<String> listarArquivosRaw() {
         List<String> chaves = new ArrayList<>();
 
-        // Expressão Regular:
-        // ^data  -> Começa com 'data'
-        // \d+    -> Seguido por um ou mais dígitos (números)
-        // \.csv$ -> Termina com '.csv' (o ponto '.' precisa de escape '\')
         String regexFiltro = "^data\\d+\\.csv$";
 
         ListObjectsV2Request listReq = ListObjectsV2Request.builder()
@@ -34,7 +30,6 @@ public class AwsConnection {
                         response.contents().forEach(s3Object -> {
                             String key = s3Object.key();
 
-                            // Aplicar o filtro de Regex
                             if (key.matches(regexFiltro)) {
                                 chaves.add(key);
                             }
@@ -76,11 +71,11 @@ public class AwsConnection {
     }
 
     public void uploadTemperaturaBucket(String nomeArq) {
-        String key = String.format("%s", nomeArq);
+        String key = String.format("tratamentoMiralha/temperatura/%s", nomeArq);
         try {
             s3.putObject(
                     PutObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion-1")
+                            .bucket("s3-client-infomotion-1")
                             .key(key)
                             .contentType("text/csv")
                             .build(),
@@ -101,7 +96,7 @@ public class AwsConnection {
         try {
             s3.getObject(
                     GetObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion-1")
+                            .bucket("s3-client-infomotion-1")
                             .key(key)
                             .build(),
                     Paths.get(nomeArq)
@@ -115,11 +110,11 @@ public class AwsConnection {
     }
 
     public void uploadProcessosBucket(String nomeArq) {
-        String key = String.format("%s", nomeArq);
+        String key = String.format("tratamentoMiralha/processos/%s", nomeArq);
         try {
             s3.putObject(
                     PutObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion-1")
+                            .bucket("s3-client-infomotion-1")
                             .key(key)
                             .contentType("text/csv")
                             .build(),

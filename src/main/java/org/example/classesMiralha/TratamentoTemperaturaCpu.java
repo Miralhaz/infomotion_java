@@ -30,19 +30,16 @@ public class TratamentoTemperaturaCpu {
 
         List<LogsMiralhaCpu> listaApenasCpu = transformarParaLogsReduzidos(logsCompletos);
 
-        System.out.println("Verificando se há um arquivo CSV anterior no Trusted para anexar dados...");
-        awsConnection.downloadTemperaturaBucket(arquivoCsvTrusted);
-
-        System.out.println("Transformando informações em um arquivo cpu_temperaturas_uso.csv... ");
+        System.out.println("Transformando informações em um arquivo cpu_temperaturas_uso.csv...\n ");
         writeCsvTemperatureCPU(listaApenasCpu, nomeBase);
-        System.out.println("Transformação feita com sucesso! Enviando ao bucket trusted...\n");
+        System.out.println("Transformação feita com sucesso! Enviando ao bucket client...\n");
         awsConnection.uploadTemperaturaBucket(arquivoCsvTrusted);
 
-        System.out.println("Agora passando o tratamento do trusted ao client...");
+        System.out.println("Agora transformando em json o arquivo.csv que foi salvo no client...");
         writeJsonTemperaturaCpu(listaApenasCpu, nomeBase);
-        System.out.println("Transferência ao client feita com sucesso! Enviando ao bucket client...\n");
-        awsConnection.uploadBucketClient(arquivoJsonClient);
-        System.out.println("Tratamento de CPU feito com sucesso!!\n");
+        System.out.println("Tranformação de JSON feita! Enviando ao bucket client...");
+        awsConnection.uploadTemperaturaBucket(arquivoJsonClient);
+        System.out.println("Tratamento de Disco feito com sucesso!!\n");
     }
 
     private List<LogsMiralhaCpu> transformarParaLogsReduzidos(List<Logs> logs) {
@@ -67,14 +64,9 @@ public class TratamentoTemperaturaCpu {
     private void writeCsvTemperatureCPU(List<LogsMiralhaCpu> lista, String nomeArq) {
         OutputStreamWriter saida = null;
         String nomeCompletoArq = nomeArq + ".csv";
-        File arquivoLocal = new File(nomeCompletoArq);
-        boolean append = arquivoLocal.exists();
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq, append), StandardCharsets.UTF_8);
-            if (!append) {
-                saida.append("fk_servidor;timestamp;cpu;temperatura_cpu\n");
-            }
+            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaCpu log : lista) {
                 saida.write(String.format("%d;%s;%.2f;%.2f\n",
