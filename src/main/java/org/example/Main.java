@@ -3,12 +3,11 @@ package org.example;
 import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
+import org.example.classesRede.TratamentoRede;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.io.*;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -82,7 +81,7 @@ public class Main {
 
         for (String chaveRaw : arquivosRawParaProcessar) {
             try {
-                aws.downloadBucket(chaveRaw);
+                aws.downloadBucketRaw(chaveRaw);
 
                 List<Logs> logsDoArquivo = leImportaArquivoCsv(chaveRaw);
                 logsNovosParaConsolidar.addAll(logsDoArquivo);
@@ -101,7 +100,7 @@ public class Main {
         }
 
         gravaArquivoCsv(logsNovosParaConsolidar, ARQUIVO_CONSOLIDADO_TRUSTED, true);
-        aws.uploadBucket(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
+        aws.uploadBucketTrusted(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
 
         System.out.println("\n--- CONSOLIDAÇÃO RAW PARA TRUSTED FINALIZADA ---");
     }
@@ -316,14 +315,23 @@ public class Main {
         tratarProcessos.tratamentoProcessos("processos.csv");
 
 
+        // Pegando o id do servidor
+        Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
+        // TRATAMENTO REDE
+        TratamentoRede tratamentoRede = new TratamentoRede(aws);
+        // Criando Json de rede
+        String nomeArqJsonRede = "jsonRede" + String.valueOf(fk_servidor);
+        TratamentoRede.gravaArquivoJsonRede(logsConsolidados, nomeArqJsonRede, fk_servidor);
+
+        // Criando json de conexao
+        TratamentoRede.gravaArquivoJson(String.valueOf(fk_servidor));
 
 
 
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
-        // Pegando o id do servidor
-         Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
+
 
         String selectParametroPorServidor = "SELECT * FROM parametro_alerta where fk_servidor = (?);";
         List<Parametro_alerta> metrica = con.query(selectParametroPorServidor,
@@ -451,6 +459,8 @@ public class Main {
                                 minSwap = logAtual.getMemoria_swap();
                             }
                         }
+                    } else if (tipo.equalsIgnoreCase("REDE")) {
+                        tratamentoRede.detectandoAlertasRede(miniLista,max,duracao_min,fk_parametroAlerta,unidadeMedida, fk_servidor);
                     }
 
                     if (contadorCPUPorcentagem.equals(duracao_min)) {
@@ -645,7 +655,7 @@ public class Main {
 
             }
             gravaArquivoCsv(listaAlertas, "alertas");
-            aws.uploadBucket("alertas.csv");
+            aws.uploadBucketTrusted("alertas.csv");
         }
         aws.limparTemporarios();
 

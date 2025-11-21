@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class AwsConnection {
     private final S3Client s3 = S3Utils.createClient();
@@ -44,7 +43,7 @@ public class AwsConnection {
         return chaves;
     }
 
-    public void downloadBucket(String nomeArq) {
+    public void downloadBucketRaw(String nomeArq) {
         String key = String.format(nomeArq);
 
         s3.getObject(
@@ -56,7 +55,7 @@ public class AwsConnection {
         );
     }
 
-    public void uploadBucket(String nomeArq) {
+    public void uploadBucketTrusted(String nomeArq) {
         String key = String.format("%s", nomeArq);
         try {
             s3.putObject(
@@ -183,6 +182,27 @@ public class AwsConnection {
     // NOVO MÉTODO: Upload para o Client (client como destino)
     public void uploadBucketClient(String nomeArq) {
         String key = String.format("produto_final/%s", nomeArq); // Novo prefixo para o client
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1") // MUDANÇA AQUI: de trusted para client
+                            .key(key)
+                            .contentType("text/csv")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("Upload concluído para CLIENT: " + nomeArq);
+            // Não chamamos deleteCsvLocal aqui, pois será feito no finally da TrustedToClient
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
+            throw new RuntimeException("Falha no upload para Client", e);
+        }
+    }
+
+    public void uploadBucketClient(String nomePasta, String nomeArq) {
+        String key = String.format("%s/%s", nomePasta, nomeArq); // Novo prefixo para o client
         try {
             s3.putObject(
                     PutObjectRequest.builder()

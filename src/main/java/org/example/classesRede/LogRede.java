@@ -4,9 +4,12 @@ package org.example.classesRede;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class LogRede {
-    private static Integer id;
+    private static Integer contador = 0;
+    private Integer id;
+    private Integer fk_servidor;
     private LocalDateTime timeStamp;
     private Long uploadByte;
     private Long downloadByte;
@@ -14,10 +17,13 @@ public class LogRede {
     private Long packetSent;
     private Integer packetLossReceived;
     private Integer packetLossSent;
-    private Integer fk_servidor;
+    private String dataHoraString;
+    private static final DateTimeFormatter RAW_INPUT_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
-    public LogRede(LocalDateTime timeStamp, Long uploadByte, Long downloadByte, Long packetReceived, Long packetSent, Integer packetLossReceived, Integer packetLossSent, Integer fk_servidor) {
-        this.timeStamp = timeStamp;
+
+
+    public LogRede(String dataHoraString, Long uploadByte, Long downloadByte, Long packetReceived, Long packetSent, Integer packetLossReceived, Integer packetLossSent, Integer fk_servidor) {
+        this.dataHoraString =dataHoraString;
         this.uploadByte = uploadByte;
         this.downloadByte = downloadByte;
         this.packetReceived = packetReceived;
@@ -25,23 +31,31 @@ public class LogRede {
         this.packetLossReceived = packetLossReceived;
         this.packetLossSent = packetLossSent;
         this.fk_servidor = fk_servidor;
+        contador++;
+        this.id = contador;
+
     }
 
     @Override
     public String toString() {
         return "LogRede{" +
-                "timeStamp=" + timeStamp +
+                "id=" + id +
+                ", fk_servidor=" + fk_servidor +
+                ", timeStamp=" + timeStamp +
                 ", uploadByte=" + uploadByte +
                 ", downloadByte=" + downloadByte +
                 ", packetReceived=" + packetReceived +
                 ", packetSent=" + packetSent +
                 ", packetLossReceived=" + packetLossReceived +
                 ", packetLossSent=" + packetLossSent +
-                ", fk_servidor=" + fk_servidor +
                 '}';
     }
 
-    public static Integer getId() {
+    public String getDataHoraString() {
+        return dataHoraString;
+    }
+
+    public  Integer getId() {
         return id;
     }
 

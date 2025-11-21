@@ -24,6 +24,7 @@ public class LogConexao {
     private String laddr;
     @JsonProperty("status")
     private String status;
+    private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
 
@@ -35,11 +36,6 @@ public class LogConexao {
         this.laddr = laddr;
         this.status = status;
         this.dataHoraString = dataHoraString;
-        DateTimeFormatter LocalDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        LocalDateTime dataUnformatter = LocalDateTime.parse(dataHoraString,LocalDateTimeFormatter);
-        String dataTimeFormatterString = dataUnformatter.format(formatter);
-        this.dataHora = LocalDateTime.parse(dataTimeFormatterString,formatter);
     }
 
     @Override

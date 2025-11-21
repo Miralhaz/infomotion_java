@@ -2,18 +2,23 @@ package org.example.classesRede;
 
 import org.example.*;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.example.AwsConnection;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.example.Main.aws;
+
 
 public class TratamentoRede {
-    private final AwsConnection awsConnection;
+    private LocalDateTime dataHoje = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+    private static AwsConnection awsConnection = new AwsConnection();
+    private static final String nomePasta = "Dashboard_Rede";
 
     public TratamentoRede(AwsConnection awsConnection) {
         this.awsConnection = awsConnection;
@@ -23,11 +28,17 @@ public class TratamentoRede {
         return awsConnection;
     }
 
-    public static List<LogConexao> csvJsonConexao (String nomeArq) {
+    public static List<LogConexao> csvJsonConexao (String idServidor) {
+
+        String nomeArq = "conexoes" + idServidor;
+
+
         Reader arq = null; // objeto aquivo
         BufferedReader entrada = null; // objeto leitor de arquivo
         nomeArq += ".csv";
         List<LogConexao> listaLogsConexao = new ArrayList<>();
+
+        awsConnection.downloadBucketRaw(nomeArq);
 
         try {
             arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
@@ -81,9 +92,25 @@ public class TratamentoRede {
         return listaLogsConexao;
     }
 
+    public static List<LogRede> filtrandoLogRede(List<Logs> lista, Integer idServidor) {
+        System.out.println("filtrando log de rede");
+        List<LogRede> logsRede = new ArrayList<>();
 
-    public static void gravaArquivoJson(List<LogConexao> lista, String nomeArq) {
+        for (Logs log : lista) {
+            if (log.getFk_servidor().equals(idServidor)){
+                LogRede logRede = new LogRede(log.getDataHoraString(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getFk_servidor());
+                logsRede.add(logRede);
+            }
+        }
+        System.out.println("Log de rede filtrado");
+        return logsRede;
+    }
 
+    public static void gravaArquivoJson(String idServidor) {
+
+        List<LogConexao> lista = csvJsonConexao(idServidor);
+
+        String nomeArq = "conexoes" + idServidor;
         OutputStreamWriter saida = null;
         Boolean deuRuim = false;
         nomeArq += ".json";
@@ -143,22 +170,87 @@ public class TratamentoRede {
                 System.exit(1);
             }
         }
+
+        awsConnection.uploadBucketClient(nomePasta, nomeArq);
     }
 
+    public static void gravaArquivoJsonRede(List<Logs> lista, String nomeArq, Integer idServidor) {
+        System.out.println("Iniciando gravação de json de rede");
+        List<LogRede> listaRede = filtrandoLogRede(lista, idServidor);
+        OutputStreamWriter saida = null;
+        Boolean deuRuim = false;
+        nomeArq += ".json";
 
-    public List<LogRede> filtrandoLogRede(List<Logs> lista) {
-        List<LogRede> logsRede = new ArrayList<>();
 
-        for (Logs log : lista) {
-            LogRede logRede = new LogRede(log.getDataHora(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getFk_servidor());
-            logsRede.add(logRede);
+
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+        } catch (IOException erro) {
+            System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
+            System.exit(1);
         }
-        return logsRede;
+
+        try {
+            saida.append("[\n");
+            Integer contador = 0;
+            for (LogRede log : listaRede) {
+                contador ++;
+                if (contador == lista.size()){
+                    saida.write(String.format(Locale.US,"""
+                           {
+                           "id": "%d",
+                           "fk_servidor": "%d",
+                           "timeStamp": "%s",
+                           "uploadByte": "%d",
+                           "downloadByte": "%d",
+                           "packetSent": "%d",
+                           "packetReceived": "%d",
+                           "packetLossSent": "%d",
+                           "packetLossReceived": "%d"
+                           }""",
+                            log.getId(), log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
+                }else {
+                    saida.write(String.format(Locale.US,"""
+                           {
+                           "id": "%d",
+                           "fk_servidor": "%d",
+                           "timeStamp": "%s",
+                           "uploadByte": "%d",
+                           "downloadByte": "%d",
+                           "packetSent": "%d",
+                           "packetReceived": "%d",
+                           "packetLossSent": "%d",
+                           "packetLossReceived": "%d"
+                           },""",
+                            log.getId(), log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
+                }
+            }
+            saida.append("]");
+        } catch (IOException erro) {
+            System.out.println("Erro ao gravar o arquivo");
+            erro.printStackTrace();
+            deuRuim = true;
+        } finally {
+            try {
+                saida.close();
+            } catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+            if (deuRuim) {
+                System.exit(1);
+            }
+        }
+        awsConnection.uploadBucketClient(nomePasta, nomeArq);
+
     }
 
-    public void detectandoAlertasRede(List<Logs> lista, Double max, Integer duracao_min, Integer fk_parametroAlerta, String unidadeMedida) {
 
-        List<LogRede> listaRede = filtrandoLogRede(lista);
+
+
+    public void detectandoAlertasRede(List<Logs> lista, Double max, Integer duracao_min, Integer fk_parametroAlerta, String unidadeMedida, Integer idServidor) {
+
+        List<LogRede> listaRede = filtrandoLogRede(lista, idServidor);
         List<LogRede> alertasRede = new ArrayList<>();
         Integer fk_servidor = listaRede.getFirst().getFk_servidor();
 
@@ -366,9 +458,9 @@ public class TratamentoRede {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            alertasRede.addAll(listaRede);
+
         }
-        gravaArquivoJson();
-        awsConnection.uploadBucketClient("alertas.json");
     }
 }
+
+

@@ -1,7 +1,6 @@
 package org.example.classesMiralha;
 
 import org.example.AwsConnection;
-import org.example.Logs;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
@@ -41,7 +40,7 @@ public class TratamentoProcessos {
         List<LogsProcessosMiralha> listaCompleta = new ArrayList<>();
 
         System.out.println("Baixando arquivo de processos: " + nomeArqProcessosEntrada);
-        awsConnection.downloadBucket(nomeArqProcessosEntrada);
+        awsConnection.downloadBucketRaw(nomeArqProcessosEntrada);
 
         try (BufferedReader br = new BufferedReader(new FileReader(nomeArqProcessosEntrada, StandardCharsets.UTF_8))) {
             String linha;
