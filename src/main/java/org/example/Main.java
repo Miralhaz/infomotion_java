@@ -63,11 +63,11 @@ public class Main {
     }
 
     public static void consolidarArquivosRaw() {
-        final String ARQUIVO_CONSOLIDADO_TRUSTED = "logs_consolidados_servidores";
+        final String arquivoConsolidadoTrusted = "logs_consolidados_servidores";
 
-        System.out.println("\n--- INICIANDO CONSOLIDAÇÃO RAW PARA TRUSTED ---");
+        System.out.println("\nIniciando consolidação...");
 
-        aws.downloadTemperaturaBucket(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
+        aws.downloadTemperaturaBucket(arquivoConsolidadoTrusted + ".csv");
 
         List<String> arquivosRawParaProcessar = aws.listarArquivosRaw();
         List<Logs> logsNovosParaConsolidar = new ArrayList<>();
@@ -99,10 +99,10 @@ public class Main {
             return;
         }
 
-        gravaArquivoCsv(logsNovosParaConsolidar, ARQUIVO_CONSOLIDADO_TRUSTED, true);
-        aws.uploadBucketTrusted(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
+        gravaArquivoCsv(logsNovosParaConsolidar, arquivoConsolidadoTrusted, true);
+        aws.uploadBucketTrusted(arquivoConsolidadoTrusted + ".csv");
 
-        System.out.println("\n--- CONSOLIDAÇÃO RAW PARA TRUSTED FINALIZADA ---");
+        System.out.println("\nConsolidação concluída");
     }
 
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
@@ -311,8 +311,9 @@ public class Main {
         TratamentoTemperaturaDisco tratarTemperaturaDisco = new TratamentoTemperaturaDisco(aws, con);
         tratarTemperaturaDisco.tratamentoDeTemperaturaDisco(logsConsolidados, "temperaturaUsoDisco");
 
+        TratamentoProcessos.consolidarArquivosRawProcessos();
         TratamentoProcessos tratarProcessos = new TratamentoProcessos(aws, con);
-        tratarProcessos.tratamentoProcessos("processos.csv");
+        tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
 
 
         // Pegando o id do servidor

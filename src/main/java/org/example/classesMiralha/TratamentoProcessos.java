@@ -1,14 +1,17 @@
 package org.example.classesMiralha;
 
 import org.example.AwsConnection;
+import org.example.Logs;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class TratamentoProcessos {
@@ -21,12 +24,16 @@ public class TratamentoProcessos {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public void tratamentoProcessos(String nomeArq){
+    public void tratamentoProcessos(String nomeArqConsolidado){
         final String nomeBase = "processosTop5";
         final String arquivoCsvTrusted = nomeBase + ".csv";
         final String arquivoJsonClient = nomeBase + ".json";
 
-        List<LogsProcessosMiralha> processosCompletos = lerCsvProcessosDoBucket(nomeArq);
+        awsConnection.deleteCsvLocal(nomeArqConsolidado);
+        System.out.println("Baixando arquivo consolidado do Trusted: " + nomeArqConsolidado);
+        awsConnection.downloadBucketProcessosTrusted(nomeArqConsolidado);
+
+        List<LogsProcessosMiralha> processosCompletos = leImportaArquivoCsvProcessos(nomeArqConsolidado);
         List<LogsProcessosMiralha> listaTop5Processos = transformarParaLogsTop5(processosCompletos);
 
         writeCsvProcessos(listaTop5Processos, nomeBase);
@@ -35,75 +42,176 @@ public class TratamentoProcessos {
         awsConnection.uploadProcessosBucket(arquivoJsonClient);
     }
 
-    private List<LogsProcessosMiralha> lerCsvProcessosDoBucket(String nomeArqProcessosEntrada) {
 
-        List<LogsProcessosMiralha> listaCompleta = new ArrayList<>();
 
-        System.out.println("Baixando arquivo de processos: " + nomeArqProcessosEntrada);
-        awsConnection.downloadBucketRaw(nomeArqProcessosEntrada);
 
-        try (BufferedReader br = new BufferedReader(new FileReader(nomeArqProcessosEntrada, StandardCharsets.UTF_8))) {
-            String linha;
-            br.readLine();
 
-            while ((linha = br.readLine()) != null) {
+    public static List<LogsProcessosMiralha> leImportaArquivoCsvProcessos(String nomeArq) {
+        Reader arq = null;
+        BufferedReader entrada = null;
+        List<LogsProcessosMiralha> listaProcessos = new ArrayList<>();
 
-                String[] dados = linha.split(";");
-
-                if (dados.length >= 5) {
-                    try {
-                        Integer fkServidor = Integer.parseInt(dados[1].trim());
-                        String dataHoraStr = dados[2].trim();
-                        String nomeProcesso = dados[3].trim();
-                        Double usoCpu = Double.parseDouble(dados[5].trim());
-                        Double usoRam = Double.parseDouble(dados[6].trim());
-
-                        LogsProcessosMiralha logProcesso = new LogsProcessosMiralha(
-                                fkServidor,
-                                dataHoraStr,
-                                nomeProcesso,
-                                usoCpu,
-                                usoRam
-                        );
-                        listaCompleta.add(logProcesso);
-
-                    } catch (NumberFormatException e) {
-                        System.err.println("Erro de formato de número na linha: " + linha + " -> " + e.getMessage());
-                    }
-                }
-            }
-        } catch (IOException erro) {
-            System.err.println("Erro ao ler o arquivo CSV de processos: " + erro.getMessage());
+        try {
+            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            entrada = new BufferedReader(arq);
+        } catch (IOException e) {
+            System.out.println("Erro ao abrir o arquivo leImportaArquivoCsvProcessos: " + nomeArq);
+            System.exit(1);
         }
 
-        System.out.println("Leitura do arquivo de processos concluída.");
-        return listaCompleta;
+        try {
+            String cabecalho = entrada.readLine(); // Lê o cabeçalho
+            System.out.println("Lendo e Importando CSV de processos: " + nomeArq);
+            System.out.println("Cabeçalho detectado: " + cabecalho);
+
+            String linha = entrada.readLine();
+            int linhaNumero = 2;
+
+            while (linha != null) {
+                if (linha.trim().isEmpty()) {
+                    linha = entrada.readLine();
+                    linhaNumero++;
+                    continue;
+                }
+
+                String[] registro = linha.split(";");
+
+                try {
+                    Integer fkServidor;
+                    String dataHoraStr;
+                    String nomeProcesso;
+                    Double usoCpu;
+                    Double usoRam;
+
+                    if (registro.length >= 7) {
+                        fkServidor = Integer.valueOf(registro[1].trim());
+                        dataHoraStr = registro[2].trim();
+                        nomeProcesso = registro[3].trim();
+                        usoCpu = Double.valueOf(registro[5].trim().replace(",", "."));
+                        usoRam = Double.valueOf(registro[6].trim().replace(",", "."));
+
+                    } else if (registro.length >= 5) {
+                        fkServidor = Integer.valueOf(registro[0].trim());
+                        dataHoraStr = registro[1].trim();
+                        nomeProcesso = registro[2].trim();
+                        usoCpu = Double.valueOf(registro[3].trim().replace(",", "."));
+                        usoRam = Double.valueOf(registro[4].trim().replace(",", "."));
+
+                    } else {
+                        System.err.println("Linha " + linhaNumero + " ignorada por ter menos que 5 campos (" + registro.length + " campos): " + linha);
+                        linha = entrada.readLine();
+                        linhaNumero++;
+                        continue;
+                    }
+
+                    LogsProcessosMiralha logProcesso = new LogsProcessosMiralha(
+                            fkServidor,
+                            dataHoraStr,
+                            nomeProcesso,
+                            usoCpu,
+                            usoRam
+                    );
+                    listaProcessos.add(logProcesso);
+
+                } catch (NumberFormatException e) {
+                    System.err.println("Erro de formato numérico na linha " + linhaNumero + ": " + linha);
+                    System.err.println("Detalhes: " + e.getMessage());
+                } catch (Exception e) {
+                    System.err.println("Erro de parsing na linha " + linhaNumero + ": " + linha);
+                    System.err.println("Detalhes: " + e.getMessage());
+                }
+
+                linha = entrada.readLine();
+                linhaNumero++;
+            }
+
+            System.out.println("Total de registros importados: " + listaProcessos.size());
+
+        } catch (IOException e) {
+            System.out.println("Erro ao ler o arquivo: " + nomeArq);
+            e.printStackTrace();
+            System.exit(1);
+
+        } finally {
+            try {
+                if (entrada != null) entrada.close();
+                if (arq != null) arq.close();
+                System.out.println("Arquivo " + nomeArq + " lido com sucesso.");
+            } catch (IOException e) {
+                System.out.println("Erro ao fechar o arquivo " + nomeArq);
+            }
+        }
+        return listaProcessos;
+    }
+
+
+
+
+
+
+
+    public static void consolidarArquivosRawProcessos() {
+
+        AwsConnection aws = new AwsConnection();
+
+        final String arquivoProcessosConsolidadoTrusted = "processos_consolidados_servidores";
+
+        System.out.println("\nIniciando consolidação...");
+
+        List<String> arquivosRawParaProcessar = aws.listarArquivosRawProcessos();
+        List<LogsProcessosMiralha> logsNovosParaConsolidar = new ArrayList<>();
+
+        if (arquivosRawParaProcessar.isEmpty()) {
+            System.out.println("Nenhum arquivo RAW novo encontrado para processamento (Padrão: processos[n].csv).");
+            return;
+        }
+
+        System.out.printf("Encontrados %d arquivos RAW para processar.\n", arquivosRawParaProcessar.size());
+
+        for (String chaveRaw : arquivosRawParaProcessar) {
+            try {
+                aws.downloadBucketRaw(chaveRaw);
+
+                List<LogsProcessosMiralha> logsDoArquivo = leImportaArquivoCsvProcessos(chaveRaw);
+                logsNovosParaConsolidar.addAll(logsDoArquivo);
+                System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
+
+                aws.deleteCsvLocal(chaveRaw);
+
+            } catch (Exception e) {
+                System.err.println("ERRO ao processar arquivo RAW " + chaveRaw + ". Pulando para o próximo: " + e.getMessage());
+            }
+        }
+
+        if (logsNovosParaConsolidar.isEmpty()) {
+            System.out.println("Nenhum novo log válido foi lido e consolidado. Upload para Trusted abortado.");
+            return;
+        }
+
+        gravaArquivoCsvProcessos(logsNovosParaConsolidar, arquivoProcessosConsolidadoTrusted);
+        aws.uploadBucketTrusted(arquivoProcessosConsolidadoTrusted + ".csv");
+
+        System.out.println("\nConsolidação concluída");
     }
 
     private List<LogsProcessosMiralha> transformarParaLogsTop5(List<LogsProcessosMiralha> logs) {
 
-        // 1. Filtrar o 'System Idle Process'
         List<LogsProcessosMiralha> processosFiltrados = logs.stream()
                 .filter(log -> !log.getNomeProcesso().equalsIgnoreCase("System Idle Process"))
                 .collect(Collectors.toList());
 
-        // 2. Agrupar por Nome do Processo e encontrar o LOG que representa o PICO de consumo de CPU.
-        // O critério de pico agora é APENAS o maior uso de CPU.
         List<LogsProcessosMiralha> picosPorProcesso = processosFiltrados.stream()
                 .collect(Collectors.groupingBy(LogsProcessosMiralha::getNomeProcesso))
                 .values().stream()
                 .map(listaLogsProcesso -> listaLogsProcesso.stream()
-                        // Acha o MÁXIMO (PICO) usando o consumo de CPU
                         .max(Comparator.comparingDouble(LogsProcessosMiralha::getUsoCpuProcesso))
                         .orElse(null)
                 )
                 .filter(log -> log != null)
                 .collect(Collectors.toList());
 
-        // 3. Aplicar a ordenação estrita por CPU e limitar ao Top 5
         List<LogsProcessosMiralha> reduzidosTop5 = picosPorProcesso.stream()
                 .sorted(
-                        // Critério ÚNICO: CPU (Decrescente) - O maior CPU vem primeiro
                         Comparator.comparingDouble(LogsProcessosMiralha::getUsoCpuProcesso).reversed()
                 )
                 .limit(5)
@@ -182,6 +290,50 @@ public class TratamentoProcessos {
                 if (saida != null) saida.close();
             } catch (IOException erro) {
                 System.err.println("Erro ao fechar o arquivo JSON de processos.");
+            }
+        }
+    }
+
+    public static void gravaArquivoCsvProcessos(List<LogsProcessosMiralha> lista, String nomeArq){
+        OutputStreamWriter saida = null;
+        Boolean deuRuim = false;
+        nomeArq += ".csv";
+
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+
+        }catch (IOException erro){
+            System.out.println("Erro ao abrir o arquivo gravaArquivoCsv");
+            System.exit(1);
+        }
+
+        try {
+            saida.append("fk_servidor;timestamp;nome_processo;uso_cpu;uso_ram\n");
+
+            for (LogsProcessosMiralha log : lista){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+
+                saida.write(String.format(Locale.US, "%d;%s;%s;%.2f;%.2f\n",
+                        log.getFk_servidor(),
+                        log.getDataHora().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                        log.getNomeProcesso(),
+                        log.getUsoCpuProcesso(),
+                        log.getUsoRamProcesso()));
+            }
+
+        }catch (IOException erro){
+            System.out.println("Erro ao gravar o arquivo");
+            erro.printStackTrace();
+            deuRuim = true;
+        }finally {
+            try {
+                saida.close();
+            } catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+            if (deuRuim){
+                System.exit(1);
             }
         }
     }

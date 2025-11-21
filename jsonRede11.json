@@ -1,0 +1,202 @@
+[
+{
+"id": "1",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:26",
+"uploadByte": "495565310",
+"downloadByte": "222478456",
+"packetSent": "279571",
+"packetReceived": "479030",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "2",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:31",
+"uploadByte": "495566056",
+"downloadByte": "222497428",
+"packetSent": "279581",
+"packetReceived": "479173",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "3",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:36",
+"uploadByte": "495566608",
+"downloadByte": "222520030",
+"packetSent": "279588",
+"packetReceived": "479295",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "4",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:40",
+"uploadByte": "495576196",
+"downloadByte": "222537951",
+"packetSent": "279616",
+"packetReceived": "479389",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "5",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:45",
+"uploadByte": "495579597",
+"downloadByte": "222557731",
+"packetSent": "279635",
+"packetReceived": "479473",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "6",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:49",
+"uploadByte": "495581110",
+"downloadByte": "222563367",
+"packetSent": "279652",
+"packetReceived": "479524",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "7",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:54",
+"uploadByte": "495582657",
+"downloadByte": "222570387",
+"packetSent": "279661",
+"packetReceived": "479577",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "8",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:51:59",
+"uploadByte": "495583181",
+"downloadByte": "222575107",
+"packetSent": "279668",
+"packetReceived": "479614",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "9",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:03",
+"uploadByte": "495583575",
+"downloadByte": "222585199",
+"packetSent": "279674",
+"packetReceived": "479672",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "10",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:08",
+"uploadByte": "495584614",
+"downloadByte": "222593670",
+"packetSent": "279687",
+"packetReceived": "479743",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "11",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:13",
+"uploadByte": "495589689",
+"downloadByte": "222670186",
+"packetSent": "279716",
+"packetReceived": "479806",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "12",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:17",
+"uploadByte": "495589988",
+"downloadByte": "222672839",
+"packetSent": "279720",
+"packetReceived": "479836",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "13",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:22",
+"uploadByte": "495590178",
+"downloadByte": "222677372",
+"packetSent": "279723",
+"packetReceived": "479896",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "14",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:26",
+"uploadByte": "495599892",
+"downloadByte": "222690764",
+"packetSent": "279769",
+"packetReceived": "480019",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "15",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:31",
+"uploadByte": "495601317",
+"downloadByte": "222694525",
+"packetSent": "279779",
+"packetReceived": "480062",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "16",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:36",
+"uploadByte": "495602320",
+"downloadByte": "222706794",
+"packetSent": "279790",
+"packetReceived": "480138",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "17",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:40",
+"uploadByte": "495602865",
+"downloadByte": "222718466",
+"packetSent": "279796",
+"packetReceived": "480226",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "18",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:45",
+"uploadByte": "495603327",
+"downloadByte": "222733070",
+"packetSent": "279803",
+"packetReceived": "480320",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "19",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:49",
+"uploadByte": "495604106",
+"downloadByte": "222744530",
+"packetSent": "279814",
+"packetReceived": "480402",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},{
+"id": "20",
+"fk_servidor": "11",
+"timeStamp": "21/11/2025 10:52:54",
+"uploadByte": "495605526",
+"downloadByte": "222749516",
+"packetSent": "279821",
+"packetReceived": "480453",
+"packetLossSent": "0",
+"packetLossReceived": "0"
+},]
