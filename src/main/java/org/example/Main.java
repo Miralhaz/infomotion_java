@@ -4,6 +4,7 @@ import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
+import org.example.classesRenan.tratamentoNearRealTime;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -340,7 +341,8 @@ public class Main {
         // Criando json de conexao
         TratamentoRede.gravaArquivoJson(listaIdServidores);
 
-
+        //Criando json Near Real Time
+        tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
