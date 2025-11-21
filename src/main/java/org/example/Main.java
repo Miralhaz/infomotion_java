@@ -337,9 +337,8 @@ public class Main {
         TratamentoRede tratamentoRede = new TratamentoRede(aws);
         // Criando Json de rede
         TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
-
         // Criando json de conexao
-        TratamentoRede.gravaArquivoJson(String.valueOf(fk_servidor));
+        TratamentoRede.gravaArquivoJson(listaIdServidores);
 
 
 

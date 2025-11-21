@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogRede {
-    private static Integer contador = 0;
     private Integer id;
     private Integer fk_servidor;
     private LocalDateTime timeStamp;
@@ -31,8 +30,6 @@ public class LogRede {
         this.packetLossReceived = packetLossReceived;
         this.packetLossSent = packetLossSent;
         this.fk_servidor = fk_servidor;
-        contador++;
-        this.id = contador;
 
     }
 
