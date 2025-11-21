@@ -6,6 +6,7 @@ import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -19,6 +20,30 @@ public class AwsConnection {
         List<String> chaves = new ArrayList<>();
 
         String regexFiltro = "^data\\d+\\.csv$";
+
+        ListObjectsV2Request listReq = ListObjectsV2Request.builder()
+                .bucket("s3-raw-infomotion-1")
+                .build();
+
+        s3.listObjectsV2Paginator(listReq)
+                .stream()
+                .forEach(response ->
+                        response.contents().forEach(s3Object -> {
+                            String key = s3Object.key();
+
+                            if (key.matches(regexFiltro)) {
+                                chaves.add(key);
+                            }
+                        })
+                );
+
+        return chaves;
+    }
+
+    public List<String> listarArquivosRawProcessos() {
+        List<String> chaves = new ArrayList<>();
+
+        String regexFiltro = "^processos\\d+\\.csv$";
 
         ListObjectsV2Request listReq = ListObjectsV2Request.builder()
                 .bucket("s3-raw-infomotion-1")
@@ -169,6 +194,30 @@ public class AwsConnection {
                             .build(),
                     Paths.get(nomeArq)
             );
+        } catch (Exception e) {
+            System.err.println("Erro ao baixar do Trusted " + nomeArq + ": " + e.getMessage());
+            throw new RuntimeException("Falha no download do Trusted", e);
+        }
+    }
+
+    public void downloadBucketProcessosTrusted(String nomeArq) {
+        String key = nomeArq;
+        Path destino = Paths.get(nomeArq);
+
+        try {
+            if (destino.getParent() != null) {
+                Files.createDirectories(destino.getParent());
+            }
+
+            s3.getObject(
+                    GetObjectRequest.builder()
+                            .bucket("s3-trusted-infomotion-1")
+                            .key(key)
+                            .build(),
+                    destino
+            );
+        } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
+            System.out.println("Aviso: Arquivo '" + nomeArq + "' não encontrado no S3 Trusted. Prosseguindo.");
         } catch (Exception e) {
             System.err.println("Erro ao baixar do Trusted " + nomeArq + ": " + e.getMessage());
             throw new RuntimeException("Falha no download do Trusted", e);
