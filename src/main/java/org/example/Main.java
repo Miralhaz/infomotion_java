@@ -15,6 +15,7 @@ import java.util.*;
 
 public class Main {
 
+    public static List<Integer> listaIdServidores = new ArrayList<>();
     static AwsConnection aws = new AwsConnection();
 
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq, boolean append){
@@ -316,14 +317,26 @@ public class Main {
         tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
 
 
+        for (Logs log : logsConsolidados){
+            Boolean idJaAdicionado = false;
+            Integer idDaVez = log.getFk_servidor();
+            for (int i : listaIdServidores){
+                if (idDaVez == i ){
+                    idJaAdicionado = true;
+                }
+            }
+            if (!idJaAdicionado){
+                listaIdServidores.add(idDaVez);
+            }
+        }
+
         // Pegando o id do servidor
         Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
         // TRATAMENTO REDE
         TratamentoRede tratamentoRede = new TratamentoRede(aws);
         // Criando Json de rede
-        String nomeArqJsonRede = "jsonRede" + String.valueOf(fk_servidor);
-        TratamentoRede.gravaArquivoJsonRede(logsConsolidados, nomeArqJsonRede, fk_servidor);
+        TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
 
         // Criando json de conexao
         TratamentoRede.gravaArquivoJson(String.valueOf(fk_servidor));

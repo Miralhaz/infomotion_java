@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AwsConnection {
+
     private final S3Client s3 = S3Utils.createClient();
 
     public List<String> listarArquivosRaw() {
