@@ -32,7 +32,7 @@ public class TratamentoProcessos {
         writeCsvProcessos(listaTop5Processos, nomeBase);
         awsConnection.uploadProcessosBucket(arquivoCsvTrusted);
         writeJsonProcessos(listaTop5Processos, nomeBase);
-        awsConnection.uploadBucketClient(arquivoJsonClient);
+        awsConnection.uploadProcessosBucket(arquivoJsonClient);
     }
 
     private List<LogsProcessosMiralha> lerCsvProcessosDoBucket(String nomeArqProcessosEntrada) {
