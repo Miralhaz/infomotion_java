@@ -28,7 +28,7 @@ public class LogConexao {
 
 
 
-    public LogConexao(Integer fk_servidor, Integer idProcessoConexao, String nomeConexao, String raddr, String laddr, String status, String dataHoraString) {
+    public LogConexao(Integer fk_servidor, String dataHoraString, Integer idProcessoConexao, String nomeConexao, String raddr, String laddr, String status) {
         this.fk_servidor = fk_servidor;
         this.idProcessoConexao = idProcessoConexao;
         this.nomeConexao = nomeConexao;

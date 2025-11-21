@@ -13,7 +13,7 @@ public class Connection {
         dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.cj.jdbc.Driver");
         dataSource.setUrl("jdbc:mysql://localhost:3306/infomotion");
-          dataSource.setUsername("Aluno");
+          dataSource.setUsername("aluno");
           dataSource.setPassword("1234");
     }
 
