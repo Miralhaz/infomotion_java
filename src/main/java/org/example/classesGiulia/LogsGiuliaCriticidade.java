@@ -8,39 +8,35 @@ public class LogsGiuliaCriticidade {
     // Atributos:
     private Integer fk_servidor;
     private String apelido;
-    private String dataHoraString;
+    private LocalDateTime timestamp;
     private Integer minutos;
     private Double usoCpu;
     private Double usoRam;
     private Double usoDisco;
     private String classificacao;
-
-    private LocalDateTime dataHora;
+    private Double percentual;
 
     // Construtor:
-
-    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, String dataHoraString, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, String classificacao) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, LocalDateTime timestamp, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, String classificacao) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
-        this.dataHoraString = dataHoraString;
+        this.timestamp = timestamp;
         this.minutos = minutos;
         this.usoCpu = usoCpu;
         this.usoRam = usoRam;
         this.usoDisco = usoDisco;
         this.classificacao = classificacao;
-        DateTimeFormatter LocalDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        LocalDateTime dataUnformatter = LocalDateTime.parse(dataHoraString,LocalDateTimeFormatter);
-        String dataTimeFormatterString = dataUnformatter.format(formatter);
-        this.dataHora = LocalDateTime.parse(dataTimeFormatterString,formatter);
     }
 
-    public LogsGiuliaCriticidade() {}
+    public LogsGiuliaCriticidade(Integer fk_servidor, Double percentual, Integer minutos) {
+        this.fk_servidor = fk_servidor;
+        this.percentual = percentual;
+        this.minutos = minutos;
+    }
 
     // Métodos:
 
     // Getters e Setters:
-
     public Integer getFk_servidor() {
         return fk_servidor;
     }
@@ -57,8 +53,8 @@ public class LogsGiuliaCriticidade {
         this.apelido = apelido;
     }
 
-    public String getDataHoraString() {
-        return dataHoraString;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
     public Integer getMinutos() {
@@ -101,21 +97,12 @@ public class LogsGiuliaCriticidade {
         this.classificacao = classificacao;
     }
 
-    public LocalDateTime getDataHora() {
-        return dataHora;
+    public Double getPercentual() {
+        return percentual;
     }
 
-    public void setDataHoraString(String dataHoraString) {
-        this.dataHoraString = dataHoraString;
-        dataHoraFormatter(dataHoraString);
-    }
-
-    public LocalDateTime dataHoraFormatter(String dataHora) {
-        DateTimeFormatter LocalDateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        LocalDateTime dataUnformatter = LocalDateTime.parse(dataHora,LocalDateTimeFormatter);
-        String dataTimeFormatterString = dataUnformatter.format(formatter);
-        return this.dataHora = LocalDateTime.parse(dataTimeFormatterString,formatter);
+    public void setPercentual(Double percentual) {
+        this.percentual = percentual;
     }
 
     // toString():
@@ -124,13 +111,12 @@ public class LogsGiuliaCriticidade {
         return "LogsGiuliaCriticidade{" +
                 " fk_servidor:" + fk_servidor +
                 " | apelido:" + apelido +
-                " | dataHoraString:" + dataHoraString +
+                " | timestamp:" + timestamp +
                 " | minutos:" + minutos +
                 " | usoCpu:" + usoCpu +
                 " | usoRam:" + usoRam +
                 " | usoDisco:" + usoDisco +
                 " | classificacao:" + classificacao +
-                " | dataHora:" + dataHora +
                 '}';
     }
 }
