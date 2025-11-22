@@ -28,7 +28,7 @@ public class TratamentoRede {
         return awsConnection;
     }
 
-    public static List<LogConexao> csvJsonConexao (String idServidor) {
+    public static List<LogConexao> csvJsonConexao (Integer idServidor) {
 
         String nomeArq = "conexoes" + idServidor;
 
@@ -64,14 +64,14 @@ public class TratamentoRede {
             while (linha != null) {
 
                 registro = linha.split(";");
-                Integer fk_servidor = Integer.valueOf(registro[0]);
-                String dataHoraString = registro[1];
-                Integer idProcessoConexao = Integer.valueOf(registro[2]);
-                String nomeConexao = registro[3];
-                String raddr = registro[4];
-                String laddr = registro[5];
-                String status = registro[6];
-                LogConexao logConexao = new LogConexao(fk_servidor, idProcessoConexao, nomeConexao, raddr, laddr, status, dataHoraString);
+                Integer fk_servidor = Integer.valueOf(registro[1]);
+                String dataHoraString = registro[2];
+                Integer idProcessoConexao = Integer.valueOf(registro[3]);
+                String nomeConexao = registro[4];
+                String raddr = registro[5];
+                String laddr = registro[6];
+                String status = registro[7];
+                LogConexao logConexao = new LogConexao(fk_servidor, dataHoraString, idProcessoConexao, nomeConexao, raddr, laddr, status);
                 listaLogsConexao.add(logConexao);
                 linha = entrada.readLine();
             }
@@ -106,143 +106,145 @@ public class TratamentoRede {
         return logsRede;
     }
 
-    public static void gravaArquivoJson(String idServidor) {
+    public static void gravaArquivoJson(List<Integer> listaServidores) {
 
-        List<LogConexao> lista = csvJsonConexao(idServidor);
+        for (Integer i : listaServidores) {
+            List<LogConexao> lista = csvJsonConexao(i);
+            String nomeArq = "conexoes" + i;
+            OutputStreamWriter saida = null;
+            Boolean deuRuim = false;
+            nomeArq += ".json";
 
-        String nomeArq = "conexoes" + idServidor;
-        OutputStreamWriter saida = null;
-        Boolean deuRuim = false;
-        nomeArq += ".json";
-
-        try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
-
-        } catch (IOException erro) {
-            System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
-            System.exit(1);
-        }
-
-        try {
-            saida.append("[");
-            Integer contador = 0;
-            for (LogConexao log : lista) {
-                contador ++;
-                if (contador == lista.size()){
-                    saida.write(String.format(Locale.US,"""
-                           {
-                           "fk_servidor": "%d",
-                           "idProcessoConexao": "%s",
-                           "timeStamp": "%s",
-                           "nomeConexao": "%s",
-                           "laddr": "%s",
-                           "raddr": "%s",
-                           "status": "%s"
-                           }""",
-                            log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
-                }else {
-                    saida.write(String.format(Locale.US,"""
-                               {
-                               "fk_servidor": "%d",
-                               "idProcessoConexao": "%s",
-                               "timeStamp": "%s",
-                               "nomeConexao": "%s",
-                               "raddr": "%s",
-                               "laddr": "%s",
-                               "status": "%s"
-                               },""",
-                            log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
-                }
-            }
-            saida.append("]");
-        } catch (IOException erro) {
-            System.out.println("Erro ao gravar o arquivo");
-            erro.printStackTrace();
-            deuRuim = true;
-        } finally {
             try {
-                saida.close();
+                saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+
             } catch (IOException erro) {
-                System.out.println("Erro ao fechar o arquivo");
-                deuRuim = true;
-            }
-            if (deuRuim) {
+                System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
                 System.exit(1);
             }
-        }
 
-        awsConnection.uploadBucketClient(nomePasta, nomeArq);
+            try {
+                saida.append("[");
+                Integer contador = 0;
+                for (LogConexao log : lista) {
+                    contador++;
+                    if (contador == lista.size()) {
+                        saida.write(String.format(Locale.US, """
+                                        {
+                                        "fk_servidor": "%d",
+                                        "idProcessoConexao": "%s",
+                                        "timeStamp": "%s",
+                                        "nomeConexao": "%s",
+                                        "laddr": "%s",
+                                        "raddr": "%s",
+                                        "status": "%s"
+                                        }""",
+                                log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
+                    } else {
+                        saida.write(String.format(Locale.US, """
+                                        {
+                                        "fk_servidor": "%d",
+                                        "idProcessoConexao": "%s",
+                                        "timeStamp": "%s",
+                                        "nomeConexao": "%s",
+                                        "raddr": "%s",
+                                        "laddr": "%s",
+                                        "status": "%s"
+                                        },""",
+                                log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
+                    }
+                }
+                saida.append("]");
+            } catch (IOException erro) {
+                System.out.println("Erro ao gravar o arquivo");
+                erro.printStackTrace();
+                deuRuim = true;
+            } finally {
+                try {
+                    saida.close();
+                } catch (IOException erro) {
+                    System.out.println("Erro ao fechar o arquivo");
+                    deuRuim = true;
+                }
+                if (deuRuim) {
+                    System.exit(1);
+                }
+            }
+
+            awsConnection.uploadBucketClient(nomePasta, nomeArq);
+        }
     }
 
-    public static void gravaArquivoJsonRede(List<Logs> lista, String nomeArq, Integer idServidor) {
-        System.out.println("Iniciando gravação de json de rede");
-        List<LogRede> listaRede = filtrandoLogRede(lista, idServidor);
-        OutputStreamWriter saida = null;
-        Boolean deuRuim = false;
-        nomeArq += ".json";
+    public static void gravaArquivoJsonRede(List<Logs> lista, List<Integer> idServidor) {
 
+        for (Integer i : idServidor) {
+            System.out.println("Iniciando gravação de json de rede");
+            List<LogRede> listaRede = filtrandoLogRede(lista, i);
+            OutputStreamWriter saida = null;
+            Boolean deuRuim = false;
 
+            String nomeArq = "jsonRede" + String.valueOf(i);
+            nomeArq += ".json";
 
-        try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
-        } catch (IOException erro) {
-            System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
-            System.exit(1);
-        }
-
-        try {
-            saida.append("[\n");
-            Integer contador = 0;
-            for (LogRede log : listaRede) {
-                contador ++;
-                if (contador == lista.size()){
-                    saida.write(String.format(Locale.US,"""
-                           {
-                           "id": "%d",
-                           "fk_servidor": "%d",
-                           "timeStamp": "%s",
-                           "uploadByte": "%d",
-                           "downloadByte": "%d",
-                           "packetSent": "%d",
-                           "packetReceived": "%d",
-                           "packetLossSent": "%d",
-                           "packetLossReceived": "%d"
-                           }""",
-                            log.getId(), log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
-                }else {
-                    saida.write(String.format(Locale.US,"""
-                           {
-                           "id": "%d",
-                           "fk_servidor": "%d",
-                           "timeStamp": "%s",
-                           "uploadByte": "%d",
-                           "downloadByte": "%d",
-                           "packetSent": "%d",
-                           "packetReceived": "%d",
-                           "packetLossSent": "%d",
-                           "packetLossReceived": "%d"
-                           },""",
-                            log.getId(), log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
-                }
-            }
-            saida.append("]");
-        } catch (IOException erro) {
-            System.out.println("Erro ao gravar o arquivo");
-            erro.printStackTrace();
-            deuRuim = true;
-        } finally {
             try {
-                saida.close();
+                saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
             } catch (IOException erro) {
-                System.out.println("Erro ao fechar o arquivo");
-                deuRuim = true;
-            }
-            if (deuRuim) {
+                System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
                 System.exit(1);
             }
-        }
-        awsConnection.uploadBucketClient(nomePasta, nomeArq);
 
+            try {
+                saida.append("[\n");
+                Integer contador = 0;
+                for (LogRede log : listaRede) {
+                    contador++;
+                    if (contador == lista.size()) {
+                        saida.write(String.format(Locale.US, """
+                                        {
+                                        "fk_servidor": "%d",
+                                        "timeStamp": "%s",
+                                        "uploadByte": "%d",
+                                        "downloadByte": "%d",
+                                        "packetSent": "%d",
+                                        "packetReceived": "%d",
+                                        "packetLossSent": "%d",
+                                        "packetLossReceived": "%d"
+                                        }""",
+                                log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
+                    } else {
+                        saida.write(String.format(Locale.US, """
+                                        {
+                                        "id": "%d",
+                                        "fk_servidor": "%d",
+                                        "timeStamp": "%s",
+                                        "uploadByte": "%d",
+                                        "downloadByte": "%d",
+                                        "packetSent": "%d",
+                                        "packetReceived": "%d",
+                                        "packetLossSent": "%d",
+                                        "packetLossReceived": "%d"
+                                        },""",
+                                log.getId(), log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
+                    }
+                }
+                saida.append("]");
+            } catch (IOException erro) {
+                System.out.println("Erro ao gravar o arquivo");
+                erro.printStackTrace();
+                deuRuim = true;
+            } finally {
+                try {
+                    saida.close();
+                } catch (IOException erro) {
+                    System.out.println("Erro ao fechar o arquivo");
+                    deuRuim = true;
+                }
+                if (deuRuim) {
+                    System.exit(1);
+                }
+            }
+            awsConnection.uploadBucketClient(nomePasta, nomeArq);
+        }
     }
 
 

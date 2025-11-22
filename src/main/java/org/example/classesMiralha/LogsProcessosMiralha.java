@@ -37,4 +37,8 @@ public class LogsProcessosMiralha {
     public Double getUsoRamProcesso() {
         return usoRamProcesso;
     }
+
+    public LocalDateTime getDataHora() {
+        return dataHora;
+    }
 }

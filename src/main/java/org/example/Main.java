@@ -4,6 +4,7 @@ import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
+import org.example.classesRenan.tratamentoNearRealTime;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -15,6 +16,7 @@ import java.util.*;
 
 public class Main {
 
+    public static List<Integer> listaIdServidores = new ArrayList<>();
     static AwsConnection aws = new AwsConnection();
 
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq, boolean append){
@@ -63,11 +65,11 @@ public class Main {
     }
 
     public static void consolidarArquivosRaw() {
-        final String ARQUIVO_CONSOLIDADO_TRUSTED = "logs_consolidados_servidores";
+        final String arquivoConsolidadoTrusted = "logs_consolidados_servidores";
 
-        System.out.println("\n--- INICIANDO CONSOLIDAÇÃO RAW PARA TRUSTED ---");
+        System.out.println("\nIniciando consolidação...");
 
-        aws.downloadTemperaturaBucket(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
+        aws.downloadTemperaturaBucket(arquivoConsolidadoTrusted + ".csv");
 
         List<String> arquivosRawParaProcessar = aws.listarArquivosRaw();
         List<Logs> logsNovosParaConsolidar = new ArrayList<>();
@@ -99,10 +101,10 @@ public class Main {
             return;
         }
 
-        gravaArquivoCsv(logsNovosParaConsolidar, ARQUIVO_CONSOLIDADO_TRUSTED, true);
-        aws.uploadBucketTrusted(ARQUIVO_CONSOLIDADO_TRUSTED + ".csv");
+        gravaArquivoCsv(logsNovosParaConsolidar, arquivoConsolidadoTrusted, true);
+        aws.uploadBucketTrusted(arquivoConsolidadoTrusted + ".csv");
 
-        System.out.println("\n--- CONSOLIDAÇÃO RAW PARA TRUSTED FINALIZADA ---");
+        System.out.println("\nConsolidação concluída");
     }
 
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
@@ -311,9 +313,23 @@ public class Main {
         TratamentoTemperaturaDisco tratarTemperaturaDisco = new TratamentoTemperaturaDisco(aws, con);
         tratarTemperaturaDisco.tratamentoDeTemperaturaDisco(logsConsolidados, "temperaturaUsoDisco");
 
+        TratamentoProcessos.consolidarArquivosRawProcessos();
         TratamentoProcessos tratarProcessos = new TratamentoProcessos(aws, con);
-        tratarProcessos.tratamentoProcessos("processos.csv");
+        tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
 
+
+        for (Logs log : logsConsolidados){
+            Boolean idJaAdicionado = false;
+            Integer idDaVez = log.getFk_servidor();
+            for (int i : listaIdServidores){
+                if (idDaVez == i ){
+                    idJaAdicionado = true;
+                }
+            }
+            if (!idJaAdicionado){
+                listaIdServidores.add(idDaVez);
+            }
+        }
 
         // Pegando o id do servidor
         Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
@@ -321,13 +337,12 @@ public class Main {
         // TRATAMENTO REDE
         TratamentoRede tratamentoRede = new TratamentoRede(aws);
         // Criando Json de rede
-        String nomeArqJsonRede = "jsonRede" + String.valueOf(fk_servidor);
-        TratamentoRede.gravaArquivoJsonRede(logsConsolidados, nomeArqJsonRede, fk_servidor);
-
+        TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
         // Criando json de conexao
-        TratamentoRede.gravaArquivoJson(String.valueOf(fk_servidor));
+        TratamentoRede.gravaArquivoJson(listaIdServidores);
 
-
+        //Criando json Near Real Time
+        tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
