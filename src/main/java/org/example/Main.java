@@ -5,6 +5,7 @@ import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
 import org.example.classesRenan.tratamentoNearRealTime;
+import org.example.classesWillian.TratamentoWillian;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -693,6 +694,30 @@ public class Main {
         }
 
         System.out.println("\n--- Processo Principal Finalizado ---");
+
+        // tratamento willian inicio
+        // Exemplo de como chamar na sua main (ou no Lambda Handler)
+        AwsConnection awsConnection = new AwsConnection();
+        awsConnection.limparTemporarios();
+
+        try {
+            // Instancia sua classe individual
+            TratamentoWillian tratamentoWillian = new TratamentoWillian(awsConnection);
+
+            // Roda o pipeline: Download (Trusted) -> Conversão/Tratamento (Local) -> Upload (Client)
+            tratamentoWillian.executarTratamento();
+
+            System.out.println("Processo concluído com sucesso!");
+
+        } catch (Exception e) {
+            System.err.println("Ocorreu um erro na execução principal: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            // Limpa quaisquer arquivos restantes
+            awsConnection.limparTemporarios();
+        }
+        // tratamento willian final
+
     }
 
 }

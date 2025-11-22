@@ -15,6 +15,10 @@ import java.util.List;
 public class AwsConnection {
 
     private final S3Client s3 = S3Utils.createClient();
+    //
+    public S3Client getS3Client() {
+        return s3;
+    }
 
     public List<String> listarArquivosRaw() {
         List<String> chaves = new ArrayList<>();
