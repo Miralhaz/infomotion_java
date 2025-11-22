@@ -696,24 +696,29 @@ public class Main {
         System.out.println("\n--- Processo Principal Finalizado ---");
 
         // tratamento willian inicio
-        // Exemplo de como chamar na sua main (ou no Lambda Handler)
+        System.out.println("Iniciando ETL de Logs Consolidado -> JSON Dashboard...");
+
         AwsConnection awsConnection = new AwsConnection();
+        Connection dbConnection = new Connection(); // Instancia a conexão com o BD
+
+        // Limpa a área de trabalho local de arquivos antigos (CSV/JSON)
         awsConnection.limparTemporarios();
 
         try {
-            // Instancia sua classe individual
-            TratamentoWillian tratamentoWillian = new TratamentoWillian(awsConnection);
+            // Instancia a sua classe de tratamento, passando as conexões
+            TratamentoWillian tratamentoWillian = new TratamentoWillian(awsConnection, dbConnection);
 
-            // Roda o pipeline: Download (Trusted) -> Conversão/Tratamento (Local) -> Upload (Client)
+            // Roda o pipeline completo: Download, Tratamento, Upload
             tratamentoWillian.executarTratamento();
 
-            System.out.println("Processo concluído com sucesso!");
+            System.out.println("\n✅ Processo de ETL concluído com sucesso!");
+            System.out.println("Arquivo dashboard_data.json enviado para s3-client-infomotion-1/tratamentos_willian/");
 
         } catch (Exception e) {
-            System.err.println("Ocorreu um erro na execução principal: " + e.getMessage());
+            System.err.println("\n🛑 Ocorreu um erro FATAL na execução da ETL.");
             e.printStackTrace();
         } finally {
-            // Limpa quaisquer arquivos restantes
+            // Garante a limpeza final
             awsConnection.limparTemporarios();
         }
         // tratamento willian final
