@@ -28,10 +28,12 @@ public class LogsGiuliaCriticidade {
         this.classificacao = classificacao;
     }
 
-    public LogsGiuliaCriticidade(Integer fk_servidor, Double percentual, Integer minutos) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Double percentual, Integer minutos, String classificacao) {
         this.fk_servidor = fk_servidor;
+        this.apelido = apelido;
         this.percentual = percentual;
         this.minutos = minutos;
+        this.classificacao = classificacao;
     }
 
     // Métodos:
