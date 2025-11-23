@@ -320,9 +320,22 @@ public class TratamentoWillian {
                 calcularGraficoTendencia(mapper, dadosAtuais));
 
         // ... (restante da escrita e upload)
-    }
+        try {
+            // Escreve o Array JSON em um arquivo local
+            try (FileWriter file = new FileWriter(NOME_ARQUIVO_JSON_FINAL)) {
+                mapper.writerWithDefaultPrettyPrinter().writeValue(file, dashboardData); // Escrevendo o arquivo
+            }
 
-    // Em TratamentoWillian.java (Adicione no final da classe)
+            System.out.println("Arquivo JSON gerado localmente: " + NOME_ARQUIVO_JSON_FINAL);
+
+            // CHAMADA CORRIGIDA: Usa a instância de awsConnection
+            uploadJsonParaClient(NOME_ARQUIVO_JSON_FINAL); // <--- ESTE MÉTODO ESTAVA FALTANDO SER CHAMADO
+
+        } catch (IOException e) {
+            System.err.println("Erro durante a escrita ou upload do JSON: " + e.getMessage());
+            throw e; // Lança para ser pego pelo catch em executarTratamento
+        }
+    }
 
 // Métodos auxiliares para cálculo
 
@@ -601,14 +614,12 @@ public class TratamentoWillian {
             return tendenciaArray;
         }
 
-        // 1. Agrupar os dados por nome da máquina (servidor)
+        // 1. Agrupar logs por servidor (nomeMaquina)
         Map<String, List<LogServidor>> logsPorServidor = dadosAtuais.stream()
-                // Filtra logs que têm um timestamp válido, essencial para a regressão
                 .filter(log -> log.getTimestampObj() != null)
                 .collect(Collectors.groupingBy(log -> log.nomeMaquina));
 
-        // 2. Identificar os Top 5 Discos para Análise
-        // Usamos o *último* registro de cada máquina para determinar o Top 5 de maior uso atual.
+        // 2. Identificar os Top 5 Discos mais próximos de lotar (do último registro)
         List<String> top5Discos = logsPorServidor.entrySet().stream()
                 .map(entry -> entry.getValue().stream()
                         .max(Comparator.comparing(LogServidor::getTimestampObj))
@@ -623,63 +634,80 @@ public class TratamentoWillian {
         for (String nomeMaquina : top5Discos) {
             List<LogServidor> historico = logsPorServidor.get(nomeMaquina);
 
-            // Se o histórico tiver menos de 2 pontos, a regressão não pode ser feita
+            // Se o histórico for pequeno ou o tempo for zero (variância zero em X), pulamos a regressão
             if (historico.size() < 2) {
-                System.out.println("Aviso: Histórico insuficiente para regressão em " + nomeMaquina);
-                continue;
+                continue; // Próximo servidor
             }
 
-            // Ponto de Referência (Tempo 0): O registro mais antigo
             final LogServidor logInicial = historico.get(0);
             SimpleRegression regression = new SimpleRegression();
 
             // Popular os dados da Regressão
             for (LogServidor log : historico) {
-                // X: Tempo em horas desde o primeiro registro
-                double x_horas = (double) ChronoUnit.HOURS.between(logInicial.getTimestampObj(), log.getTimestampObj());
-                // Y: Uso de Disco
+                // X: Tempo em MINUTOS (Unidade base mais segura) desde o primeiro registro
+                double x_minutos = (double) ChronoUnit.MINUTES.between(logInicial.getTimestampObj(), log.getTimestampObj());
                 double y_uso_disco = log.disco;
 
-                regression.addData(x_horas, y_uso_disco);
+                regression.addData(x_minutos, y_uso_disco);
             }
 
-            // Se a regressão foi bem-sucedida, calculamos as projeções
-            if (regression.getN() > 0) {
+            // Se a regressão foi bem-sucedida (N>=2 e Variância em X > 0)
+            if (regression.getN() >= 2 && regression.getTotalSumSquares() > 0) {
 
-                // Variável para a projeção: Horas entre o ÚLTIMO log e o futuro
                 LogServidor logMaisRecente = historico.get(historico.size() - 1);
-                double horasDesdeInicio = (double) ChronoUnit.HOURS.between(logInicial.getTimestampObj(), logMaisRecente.getTimestampObj());
+                double minutosDesdeInicio = (double) ChronoUnit.MINUTES.between(logInicial.getTimestampObj(), logMaisRecente.getTimestampObj());
 
-                // Projeções futuras (X = horas a partir do registro inicial)
-                double projecao1h = regression.predict(horasDesdeInicio + 1.0);       // +1 hora
-                double projecao24h = regression.predict(horasDesdeInicio + 24.0);     // +24 horas
-                double projecao3d = regression.predict(horasDesdeInicio + (3.0 * 24)); // +3 dias (72 horas)
+                // Fatores de tempo em minutos
+                double minutos1h = 60.0;
+                double minutos24h = 24.0 * 60.0;
+                double minutos3d = 3.0 * 24.0 * 60.0;
+
+                // Projeções (em minutos a partir do registro inicial)
+                double projecao1h = regression.predict(minutosDesdeInicio + minutos1h);
+                double projecao24h = regression.predict(minutosDesdeInicio + minutos24h);
+                double projecao3d = regression.predict(minutosDesdeInicio + minutos3d);
 
                 // Criar o Objeto JSON de Saída
                 ObjectNode tendencia = mapper.createObjectNode();
                 tendencia.put("nomeServidor", nomeMaquina);
                 tendencia.put("usoAtual", logMaisRecente.disco);
-                tendencia.put("tendenciaCrescimento", regression.getSlope() * 24.0); // Tendência de mudança em 24h
-                tendencia.put("projecao1h", Math.max(0.0, Math.min(100.0, projecao1h))); // Limita a [0, 100]
+
+                // Tendência de mudança em 24h (Slope * 24 horas em minutos)
+                double slopeDiario = regression.getSlope() * minutos24h;
+                tendencia.put("tendenciaCrescimento", slopeDiario);
+
+                // Aplicar limites [0, 100]
+                tendencia.put("projecao1h", Math.max(0.0, Math.min(100.0, projecao1h)));
                 tendencia.put("projecao24h", Math.max(0.0, Math.min(100.0, projecao24h)));
                 tendencia.put("projecao3d", Math.max(0.0, Math.min(100.0, projecao3d)));
 
-                // Classificação da Tendência
-                if (regression.getSlope() > 0.05) { // Se a inclinação for positiva (crescimento), por exemplo, > 0.05% por hora
-                    tendencia.put("classificacao", "CRESCIMENTO");
-                } else if (regression.getSlope() < -0.05) {
+                // Classificação da Tendência (ex: acima de 0.5% por dia)
+                if (slopeDiario > 0.5) {
+                    tendencia.put("classificacao", "CRESCIMENTO ACELERADO");
+                } else if (slopeDiario < -0.5) {
                     tendencia.put("classificacao", "DECLÍNIO");
                 } else {
                     tendencia.put("classificacao", "ESTÁVEL");
                 }
 
                 tendenciaArray.add(tendencia);
+            } else {
+                // Caso a regressão não possa ser feita (dados insuficientes ou zero variância)
+                LogServidor logMaisRecente = historico.get(historico.size() - 1);
+                ObjectNode tendencia = mapper.createObjectNode();
+                tendencia.put("nomeServidor", nomeMaquina);
+                tendencia.put("usoAtual", logMaisRecente.disco);
+                tendencia.put("tendenciaCrescimento", 0.0); // Retorna zero em vez de NaN
+                tendencia.put("projecao1h", logMaisRecente.disco);
+                tendencia.put("projecao24h", logMaisRecente.disco);
+                tendencia.put("projecao3d", logMaisRecente.disco);
+                tendencia.put("classificacao", "ESTÁVEL (SEM HISTÓRICO)");
+                tendenciaArray.add(tendencia);
             }
         }
 
         return tendenciaArray;
-    }
-// Fim dos métodos auxiliares
+    }// Fim dos métodos auxiliares
 
 
 
