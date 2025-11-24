@@ -15,9 +15,9 @@ public class TratamentoDonut {
     private final JdbcTemplate con;
     private static final String PASTA_CLIENT = "tratamentos_giulia";
 
-    public TratamentoDonut(JdbcTemplate con, AwsConnection awsCon) {
-        this.con = con;
+    public TratamentoDonut(AwsConnection awsCon, JdbcTemplate con) {
         this.awsCon = awsCon;
+        this.con = con;
     }
 
     private List<LogsGiuliaCriticidade> transformarLogs(List<Logs> logs){
@@ -69,6 +69,11 @@ public class TratamentoDonut {
 
     public void classificarCriticidade(List<Logs> logsConsolidados) {
 
+        if (logsConsolidados == null || logsConsolidados.isEmpty()) {
+            System.out.println("Nenhum log recebido para calcular criticidade (donut).");
+            return;
+        }
+
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
 
         Set<Integer> idsServidores = new LinkedHashSet<>();
@@ -84,7 +89,7 @@ public class TratamentoDonut {
                 select pa.max
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?);
+                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
             """);
 
         for (Integer id : idsServidores){
@@ -96,13 +101,43 @@ public class TratamentoDonut {
                 }
             }
 
-            Double limiteCpu = con.queryForObject(selectTipo, Double.class, "CPU", id);
-            Double limiteRam = con.queryForObject(selectTipo, Double.class, "RAM", id);
-            Double limiteDisco = con.queryForObject(selectTipo, Double.class, "DISCO", id);
+            logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
 
-            Integer minCpu = calcularMinutosAcimaComponente(logsServidor, limiteCpu, "CPU");
-            Integer minRam = calcularMinutosAcimaComponente(logsServidor, limiteRam, "RAM");
-            Integer minDisco = calcularMinutosAcimaComponente(logsServidor, limiteDisco, "DISCO");
+            List<Double> listaCpu   = con.queryForList(selectTipo, Double.class, "CPU", id);
+            List<Double> listaRam   = con.queryForList(selectTipo, Double.class, "RAM", id);
+            List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id);
+
+
+            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty()) {
+                System.out.printf(
+                        "Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO com unidade '%%'). Pulando esse servidor.%n",
+                        id
+                );
+                continue;
+            }
+
+            Double limiteCpu   = listaCpu.get(0);
+            Double limiteRam   = listaRam.get(0);
+            Double limiteDisco = listaDisco.get(0);
+
+            if (limiteCpu == null && limiteRam == null && limiteDisco == null) {
+                System.out.printf("Servidor %d sem parametros de CPU/RAM/DISCO em %% - ignorando no donut.%n", id);
+                continue;
+            }
+
+            Integer minCpu = 0;
+            Integer minRam = 0;
+            Integer minDisco = 0;
+
+            if (limiteCpu != null) {
+                minCpu = calcularMinutosAcimaComponente(logsServidor, limiteCpu, "CPU");
+            }
+            if (limiteRam != null) {
+                minRam = calcularMinutosAcimaComponente(logsServidor, limiteRam, "RAM");
+            }
+            if (limiteDisco != null) {
+                minDisco = calcularMinutosAcimaComponente(logsServidor, limiteDisco, "DISCO");
+            }
 
             String classificacao;
             Integer maiorQtdMinutos = Math.max(minCpu, Math.max(minRam, minDisco));
@@ -124,6 +159,7 @@ public class TratamentoDonut {
 
             for (LogsGiuliaCriticidade log : logsServidor){
                 log.setClassificacao(classificacao);
+                log.setMinutos(maiorQtdMinutos);
             }
         }
         gravaArquivoJson(listaLogs, "nivelCriticidadeGiulia");

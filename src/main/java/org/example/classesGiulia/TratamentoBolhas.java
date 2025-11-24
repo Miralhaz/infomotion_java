@@ -25,9 +25,18 @@ public class TratamentoBolhas {
 
     private List<LogsGiuliaCriticidade> transformarLogs(List<Logs> logs){
         List<LogsGiuliaCriticidade> listaLogs = new ArrayList<>();
-
-        for (Logs log : logs){
-            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), log.getCpu(), 0, "");
+        for (Logs log : logs) {
+            LocalDateTime timestamp = log.getDataHora();
+            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(
+                    log.getFk_servidor(),
+                    log.getNomeMaquina(),
+                    0,
+                    timestamp,
+                    log.getCpu(),
+                    log.getRam(),
+                    log.getDisco(),
+                    ""
+            );
             listaLogs.add(logCriticidade);
         }
         return listaLogs;
@@ -47,7 +56,7 @@ public class TratamentoBolhas {
                 select pa.max
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?);
+                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
             """);
 
         for (Integer id : idsServidores) {
@@ -59,7 +68,15 @@ public class TratamentoBolhas {
                 }
             }
 
-            Double limiteCpu = con.queryForObject(selectTipo, Double.class, "CPU", id);
+            List<Double> listaCpu = con.queryForList(selectTipo, Double.class, "CPU", id);
+
+            if (listaCpu.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro_alerta de CPU em %%. Pulando.%n", id);
+                continue;
+            }
+
+            Double limiteCpu = listaCpu.get(0);
+
             Integer minutosAcima = 0;
             Double maxPercentual = 0.0;
 
@@ -85,7 +102,7 @@ public class TratamentoBolhas {
                 }
             }
 
-            if (minutosAcima > 0){
+            if (minutosAcima >= 0){
                 String apelidoServidor = logsServidor.get(0).getApelido();
                 String classificacao = "";
                 LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
@@ -125,7 +142,7 @@ public class TratamentoBolhas {
                 select pa.max
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?);
+                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
             """);
 
         for (Integer id : idsServidores) {
@@ -137,7 +154,16 @@ public class TratamentoBolhas {
                 }
             }
 
-            Double limiteRam = con.queryForObject(selectTipo, Double.class, "RAM", id);
+            logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
+
+            List<Double> listaRam = con.queryForList(selectTipo, Double.class, "CPU", id);
+
+            if (listaRam.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro_alerta de CPU em %%. Pulando.%n", id);
+                continue;
+            }
+
+            Double limiteRam = listaRam.get(0);
 
             Integer minutosAcima = 0;
             Double maxPercentual = 0.0;
@@ -163,7 +189,7 @@ public class TratamentoBolhas {
                 }
             }
 
-            if (minutosAcima > 0){
+            if (minutosAcima >= 0){
                 String apelidoServidor = logsServidor.get(0).getApelido();
                 String classificacao = "";
                 LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
@@ -185,7 +211,7 @@ public class TratamentoBolhas {
             }
         }
 
-        gravaArquivoJson(listaLogs, "criticidadeRam");
+        gravaArquivoJson(listaBolhasRam, "criticidadeRam");
         awsCon.uploadBucketClient(PASTA_CLIENT, "criticidadeRam.json");
     }
 
@@ -205,7 +231,7 @@ public class TratamentoBolhas {
                 select pa.max
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?);
+                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
             """);
 
         for (Integer id : idsServidores) {
@@ -266,7 +292,7 @@ public class TratamentoBolhas {
 
         }
 
-        gravaArquivoJson(listaLogs, "criticidadeDisco");
+        gravaArquivoJson(listaBolhasDisco, "criticidadeDisco");
         awsCon.uploadBucketClient(PASTA_CLIENT, "bolhasCpuGiulia.json");
     }
 
@@ -277,7 +303,7 @@ public class TratamentoBolhas {
         Boolean deuRuim = false;
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
             saida.append("[");
             Integer contador = 0;
             for (LogsGiuliaCriticidade log : lista) {
