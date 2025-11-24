@@ -110,7 +110,7 @@ public class TratamentoTemperaturaDisco {
             saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaDisco log : lista) {
-                saida.write(String.format("%d;%s;%.2f;%.2f\n",
+                saida.write(String.format(Locale.US, "%d;%s;%.2f;%.2f\n",
                         log.getFk_servidor(), log.getDataHoraFormatada(), log.getUsoDisco(), log.getTempDisco()));
             }
         } catch (IOException erro) {
@@ -139,7 +139,7 @@ public class TratamentoTemperaturaDisco {
             for (int i = 0; i < lista.size(); i++) {
                 LogsMiralhaDisco log = lista.get(i);
 
-                saida.write(String.format(
+                saida.write(String.format(Locale.US,
                         """
                         {
                         "fk_servidor": %d,

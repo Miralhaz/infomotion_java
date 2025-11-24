@@ -112,7 +112,7 @@ public class TratamentoTemperaturaCpu {
             saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaCpu log : lista) {
-                saida.write(String.format("%d;%s;%.2f;%.2f\n",
+                saida.write(String.format(Locale.US, "%d;%s;%.2f;%.2f\n",
                         log.getFk_servidor(), log.getDataHoraFormatada(), log.getUsoCpu(), log.getTempCpu()));
             }
         } catch (IOException erro) {
@@ -142,7 +142,7 @@ public class TratamentoTemperaturaCpu {
             for (int i = 0; i < lista.size(); i++) {
                 LogsMiralhaCpu log = lista.get(i);
 
-                saida.write(String.format(
+                saida.write(String.format(Locale.US,
                         """
                         {
                         "fk_servidor": %d,

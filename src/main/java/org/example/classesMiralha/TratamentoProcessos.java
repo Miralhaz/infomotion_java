@@ -234,7 +234,7 @@ public class TratamentoProcessos {
             saida.append("fk_servidor;timestamp;nome_processo;uso_cpu;uso_ram\n");
 
             for (LogsProcessosMiralha log : lista) {
-                saida.write(String.format("%d;%s;%s;%.2f;%.2f\n",
+                saida.write(String.format(Locale.US, "%d;%s;%s;%.2f;%.2f\n",
                         log.getFk_servidor(),
                         log.getDataHoraFormatada(),
                         log.getNomeProcesso(),
@@ -263,7 +263,7 @@ public class TratamentoProcessos {
             for (int i = 0; i < lista.size(); i++) {
                 LogsProcessosMiralha log = lista.get(i);
 
-                saida.write(String.format(
+                saida.write(String.format(Locale.US,
                         """
                         {
                         "fk_servidor": %d,
