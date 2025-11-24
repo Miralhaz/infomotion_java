@@ -15,6 +15,10 @@ import java.util.List;
 public class AwsConnection {
 
     private final S3Client s3 = S3Utils.createClient();
+    //
+    public S3Client getS3Client() {
+        return s3;
+    }
 
     public List<String> listarArquivosRaw() {
         List<String> chaves = new ArrayList<>();
@@ -183,22 +187,6 @@ public class AwsConnection {
             System.err.println("Erro ao limpar arquivos temporários: " + e.getMessage());
         }
     }
-    // NOVO MÉTODO: Baixar do Trusted (trusted como origem)
-    public void downloadBucketTrusted(String nomeArq) {
-        String key = String.format("alertas/%s", nomeArq); // Assumindo que tem o prefixo 'alertas/'
-        try {
-            s3.getObject(
-                    GetObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion-1") // MUDANÇA AQUI: de raw para trusted
-                            .key(key)
-                            .build(),
-                    Paths.get(nomeArq)
-            );
-        } catch (Exception e) {
-            System.err.println("Erro ao baixar do Trusted " + nomeArq + ": " + e.getMessage());
-            throw new RuntimeException("Falha no download do Trusted", e);
-        }
-    }
 
     public void downloadBucketProcessosTrusted(String nomeArq) {
         String key = nomeArq;
@@ -224,27 +212,6 @@ public class AwsConnection {
         }
     }
 
-    // NOVO MÉTODO: Upload para o Client (client como destino)
-    public void uploadBucketClient(String nomeArq) {
-        String key = String.format("produto_final/%s", nomeArq); // Novo prefixo para o client
-        try {
-            s3.putObject(
-                    PutObjectRequest.builder()
-                            .bucket("s3-client-infomotion-1") // MUDANÇA AQUI: de trusted para client
-                            .key(key)
-                            .contentType("text/csv")
-                            .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
-            );
-
-            System.out.println("Upload concluído para CLIENT: " + nomeArq);
-            // Não chamamos deleteCsvLocal aqui, pois será feito no finally da TrustedToClient
-        }
-        catch (Exception e) {
-            System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
-            throw new RuntimeException("Falha no upload para Client", e);
-        }
-    }
 
     public void uploadBucketClient(String nomePasta, String nomeArq) {
         String key = String.format("%s/%s", nomePasta, nomeArq); // Novo prefixo para o client
