@@ -4,14 +4,14 @@ import org.example.AwsConnection;
 import org.example.Logs;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.File;
 import java.io.FileOutputStream;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TratamentoTemperaturaCpu {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -26,20 +26,63 @@ public class TratamentoTemperaturaCpu {
     public void tratamentoDeTemperaturaCpu(List<Logs> logsCompletos, String nomeArqSaida){
         final String nomeBase = "cpu_temperaturas_uso";
         final String arquivoCsvTrusted = nomeBase + ".csv";
-        final String arquivoJsonClient = nomeBase + ".json";
 
         List<LogsMiralhaCpu> listaApenasCpu = transformarParaLogsReduzidos(logsCompletos);
 
         System.out.println("Transformando informações em um arquivo cpu_temperaturas_uso.csv...\n ");
         writeCsvTemperatureCPU(listaApenasCpu, nomeBase);
-        System.out.println("Transformação feita com sucesso! Enviando ao bucket client...\n");
+        System.out.println("Transformação feita com sucesso! Enviando ao bucket trusted...\n");
         awsConnection.uploadTemperaturaBucket(arquivoCsvTrusted);
 
-        System.out.println("Agora transformando em json o arquivo.csv que foi salvo no client...");
-        writeJsonTemperaturaCpu(listaApenasCpu, nomeBase);
-        System.out.println("Tranformação de JSON feita! Enviando ao bucket client...");
-        awsConnection.uploadTemperaturaBucket(arquivoJsonClient);
-        System.out.println("Tratamento de Disco feito com sucesso!!\n");
+        System.out.println("Separando logs por servidor e gerando JSONs filtrados...");
+        gerarJsonsPorServidorEPeriodo(listaApenasCpu);
+
+        System.out.println("Tratamento de CPU feito com sucesso!!\n");
+    }
+
+    private void gerarJsonsPorServidorEPeriodo(List<LogsMiralhaCpu> logs) {
+        LocalDateTime agora = LocalDateTime.now();
+
+        Map<Integer, List<LogsMiralhaCpu>> logsPorServidor = logs.stream()
+                .collect(Collectors.groupingBy(LogsMiralhaCpu::getFk_servidor));
+
+        System.out.println("Total de servidores encontrados: " + logsPorServidor.size() + "\n");
+
+        for (Map.Entry<Integer, List<LogsMiralhaCpu>> entry : logsPorServidor.entrySet()) {
+            Integer idServidor = entry.getKey();
+            List<LogsMiralhaCpu> logsDoServidor = entry.getValue();
+
+            System.out.println("=== Processando Servidor ID: " + idServidor + " ===");
+
+            List<LogsMiralhaCpu> ultimaHora = filtrarPorPeriodo(logsDoServidor, agora.minusHours(1), agora);
+            String arquivo1h = "ultima_hora.json";
+            writeJsonTemperaturaCpu(ultimaHora, arquivo1h);
+            awsConnection.uploadTemperaturaComPasta(idServidor, arquivo1h);
+            System.out.println("  ✓ Última hora: " + ultimaHora.size() + " registros");
+
+            // 24 HORAS
+            List<LogsMiralhaCpu> ultimas24h = filtrarPorPeriodo(logsDoServidor, agora.minusHours(24), agora);
+            String arquivo24h = "24_horas.json";
+            writeJsonTemperaturaCpu(ultimas24h, arquivo24h);
+            awsConnection.uploadTemperaturaComPasta(idServidor, arquivo24h);
+            System.out.println("  ✓ Últimas 24h: " + ultimas24h.size() + " registros");
+
+            // 7 DIAS
+            List<LogsMiralhaCpu> ultimos7dias = filtrarPorPeriodo(logsDoServidor, agora.minusDays(7), agora);
+            String arquivo7d = "7_dias.json";
+            writeJsonTemperaturaCpu(ultimos7dias, arquivo7d);
+            awsConnection.uploadTemperaturaComPasta(idServidor, arquivo7d);
+            System.out.println("  ✓ Últimos 7 dias: " + ultimos7dias.size() + " registros\n");
+        }
+    }
+
+    private List<LogsMiralhaCpu> filtrarPorPeriodo(List<LogsMiralhaCpu> logs, LocalDateTime inicio, LocalDateTime fim) {
+        return logs.stream()
+                .filter(log -> {
+                    LocalDateTime dataLog = log.getDataHora();
+                    return !dataLog.isBefore(inicio) && !dataLog.isAfter(fim);
+                })
+                .collect(Collectors.toList());
     }
 
     private List<LogsMiralhaCpu> transformarParaLogsReduzidos(List<Logs> logs) {
@@ -69,7 +112,7 @@ public class TratamentoTemperaturaCpu {
             saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaCpu log : lista) {
-                saida.write(String.format("%d;%s;%.2f;%.2f\n",
+                saida.write(String.format(Locale.US, "%d;%s;%.2f;%.2f\n",
                         log.getFk_servidor(), log.getDataHoraFormatada(), log.getUsoCpu(), log.getTempCpu()));
             }
         } catch (IOException erro) {
@@ -85,7 +128,12 @@ public class TratamentoTemperaturaCpu {
 
     private void writeJsonTemperaturaCpu(List<LogsMiralhaCpu> lista, String nomeArq) {
         OutputStreamWriter saida = null;
-        String nomeCompletoArq = nomeArq + ".json";
+        String nomeCompletoArq = nomeArq;
+
+        // Adiciona .json apenas se não tiver
+        if (!nomeCompletoArq.endsWith(".json")) {
+            nomeCompletoArq += ".json";
+        }
 
         try {
             saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
@@ -94,7 +142,7 @@ public class TratamentoTemperaturaCpu {
             for (int i = 0; i < lista.size(); i++) {
                 LogsMiralhaCpu log = lista.get(i);
 
-                saida.write(String.format(
+                saida.write(String.format(Locale.US,
                         """
                         {
                         "fk_servidor": %d,

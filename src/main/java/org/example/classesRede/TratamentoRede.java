@@ -1,11 +1,13 @@
 package org.example.classesRede;
 
 import org.example.*;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.example.AwsConnection;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -17,11 +19,13 @@ import java.util.Locale;
 
 public class TratamentoRede {
     private LocalDateTime dataHoje = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
-    private static AwsConnection awsConnection = new AwsConnection();
+    private static AwsConnection awsConnection;
     private static final String nomePasta = "Dashboard_Rede";
+    private static JdbcTemplate banco;
 
-    public TratamentoRede(AwsConnection awsConnection) {
+    public TratamentoRede(AwsConnection awsConnection, JdbcTemplate banco) {
         this.awsConnection = awsConnection;
+        this.banco = banco;
     }
 
     public AwsConnection getAwsConnection() {
@@ -29,6 +33,7 @@ public class TratamentoRede {
     }
 
     public static List<LogConexao> csvJsonConexao (Integer idServidor) {
+
 
         String nomeArq = "conexoes" + idServidor;
 
@@ -56,7 +61,6 @@ public class TratamentoRede {
             // separa cada da linha usando o delimitador ";"
             // resgistro = linha.split(";");
             // printa os titulos da coluna
-            System.out.println("Lendo e Importando CSV de dados do bucket-raw");
 
             linha = entrada.readLine();
             // converte de string para integer
@@ -82,27 +86,61 @@ public class TratamentoRede {
 
         }finally {
             try {
-                System.out.println("Arquivo importado com sucesso!\n");
                 entrada.close();
                 arq.close();
             } catch (IOException e) {
                 System.out.println("Erro ao fechar o arquivo");
             }
         }
+        awsConnection.deleteCsvLocal(nomeArq);
         return listaLogsConexao;
     }
 
-    public static List<LogRede> filtrandoLogRede(List<Logs> lista, Integer idServidor) {
-        System.out.println("filtrando log de rede");
+    public static List<LogRede> filtrandoLogRede(List<Logs> lista, Integer idServidor, Integer tempoHoras) {
+
         List<LogRede> logsRede = new ArrayList<>();
 
+        String selectParametroPorServidor = "SELECT * FROM parametro_alerta where fk_servidor = (?);";
+        List<Parametro_alerta> metrica = banco.query(selectParametroPorServidor,
+                new BeanPropertyRowMapper<>(Parametro_alerta.class),
+                1);
+
+        Integer parametroDown = 0;
+        Integer parametroUp = 0;
+        Integer parametroPacotesRecebidos = 0;
+        Integer parametroPacotesEnviados = 0;
+
+        for (Parametro_alerta pa : metrica){
+
+            if (pa.getUnidadeMedida().equalsIgnoreCase("DOWNLOAD")){
+                parametroDown = Integer.getInteger(String.valueOf(pa.getMax()));
+            } else if (pa.getUnidadeMedida().equalsIgnoreCase("UPLOAD")){
+                parametroUp = Integer.getInteger(String.valueOf(pa.getMax()));
+            } else if (pa.getUnidadeMedida().equalsIgnoreCase("PCKT_RCVD")){
+                parametroPacotesRecebidos = Integer.getInteger(String.valueOf(pa.getMax()));
+            } else if (pa.getUnidadeMedida().equalsIgnoreCase("PCKT_SNT")){
+                parametroPacotesEnviados = Integer.getInteger(String.valueOf(pa.getMax()));
+            }
+
+        }
+
+
         for (Logs log : lista) {
-            if (log.getFk_servidor().equals(idServidor)){
-                LogRede logRede = new LogRede(log.getDataHoraString(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getFk_servidor());
-                logsRede.add(logRede);
+
+            String dataString = log.getDataHoraString();
+            DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+            LocalDateTime dataFinal = LocalDateTime.parse(dataString, formatador);
+            LocalDateTime limite = LocalDateTime.now().minusHours(tempoHoras);
+
+
+            if (dataFinal.isAfter(limite)) {
+
+                if (log.getFk_servidor().equals(idServidor)) {
+                    LogRede logRede = new LogRede(log.getDataHoraString(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getFk_servidor(), parametroDown, parametroUp, parametroPacotesRecebidos, parametroPacotesEnviados);
+                    logsRede.add(logRede);
+                }
             }
         }
-        System.out.println("Log de rede filtrado");
         return logsRede;
     }
 
@@ -172,87 +210,102 @@ public class TratamentoRede {
             }
 
             awsConnection.uploadBucketClient(nomePasta, nomeArq);
+            awsConnection.deleteCsvLocal(nomeArq);
         }
     }
 
     public static void gravaArquivoJsonRede(List<Logs> lista, List<Integer> idServidor) {
 
+        // uma hora, um dia. 7 dias
+        int[] listaHoras = {1, 24, 168};
+
         for (Integer i : idServidor) {
-            System.out.println("Iniciando gravação de json de rede");
-            List<LogRede> listaRede = filtrandoLogRede(lista, i);
-            OutputStreamWriter saida = null;
-            Boolean deuRuim = false;
+            for (Integer tempoHoras : listaHoras) {
 
-            String nomeArq = "jsonRede" + String.valueOf(i);
-            nomeArq += ".json";
+                List<LogRede> listaRede = filtrandoLogRede(lista, i, tempoHoras);
+                OutputStreamWriter saida = null;
+                Boolean deuRuim = false;
 
-            try {
-                saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
-            } catch (IOException erro) {
-                System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
-                System.exit(1);
-            }
+                String nomeArq = "jsonRede_" + i + "_" + tempoHoras;
+                nomeArq += ".json";
 
-            try {
-                saida.append("[\n");
-                Integer contador = 0;
-                for (LogRede log : listaRede) {
-                    contador++;
-                    if (contador == lista.size()) {
-                        saida.write(String.format(Locale.US, """
-                                        {
-                                        "fk_servidor": "%d",
-                                        "timeStamp": "%s",
-                                        "uploadByte": "%d",
-                                        "downloadByte": "%d",
-                                        "packetSent": "%d",
-                                        "packetReceived": "%d",
-                                        "packetLossSent": "%d",
-                                        "packetLossReceived": "%d"
-                                        }""",
-                                log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
-                    } else {
-                        saida.write(String.format(Locale.US, """
-                                        {
-                                        "id": "%d",
-                                        "fk_servidor": "%d",
-                                        "timeStamp": "%s",
-                                        "uploadByte": "%d",
-                                        "downloadByte": "%d",
-                                        "packetSent": "%d",
-                                        "packetReceived": "%d",
-                                        "packetLossSent": "%d",
-                                        "packetLossReceived": "%d"
-                                        },""",
-                                log.getId(), log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived()));
-                    }
-                }
-                saida.append("]");
-            } catch (IOException erro) {
-                System.out.println("Erro ao gravar o arquivo");
-                erro.printStackTrace();
-                deuRuim = true;
-            } finally {
                 try {
-                    saida.close();
+                    saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
                 } catch (IOException erro) {
-                    System.out.println("Erro ao fechar o arquivo");
-                    deuRuim = true;
-                }
-                if (deuRuim) {
+                    System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
                     System.exit(1);
                 }
+
+                try {
+                    saida.append("[\n");
+                    Integer contador = 0;
+                    for (LogRede log : listaRede) {
+                        contador++;
+                        if (contador == listaRede.size()) {
+                            saida.write(String.format(Locale.US, """
+                                            {
+                                            "fk_servidor": "%d",
+                                            "timeStamp": "%s",
+                                            "uploadByte": "%d",
+                                            "downloadByte": "%d",
+                                            "packetSent": "%d",
+                                            "packetReceived": "%d",
+                                            "packetLossSent": "%d",
+                                            "packetLossReceived": "%d",
+                                            "parametroDown": "%d",
+                                            "parametroUp": "%d",
+                                            "parametroPacotesRecebidos": "%d".
+                                            "parametroPacotesEnviados": "%d"
+                                            }""",
+                                    log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived(), log.getParametroDown(), log.getParametroUp(), log.getParametroPacotesRecebidos(), log.getParametroPacotesEnviados()));
+                        } else {
+
+                            saida.write(String.format(Locale.US, """
+                                            {
+                                            "fk_servidor": "%d",
+                                            "timeStamp": "%s",
+                                            "uploadByte": "%d",
+                                            "downloadByte": "%d",
+                                            "packetSent": "%d",
+                                            "packetReceived": "%d",
+                                            "packetLossSent": "%d",
+                                            "packetLossReceived": "%d",
+                                            "parametroDown": "%d",
+                                            "parametroUp": "%d",
+                                            "parametroPacotesRecebidos": "%d".
+                                            "parametroPacotesEnviados": "%d"
+                                            },""",
+                                    log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived(), log.getParametroDown(), log.getParametroUp(), log.getParametroPacotesRecebidos(), log.getParametroPacotesEnviados()));
+                        }
+                    }
+                    saida.append("]");
+                } catch (IOException erro) {
+                    System.out.println("Erro ao gravar o arquivo");
+                    erro.printStackTrace();
+                    deuRuim = true;
+                } finally {
+                    try {
+                        saida.close();
+                    } catch (IOException erro) {
+                        System.out.println("Erro ao fechar o arquivo");
+                        deuRuim = true;
+                    }
+                    if (deuRuim) {
+                        System.exit(1);
+                    }
+                }
+                awsConnection.uploadBucketClient(nomePasta, nomeArq);
+                awsConnection.deleteCsvLocal(nomeArq);
             }
-            awsConnection.uploadBucketClient(nomePasta, nomeArq);
         }
     }
 
 
 
 
-    public void detectandoAlertasRede(List<Logs> lista, Double max, Integer duracao_min, Integer fk_parametroAlerta, String unidadeMedida, Integer idServidor) {
+    public static void detectandoAlertasRede(List<Logs> lista, Double max, Integer duracao_min, Integer fk_parametroAlerta, String unidadeMedida, Integer idServidor) {
 
-        List<LogRede> listaRede = filtrandoLogRede(lista, idServidor);
+        List<LogRede> listaRede = filtrandoLogRede(lista, idServidor, 1);
         List<LogRede> alertasRede = new ArrayList<>();
         Integer fk_servidor = listaRede.getFirst().getFk_servidor();
 
@@ -334,7 +387,7 @@ public class TratamentoRede {
 
             con.update(insert, fk_parametroAlerta, maxDown, minDown);
             Logs ultimoLog = lista.get(lista.size() - 1);
-            String tituloJira = String.format("Alerta Crítico: Download em %d no Servidor %d",
+            String tituloJira = String.format("Alerta Crítico: Rede em %d no Servidor %d",
                     maxDown, fk_servidor);
             String descricaoCorpo = String.format(
                     "Alerta de Download.\n" +
@@ -367,7 +420,7 @@ public class TratamentoRede {
             contadorUpload = 0;
             con.update(insert, fk_parametroAlerta, maxUp, minUp);
             Logs ultimoLog = lista.get(lista.size() - 1);
-            String tituloJira = String.format("Alerta Crítico: Upload em %d no Servidor %d",
+            String tituloJira = String.format("Alerta Crítico: Rede em %d no Servidor %d",
                     maxUp, fk_servidor);
             String descricaoCorpo = String.format(
                     "Alerta de Upload.\n" +
@@ -400,7 +453,7 @@ public class TratamentoRede {
             contadorPacketSent = 0;
             con.update(insert, fk_parametroAlerta, maxpacketSent, minpacketSent);
             Logs ultimoLog = lista.get(lista.size() - 1);
-            String tituloJira = String.format("Alerta Crítico: Pacotes enviados em %d no Servidor %d",
+            String tituloJira = String.format("Alerta Crítico: Rede em %d no Servidor %d",
                     maxpacketSent, fk_servidor);
             String descricaoCorpo = String.format(
                     "Alerta de Pacotes enviados.\n" +
@@ -433,7 +486,7 @@ public class TratamentoRede {
             contadorPacketReceived = 0;
             con.update(insert, fk_parametroAlerta, maxpacketReceived, minpacketReceived);
             Logs ultimoLog = lista.get(lista.size() - 1);
-            String tituloJira = String.format("Alerta Crítico: Pacotes Recebidos em %d no Servidor %d",
+            String tituloJira = String.format("Alerta Crítico: Rede em %d no Servidor %d",
                     maxpacketReceived, fk_servidor);
             String descricaoCorpo = String.format(
                     "Alerta de Pacotes Recebidos.\n" +

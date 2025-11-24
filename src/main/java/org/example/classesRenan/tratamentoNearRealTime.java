@@ -5,6 +5,8 @@ import org.apache.commons.logging.LogFactory;
 import org.example.AwsConnection;
 import org.example.Logs;
 
+import java.sql.*;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -65,9 +67,10 @@ public class tratamentoNearRealTime {
                 logfinal.add(ultimoLog);
 
                 String nomeArquivo = "data" + ultimoLog.getFk_servidor() + ".json";
+                ParametrosServidor params = carregarParametros(ultimoLog.getFk_servidor());
 
                 try {
-                    gerarJson(ultimoLog, nomeArquivo);
+                    gerarJson(ultimoLog, params, nomeArquivo);
                     new AwsConnection().uploadBucketClient("DashNearRealTime", nomeArquivo);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
@@ -76,8 +79,79 @@ public class tratamentoNearRealTime {
 
         }
     }
+    public static ParametrosServidor carregarParametros(Integer fkServidor) {
+        ParametrosServidor params = new ParametrosServidor();
 
-    public static void gerarJson(LogsNearRealTime log, String nomeArq) throws IOException {
+        String url = "jdbc:mysql://localhost:3306/infomotion";
+        String user = "root";
+        String pass = "Ren@n2005";
+
+        String sql = """
+        SELECT max, tipo, unidade_medida
+        FROM parametro_alerta p
+        INNER JOIN componentes c ON c.id = p.fk_componente
+        WHERE p.fk_servidor = ?;
+    """;
+
+        try (Connection conn = DriverManager.getConnection(url, user, pass);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, fkServidor);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                double max = rs.getDouble("max");
+                String tipo = rs.getString("tipo");
+                String unidade = rs.getString("unidade_medida");
+
+                switch (tipo) {
+
+                    case "CPU" -> {
+                        if (unidade.equals("%"))
+                            params.maxCpuUso = max;
+                        else if (unidade.equals("C"))
+                            params.maxCpuTemp = max;
+                    }
+
+                    case "RAM" -> params.maxRam = max;
+
+                    case "DISCO" -> {
+                        if (unidade.equals("%"))
+                            params.maxDiscoUso = max;
+                        else if (unidade.equals("C"))
+                            params.maxDiscoTemp = max;
+                    }
+
+                    case "REDE" -> {
+                        if (unidade.equals("DOWNLOAD"))
+                            params.maxRedeDownload = (long) max;
+                        else if (unidade.equals("UPLOAD"))
+                            params.maxRedeUpload = (long) max;
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        if (params.maxCpuUso == null)      params.maxCpuUso = 50.0;
+        if (params.maxCpuTemp == null)     params.maxCpuTemp = 70.0;
+
+        if (params.maxRam == null)         params.maxRam = 50.0;
+
+        if (params.maxDiscoUso == null)    params.maxDiscoUso = 50.0;
+        if (params.maxDiscoTemp == null)   params.maxDiscoTemp = 60.0;
+
+        if (params.maxRedeDownload == null) params.maxRedeDownload = 5000000L;
+        if (params.maxRedeUpload == null)   params.maxRedeUpload = 5000000L;
+
+        return params;
+    }
+
+
+
+    public static void gerarJson(LogsNearRealTime log, ParametrosServidor params,  String nomeArq) throws IOException {
         OutputStreamWriter saida = null;
         boolean deuRuim = false;
 
@@ -86,29 +160,55 @@ public class tratamentoNearRealTime {
 
             double uploadMB = log.getUploadByte() / 1024.0 / 1024.0;
             double downloadMB = log.getDownloadByte() / 1024.0 / 1024.0;
+            double maxDownloadMB = params.maxRedeDownload / 1024.0 / 1024.0;
+            double maxUploadMB = params.maxRedeUpload / 1024.0 / 1024.0;
 
             saida.write(String.format(Locale.US, """
             {
                 "fk_servidor": %d,
                 "timeStamp": "%s",
-                "ram": %.2f,
-                "cpu": %.2f,
-                "disco": %.2f,
-                "temperatura_cpu": %.2f,
-                "temperatura_disco": %.2f,
-                "uploadMB": %.2f,
-                "downloadMB": %.2f
-            }
-            """,
+
+                "atual": {
+                    "ram": %.2f,
+                    "cpu": %.2f,
+                    "disco": %.2f,
+                    "temperatura_cpu": %.2f,
+                    "temperatura_disco": %.2f,
+                    "uploadByte": %.2f,
+                    "downloadByte": %.2f
+            },
+
+            "maximo": {
+                "maxRam": %.2f,
+                "maxCpuUso": %.2f,
+                "maxCpuTemp": %.2f,
+                "maxDiscoUso": %.2f,
+                "maxDiscoTemp": %.2f,
+                "maxDownload": %.2f,
+                "maxUpload" : %.2f
+        }
+}
+""",
                     log.getFk_servidor(),
                     log.getTimeStamp(),
+
+                    // ATUAIS
                     log.getRam(),
                     log.getCpu(),
                     log.getDisco(),
                     log.getTemperatura_cpu(),
                     log.getTemperatura_disco(),
                     uploadMB,
-                    downloadMB
+                    downloadMB,
+
+                    // MAXIMOS
+                    params.maxRam,
+                    params.maxCpuUso,
+                    params.maxCpuTemp,
+                    params.maxDiscoUso,
+                    params.maxDiscoTemp,
+                    maxDownloadMB,
+                    maxUploadMB
             ));
 
         } catch (IOException e) {

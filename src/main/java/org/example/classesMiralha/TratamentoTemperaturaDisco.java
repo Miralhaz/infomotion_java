@@ -4,14 +4,14 @@ import org.example.AwsConnection;
 import org.example.Logs;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-import java.io.File;
 import java.io.FileOutputStream;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class TratamentoTemperaturaDisco {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -26,20 +26,61 @@ public class TratamentoTemperaturaDisco {
     public void tratamentoDeTemperaturaDisco(List<Logs> logsCompletos, String nomeArqSaida){
         final String nomeBase = "disco_temperaturas_uso";
         final String arquivoCsvTrusted = nomeBase + ".csv";
-        final String arquivoJsonClient = nomeBase + ".json";
 
         List<LogsMiralhaDisco> listaApenasDisco = transformarParaLogsReduzidos(logsCompletos);
 
         System.out.println("Transformando informações em um arquivo disco_temperaturas_uso.csv... ");
-        writeCsvTemperatureCPU(listaApenasDisco, nomeBase);
+        writeCsvTemperaturaDisco(listaApenasDisco, nomeBase);
         System.out.println("Transformação feita com sucesso! Enviando ao bucket trusted...\n");
-        awsConnection.uploadTemperaturaBucket(arquivoCsvTrusted);
+        awsConnection.uploadDiscoBucket(arquivoCsvTrusted);
 
-        System.out.println("Agora passando o tratamento do trusted ao client...");
-        writeJsonTemperaturaCpu(listaApenasDisco, nomeBase);
-        System.out.println("Transformação para JSON feita com sucesso! Enviando ao bucket client...\n");
-        awsConnection.uploadTemperaturaBucket(arquivoJsonClient);
+        System.out.println("Separando logs por servidor e gerando JSONs filtrados...");
+        gerarJsonsPorServidorEPeriodo(listaApenasDisco);
+
         System.out.println("Tratamento de Disco feito com sucesso!!\n");
+    }
+
+    private void gerarJsonsPorServidorEPeriodo(List<LogsMiralhaDisco> logs) {
+        LocalDateTime agora = LocalDateTime.now();
+
+        Map<Integer, List<LogsMiralhaDisco>> logsPorServidor = logs.stream()
+                .collect(Collectors.groupingBy(LogsMiralhaDisco::getFk_servidor));
+
+        System.out.println("Total de servidores encontrados: " + logsPorServidor.size() + "\n");
+
+        for (Map.Entry<Integer, List<LogsMiralhaDisco>> entry : logsPorServidor.entrySet()) {
+            Integer idServidor = entry.getKey();
+            List<LogsMiralhaDisco> logsDoServidor = entry.getValue();
+
+            System.out.println("=== Processando Servidor ID: " + idServidor + " ===");
+
+            List<LogsMiralhaDisco> ultimaHora = filtrarPorPeriodo(logsDoServidor, agora.minusHours(1), agora);
+            String arquivo1h = "ultima_hora.json";
+            writeJsonTemperaturaDisco(ultimaHora, arquivo1h);
+            awsConnection.uploadDiscoComPasta(idServidor, arquivo1h);
+            System.out.println("  ✓ Última hora: " + ultimaHora.size() + " registros");
+
+            List<LogsMiralhaDisco> ultimas24h = filtrarPorPeriodo(logsDoServidor, agora.minusHours(24), agora);
+            String arquivo24h = "24_horas.json";
+            writeJsonTemperaturaDisco(ultimas24h, arquivo24h);
+            awsConnection.uploadDiscoComPasta(idServidor, arquivo24h);
+            System.out.println("  ✓ Últimas 24h: " + ultimas24h.size() + " registros");
+
+            List<LogsMiralhaDisco> ultimos7dias = filtrarPorPeriodo(logsDoServidor, agora.minusDays(7), agora);
+            String arquivo7d = "7_dias.json";
+            writeJsonTemperaturaDisco(ultimos7dias, arquivo7d);
+            awsConnection.uploadDiscoComPasta(idServidor, arquivo7d);
+            System.out.println("  ✓ Últimos 7 dias: " + ultimos7dias.size() + " registros\n");
+        }
+    }
+
+    private List<LogsMiralhaDisco> filtrarPorPeriodo(List<LogsMiralhaDisco> logs, LocalDateTime inicio, LocalDateTime fim) {
+        return logs.stream()
+                .filter(log -> {
+                    LocalDateTime dataLog = log.getDataHora();
+                    return !dataLog.isBefore(inicio) && !dataLog.isAfter(fim);
+                })
+                .collect(Collectors.toList());
     }
 
     private List<LogsMiralhaDisco> transformarParaLogsReduzidos(List<Logs> logs) {
@@ -61,7 +102,7 @@ public class TratamentoTemperaturaDisco {
         return reduzidos;
     }
 
-    private void writeCsvTemperatureCPU(List<LogsMiralhaDisco> lista, String nomeArq) {
+    private void writeCsvTemperaturaDisco(List<LogsMiralhaDisco> lista, String nomeArq) {
         OutputStreamWriter saida = null;
         String nomeCompletoArq = nomeArq + ".csv";
 
@@ -69,7 +110,7 @@ public class TratamentoTemperaturaDisco {
             saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaDisco log : lista) {
-                saida.write(String.format("%d;%s;%.2f;%.2f\n",
+                saida.write(String.format(Locale.US, "%d;%s;%.2f;%.2f\n",
                         log.getFk_servidor(), log.getDataHoraFormatada(), log.getUsoDisco(), log.getTempDisco()));
             }
         } catch (IOException erro) {
@@ -83,9 +124,13 @@ public class TratamentoTemperaturaDisco {
         }
     }
 
-    private void writeJsonTemperaturaCpu(List<LogsMiralhaDisco> lista, String nomeArq) {
+    private void writeJsonTemperaturaDisco(List<LogsMiralhaDisco> lista, String nomeArq) {
         OutputStreamWriter saida = null;
-        String nomeCompletoArq = nomeArq + ".json";
+        String nomeCompletoArq = nomeArq;
+
+        if (!nomeCompletoArq.endsWith(".json")) {
+            nomeCompletoArq += ".json";
+        }
 
         try {
             saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
@@ -94,7 +139,7 @@ public class TratamentoTemperaturaDisco {
             for (int i = 0; i < lista.size(); i++) {
                 LogsMiralhaDisco log = lista.get(i);
 
-                saida.write(String.format(
+                saida.write(String.format(Locale.US,
                         """
                         {
                         "fk_servidor": %d,

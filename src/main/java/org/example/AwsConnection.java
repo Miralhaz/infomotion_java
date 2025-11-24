@@ -16,6 +16,22 @@ public class AwsConnection {
 
     private final S3Client s3 = S3Utils.createClient();
 
+    public S3Client getS3Client() {
+        return s3;
+    }
+
+    public void downloadBucketRaw(String nomeArq) {
+        String key = String.format(nomeArq);
+
+        s3.getObject(
+                GetObjectRequest.builder()
+                        .bucket("s3-raw-infomotion-1")
+                        .key(key)
+                        .build(),
+                Paths.get(nomeArq)
+        );
+    }
+
     public List<String> listarArquivosRaw() {
         List<String> chaves = new ArrayList<>();
 
@@ -64,16 +80,69 @@ public class AwsConnection {
         return chaves;
     }
 
-    public void downloadBucketRaw(String nomeArq) {
-        String key = String.format(nomeArq);
+    public void uploadTemperaturaComPasta(Integer idServidor, String nomeArq) {
+        String key = String.format("tratamentoMiralha/temperatura/cpu/servidor_%d/%s", idServidor, nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1")
+                            .key(key)
+                            .contentType("application/json")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
 
-        s3.getObject(
-                GetObjectRequest.builder()
-                        .bucket("s3-raw-infomotion-1")
-                        .key(key)
-                        .build(),
-                Paths.get(nomeArq)
-        );
+            System.out.println("  → Upload concluído: " + key);
+            deleteCsvLocal(nomeArq);
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
+        }
+    }
+
+    public void uploadDiscoComPasta(Integer idServidor, String nomeArq) {
+        String key = String.format("tratamentoMiralha/temperatura/disco/servidor_%d/%s", idServidor, nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1")
+                            .key(key)
+                            .contentType("application/json")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("  → Upload concluído: " + key);
+            deleteCsvLocal(nomeArq);
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
+        }
+    }
+
+    public void downloadBucketTrusted(String nomeArq) {
+        String key = nomeArq;
+        Path destino = Paths.get(nomeArq);
+
+        try {
+            if (destino.getParent() != null) {
+                Files.createDirectories(destino.getParent());
+            }
+
+            s3.getObject(
+                    GetObjectRequest.builder()
+                            .bucket("s3-trusted-infomotion-1")
+                            .key(key)
+                            .build(),
+                    destino
+            );
+            System.out.println("Download concluído: " + nomeArq);
+        } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
+            System.out.println("Aviso: Arquivo '" + nomeArq + "' não encontrado no S3 Trusted.");
+        } catch (Exception e) {
+            System.err.println("Erro ao baixar do Trusted " + nomeArq + ": " + e.getMessage());
+            throw new RuntimeException("Falha no download do Trusted", e);
+        }
     }
 
     public void uploadBucketTrusted(String nomeArq) {
@@ -88,10 +157,74 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of(nomeArq))
             );
 
-        System.out.println("Upload concluído: " + nomeArq);
+            System.out.println("Upload concluído: " + nomeArq);
         }
-     catch (Exception e) {
-        System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
+        }
+    }
+
+    public void downloadBucketProcessosTrusted(String nomeArq) {
+        String key = nomeArq;
+        Path destino = Paths.get(nomeArq);
+
+        try {
+            if (destino.getParent() != null) {
+                Files.createDirectories(destino.getParent());
+            }
+
+            s3.getObject(
+                    GetObjectRequest.builder()
+                            .bucket("s3-trusted-infomotion-1")
+                            .key(key)
+                            .build(),
+                    destino
+            );
+        } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
+            System.out.println("Aviso: Arquivo '" + nomeArq + "' não encontrado no S3 Trusted. Prosseguindo.");
+        } catch (Exception e) {
+            System.err.println("Erro ao baixar do Trusted " + nomeArq + ": " + e.getMessage());
+            throw new RuntimeException("Falha no download do Trusted", e);
+        }
+    }
+
+    public void uploadBucketClient(String nomePasta, String nomeArq) {
+        String key = String.format("%s/%s", nomePasta, nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1")
+                            .key(key)
+                            .contentType("text/csv")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("Upload concluído para CLIENT: " + nomeArq);
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
+            throw new RuntimeException("Falha no upload para Client", e);
+        }
+    }
+
+    public void uploadDiscoBucket(String nomeArq) {
+        String key = String.format("tratamentoMiralha/disco/%s", nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1")
+                            .key(key)
+                            .contentType("text/csv")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("Upload concluído: " + nomeArq + "\n");
+            deleteCsvLocal(nomeArq);
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
         }
     }
 
@@ -158,7 +291,7 @@ public class AwsConnection {
         try {
             Path caminho = Path.of(nomeArq);
             java.nio.file.Files.deleteIfExists(caminho);
-            System.out.println("Arquivo deletado com sucesso: " + nomeArq + "\n");
+            System.out.println("  → Arquivo local deletado: " + nomeArq);
         } catch (Exception e) {
             System.err.println("Erro ao deletar o arquivo " + nomeArq + ": " + e.getMessage());
         }
@@ -183,88 +316,4 @@ public class AwsConnection {
             System.err.println("Erro ao limpar arquivos temporários: " + e.getMessage());
         }
     }
-    // NOVO MÉTODO: Baixar do Trusted (trusted como origem)
-    public void downloadBucketTrusted(String nomeArq) {
-        String key = String.format("alertas/%s", nomeArq); // Assumindo que tem o prefixo 'alertas/'
-        try {
-            s3.getObject(
-                    GetObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion-1") // MUDANÇA AQUI: de raw para trusted
-                            .key(key)
-                            .build(),
-                    Paths.get(nomeArq)
-            );
-        } catch (Exception e) {
-            System.err.println("Erro ao baixar do Trusted " + nomeArq + ": " + e.getMessage());
-            throw new RuntimeException("Falha no download do Trusted", e);
-        }
-    }
-
-    public void downloadBucketProcessosTrusted(String nomeArq) {
-        String key = nomeArq;
-        Path destino = Paths.get(nomeArq);
-
-        try {
-            if (destino.getParent() != null) {
-                Files.createDirectories(destino.getParent());
-            }
-
-            s3.getObject(
-                    GetObjectRequest.builder()
-                            .bucket("s3-trusted-infomotion-1")
-                            .key(key)
-                            .build(),
-                    destino
-            );
-        } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
-            System.out.println("Aviso: Arquivo '" + nomeArq + "' não encontrado no S3 Trusted. Prosseguindo.");
-        } catch (Exception e) {
-            System.err.println("Erro ao baixar do Trusted " + nomeArq + ": " + e.getMessage());
-            throw new RuntimeException("Falha no download do Trusted", e);
-        }
-    }
-
-    // NOVO MÉTODO: Upload para o Client (client como destino)
-    public void uploadBucketClient(String nomeArq) {
-        String key = String.format("produto_final/%s", nomeArq); // Novo prefixo para o client
-        try {
-            s3.putObject(
-                    PutObjectRequest.builder()
-                            .bucket("s3-client-infomotion-1") // MUDANÇA AQUI: de trusted para client
-                            .key(key)
-                            .contentType("text/csv")
-                            .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
-            );
-
-            System.out.println("Upload concluído para CLIENT: " + nomeArq);
-            // Não chamamos deleteCsvLocal aqui, pois será feito no finally da TrustedToClient
-        }
-        catch (Exception e) {
-            System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
-            throw new RuntimeException("Falha no upload para Client", e);
-        }
-    }
-
-    public void uploadBucketClient(String nomePasta, String nomeArq) {
-        String key = String.format("%s/%s", nomePasta, nomeArq); // Novo prefixo para o client
-        try {
-            s3.putObject(
-                    PutObjectRequest.builder()
-                            .bucket("s3-client-infomotion-1") // MUDANÇA AQUI: de trusted para client
-                            .key(key)
-                            .contentType("text/csv")
-                            .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
-            );
-
-            System.out.println("Upload concluído para CLIENT: " + nomeArq);
-            // Não chamamos deleteCsvLocal aqui, pois será feito no finally da TrustedToClient
-        }
-        catch (Exception e) {
-            System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
-            throw new RuntimeException("Falha no upload para Client", e);
-        }
-    }
-
 }
