@@ -8,10 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TratamentoProcessos {
@@ -34,17 +31,13 @@ public class TratamentoProcessos {
         awsConnection.downloadBucketProcessosTrusted(nomeArqConsolidado);
 
         List<LogsProcessosMiralha> processosCompletos = leImportaArquivoCsvProcessos(nomeArqConsolidado);
-        List<LogsProcessosMiralha> listaTop5Processos = transformarParaLogsTop5(processosCompletos);
+        List<LogsProcessosMiralha> listaTop5Processos = transformarParaLogsTop5PorServidor(processosCompletos);
 
         writeCsvProcessos(listaTop5Processos, nomeBase);
         awsConnection.uploadProcessosBucket(arquivoCsvTrusted);
         writeJsonProcessos(listaTop5Processos, nomeBase);
         awsConnection.uploadProcessosBucket(arquivoJsonClient);
     }
-
-
-
-
 
     public static List<LogsProcessosMiralha> leImportaArquivoCsvProcessos(String nomeArq) {
         Reader arq = null;
@@ -144,12 +137,6 @@ public class TratamentoProcessos {
         return listaProcessos;
     }
 
-
-
-
-
-
-
     public static void consolidarArquivosRawProcessos() {
 
         AwsConnection aws = new AwsConnection();
@@ -194,31 +181,48 @@ public class TratamentoProcessos {
         System.out.println("\nConsolidação concluída");
     }
 
-    private List<LogsProcessosMiralha> transformarParaLogsTop5(List<LogsProcessosMiralha> logs) {
+    private List<LogsProcessosMiralha> transformarParaLogsTop5PorServidor(List<LogsProcessosMiralha> logs) {
+        List<LogsProcessosMiralha> todosOsTop5 = new ArrayList<>();
 
-        List<LogsProcessosMiralha> processosFiltrados = logs.stream()
-                .filter(log -> !log.getNomeProcesso().equalsIgnoreCase("System Idle Process"))
-                .collect(Collectors.toList());
+        Map<Integer, List<LogsProcessosMiralha>> logsPorServidor = logs.stream()
+                .collect(Collectors.groupingBy(LogsProcessosMiralha::getFk_servidor));
 
-        List<LogsProcessosMiralha> picosPorProcesso = processosFiltrados.stream()
-                .collect(Collectors.groupingBy(LogsProcessosMiralha::getNomeProcesso))
-                .values().stream()
-                .map(listaLogsProcesso -> listaLogsProcesso.stream()
-                        .max(Comparator.comparingDouble(LogsProcessosMiralha::getUsoCpuProcesso))
-                        .orElse(null)
-                )
-                .filter(log -> log != null)
-                .collect(Collectors.toList());
+        System.out.println("Processando Top 5 para " + logsPorServidor.size() + " servidor(es)...\n");
 
-        List<LogsProcessosMiralha> reduzidosTop5 = picosPorProcesso.stream()
-                .sorted(
-                        Comparator.comparingDouble(LogsProcessosMiralha::getUsoCpuProcesso).reversed()
-                )
-                .limit(5)
-                .collect(Collectors.toList());
+        for (Map.Entry<Integer, List<LogsProcessosMiralha>> entry : logsPorServidor.entrySet()) {
+            Integer idServidor = entry.getKey();
+            List<LogsProcessosMiralha> logsDoServidor = entry.getValue();
 
-        System.out.println("Filtro Top 5 (Apenas CPU) aplicado com sucesso!\n");
-        return reduzidosTop5;
+            System.out.println("Servidor ID " + idServidor + ": processando " + logsDoServidor.size() + " registros");
+
+            List<LogsProcessosMiralha> processosFiltrados = logsDoServidor.stream()
+                    .filter(log -> !log.getNomeProcesso().equalsIgnoreCase("System Idle Process"))
+                    .collect(Collectors.toList());
+
+            List<LogsProcessosMiralha> picosPorProcesso = processosFiltrados.stream()
+                    .collect(Collectors.groupingBy(LogsProcessosMiralha::getNomeProcesso))
+                    .values().stream()
+                    .map(listaLogsProcesso -> listaLogsProcesso.stream()
+                            .max(Comparator.comparingDouble(LogsProcessosMiralha::getUsoCpuProcesso))
+                            .orElse(null)
+                    )
+                    .filter(log -> log != null)
+                    .collect(Collectors.toList());
+
+            List<LogsProcessosMiralha> top5DoServidor = picosPorProcesso.stream()
+                    .sorted(Comparator.comparingDouble(LogsProcessosMiralha::getUsoCpuProcesso).reversed())
+                    .limit(5)
+                    .collect(Collectors.toList());
+
+            System.out.println("  → Top 5 do Servidor " + idServidor + ": " + top5DoServidor.size() + " processos");
+
+            todosOsTop5.addAll(top5DoServidor);
+        }
+
+        System.out.println("\nTotal de processos no Top 5 (todos os servidores): " + todosOsTop5.size());
+        System.out.println("Filtro Top 5 por servidor aplicado com sucesso!\n");
+
+        return todosOsTop5;
     }
 
     private void writeCsvProcessos(List<LogsProcessosMiralha> lista, String nomeArq) {
