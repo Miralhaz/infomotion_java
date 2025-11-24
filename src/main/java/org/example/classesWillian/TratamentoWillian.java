@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,6 +72,95 @@ public class TratamentoWillian {
         }
     }
 
+    // Em TratamentoWillian.java
+
+
+    /**
+     * Busca o parâmetro 'max' de alerta de DISCO para um servidor específico,
+     * utilizando a conexão crua (getRawConnection) para evitar métodos específicos na Connection.
+     * @param idServidor O ID do servidor para buscar.
+     * @return O valor do limite de disco (em percentual).
+     */
+    private double buscarParametroLimiteDisco(int idServidor) {
+        double limiteDefault = 85.0; // Valor de segurança padrão
+
+        // A query real para buscar o parâmetro
+        String sql = "SELECT p.max AS parametro " +
+                "FROM servidor AS s " +
+                "INNER JOIN parametro_alerta AS p ON p.fk_servidor = s.id " +
+                "INNER JOIN componentes AS c ON c.id = p.fk_componente " +
+                "INNER JOIN empresa AS e ON e.id = s.fk_empresa " +
+                "WHERE c.tipo = 'DISCO' AND s.id = ?";
+
+        try (java.sql.Connection conn = dbConnection.getRawConnection(); // <--- USA A NOVA CONEXÃO CRUA
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // Define o tipo correto. Use stmt.setString(1, String.valueOf(idServidor)); se for String.
+            stmt.setInt(1, idServidor);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getDouble("parametro");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar parâmetro de limite: " + e.getMessage());
+            return limiteDefault;
+        }
+
+        return limiteDefault;
+    }
+
+    private void buscarDadosComponenteEEnriquecerLogs(List<LogServidor> logs) {
+        if (logs.isEmpty()) return;
+
+        // 1. A Query SQL com placeholders.
+        // Alias para as colunas: s.apelido AS servidorApelido, c.apelido AS apelidoDisco, e.valor AS armazenamentoTotal
+        String sql = "SELECT s.apelido AS servidorApelido, c.id AS idComponente, c.apelido AS apelidoDisco, e.valor AS armazenamentoTotal " +
+                "FROM componentes AS c " +
+                "INNER JOIN especificacao_componente AS e ON e.fk_componente = c.id " +
+                "INNER JOIN servidor AS s ON c.fk_servidor = s.id " +
+                "WHERE c.fk_servidor = ? AND c.tipo = 'DISCO'";
+
+        // O seu objeto Connection precisa fornecer um método para a conexão crua (getRawConnection)
+        try (java.sql.Connection conn = dbConnection.getRawConnection(); // <--- VERIFIQUE ESTE MÉTODO NA Connection.java
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            // 2. Agrupar logs por servidor (ID do servidor no CSV)
+            Map<Integer, List<LogServidor>> logsPorServidor = logs.stream()
+                    .collect(Collectors.groupingBy(log -> log.fk_servidor));
+
+            // 3. Iterar sobre cada servidor único
+            for (Integer idServidor : logsPorServidor.keySet()) {
+
+                stmt.setInt(1, idServidor); // Define o ID do servidor na Query
+
+                try (ResultSet rs = stmt.executeQuery()) {
+                    if (rs.next()) {
+                        // Dados encontrados
+                        String servidorApelido = rs.getString("servidorApelido"); // Usando o alias
+                        String apelidoDisco = rs.getString("apelidoDisco");       // Usando o alias
+                        double armazenamentoTotal = rs.getDouble("armazenamentoTotal"); // Usando o alias
+
+                        System.out.printf("DEBUG ENRIQUECIMENTO: Servidor ID %d -> Apelido Disco: %s, Total: %.2f\n",
+                                idServidor, apelidoDisco, armazenamentoTotal);
+
+                        // 4. Enriquecer TODOS os logs pertencentes a este servidor
+                        logsPorServidor.get(idServidor).forEach(log -> {
+                            log.servidorApelido = servidorApelido;
+                            log.apelidoDisco = apelidoDisco;
+                            log.armazenamentoTotalGB = armazenamentoTotal;
+                        });
+                    } else {
+                        System.out.println("DEBUG ENRIQUECIMENTO: Não encontrou dados de componente para o servidor ID " + idServidor);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("ERRO FATAL SQL NO ENRIQUECIMENTO: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
     /**
      * Converte o CSV em JSON, aplicando o tratamento focado em Disco, Servidor, e I/O.
      * @param csvPath Caminho do CSV local.
@@ -267,9 +358,20 @@ public class TratamentoWillian {
     public void gerarDashboardData() throws IOException { // Adicionar throws IOException
         System.out.println("--- Iniciando Geração de Dashboard Data ---");
 
+
+
         // 1. BAIXAR E CONVERTER DADOS
         List<LogServidor> dadosAtuais = lerCsvESerializar(Paths.get(NOME_ARQUIVO_CSV));
 
+        if (dadosAtuais.isEmpty()) { /* ... */ }
+
+        // **CHAMADA DE ENRIQUECIMENTO DE DADOS:**
+        buscarDadosComponenteEEnriquecerLogs(dadosAtuais); // <--- Adicionar esta linha
+
+        // 2. OBTER PARÂMETRO GLOBAL DE REFERÊNCIA
+        // ... (restante da lógica, que agora usará os campos enriquecidos)
+
+// ...
         if (dadosAtuais.isEmpty()) {
             System.out.println("Aviso: Nenhum dado atualizado para processar.");
             return;
@@ -277,10 +379,13 @@ public class TratamentoWillian {
 
         // 2. OBTER PARÂMETRO GLOBAL DE REFERÊNCIA
         // Pega o ID do primeiro servidor do CSV para buscar o parâmetro
+        // Em TratamentoWillian.java (Trecho do método gerarDashboardData)
+
         int idServidorReferencia = dadosAtuais.get(0).fk_servidor;
 
-        // Busca o parâmetro uma única vez. Se falhar no banco, usa 85.0.
-        double limiteGlobal = dbConnection.getParametroLimiteDisco(idServidorReferencia);
+// CHAMA O NOVO MÉTODO PRIVADO, E NÃO MAIS A CONEXÃO DIRETA
+        double limiteGlobal = buscarParametroLimiteDisco(idServidorReferencia);
+// ...
         double limiteDisco = limiteGlobal;
         double limiteTemp = limiteGlobal; // Usa o mesmo parâmetro para disco e temperatura
 
@@ -377,9 +482,20 @@ public class TratamentoWillian {
 
         for (LogServidor log : topDiscos) {
             ObjectNode item = mapper.createObjectNode();
+            // 1. Definição do nome de exibição:
+            String nomeCompleto;
+            if (log.apelidoDisco != null && !log.apelidoDisco.isEmpty()) {
+                // Formato Exibição: HD-01: 1TB - 90% utilizado
+                // Vamos colocar o total em um campo separado para o front-end formatar o '1TB'
+                nomeCompleto = log.apelidoDisco + " (" + log.servidorApelido + ")";
+            } else {
+                nomeCompleto = log.nomeMaquina;
+            }
 
-            item.put("nomeServidor", log.nomeMaquina);
+            item.put("nomeServidor", nomeCompleto);
             item.put("usoDisco", log.disco);
+            // Novo campo para o front-end saber a capacidade total
+            item.put("armazenamentoTotalGB", log.armazenamentoTotalGB);
 
             // 2. Classificação de Risco
             String risco;
@@ -595,7 +711,19 @@ public class TratamentoWillian {
             // Se a classificação não for NORMAL, adicionamos à lista
             if (!classificacao.equals("NORMAL")) {
                 ObjectNode item = mapper.createObjectNode();
-                item.put("nomeServidor", nomeMaquina);
+
+                String nomeCompleto;
+                if (ultimoLog.apelidoDisco != null && !ultimoLog.apelidoDisco.isEmpty()) {
+                    // Se houver apelido do disco e do servidor, usa a combinação (Ex: HD-01 (Servidor-2))
+                    nomeCompleto = ultimoLog.apelidoDisco + " (" + ultimoLog.servidorApelido + ")";
+                } else {
+                    // Fallback para o nome da máquina se a busca no banco falhar
+                    nomeCompleto = nomeMaquina;
+                }
+
+                item.put("nomeServidor", nomeCompleto);
+                // -------------------------------------------------------------
+
                 item.put("temperaturaAtual", ultimoLog.temperatura_disco);
                 item.put("limiteParametro", limiteTemp);
                 item.put("classificacao", classificacao);

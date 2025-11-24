@@ -16,6 +16,9 @@ public class LogServidor {
     public int tempo_leitura;
     public int tempo_escrita;
     public String timestamp; // Manter como String para a regressão
+    public String apelidoDisco; // O Apelido do componente (ex: HD-01, NVME-01)
+    public double armazenamentoTotalGB; // Armazenamento Total (ex: 1024 para 1TB)
+    public String servidorApelido; // O Apelido do servidor (ex: Servidor-2)
 
     public LocalDateTime timestampObj;
 
