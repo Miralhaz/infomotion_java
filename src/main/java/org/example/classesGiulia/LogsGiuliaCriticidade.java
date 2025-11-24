@@ -17,11 +17,11 @@ public class LogsGiuliaCriticidade {
     private Double percentual;
 
     // Construtor:
-    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, LocalDateTime timestamp, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, String classificacao) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Integer minutos, LocalDateTime timestamp, Double usoCpu, Double usoRam, Double usoDisco, String classificacao) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
-        this.timestamp = timestamp;
         this.minutos = minutos;
+        this.timestamp = timestamp;
         this.usoCpu = usoCpu;
         this.usoRam = usoRam;
         this.usoDisco = usoDisco;

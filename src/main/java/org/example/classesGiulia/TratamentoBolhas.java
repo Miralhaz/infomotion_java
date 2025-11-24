@@ -2,6 +2,7 @@ package org.example.classesGiulia;
 
 import org.example.AwsConnection;
 import org.example.Connection;
+import org.example.Logs;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
@@ -9,193 +10,59 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class TratamentoBolhas {
-    public static List<Integer> listaIdServidores = new ArrayList<>();
-    private AwsConnection awsCon = new AwsConnection();
 
-    public TratamentoBolhas(AwsConnection awsCon) {
+    private final AwsConnection awsCon;
+    private final JdbcTemplate con;
+    private static final String PASTA_CLIENT = "tratamentos_giulia";
+
+    public TratamentoBolhas(AwsConnection awsCon, JdbcTemplate con) {
         this.awsCon = awsCon;
+        this.con = con;
     }
 
-    public static void gravaArquivoJson(List<LogsGiuliaCriticidade> lista, String nomeArq) {
-
-        OutputStreamWriter saida = null;
-        Boolean deuRuim = false;
-        nomeArq += ".json";
-
-        try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
-
-        } catch (IOException erro) {
-            System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
-            System.exit(1);
-        }
-
-        try {
-            saida.append("[");
-            Integer contador = 0;
-            for (LogsGiuliaCriticidade log : lista) {
-                if (contador > 0) {
-                    saida.append(",");
-                }
-                saida.write(String.format(Locale.US,""" 
-                           {
-                           "fk_servidor": %d,
-                           "apelido": "%s" ,
-                           "percentual": %.2f,
-                           "minutos": %d,
-                           "classificacao": "%s"
-                           }""",
-                        log.getFk_servidor(), log.getApelido(), log.getPercentual(), log.getMinutos(), log.getClassificacao()));
-                        contador ++;
-            }
-            saida.append("]");
-            System.out.println("Arquivo Json gerado com sucesso!");
-
-        } catch (IOException erro) {
-            System.out.println("Erro ao gravar o arquivo");
-            erro.printStackTrace();
-            deuRuim = true;
-        } finally {
-            try {
-                saida.close();
-            } catch (IOException erro) {
-                System.out.println("Erro ao fechar o arquivo");
-                deuRuim = true;
-            }
-            if (deuRuim) {
-                System.exit(1);
-            }
-        }
-    }
-    public static  List<LogsGiuliaCriticidade> leImportaArquivoCsv(String nomeArq){
-        Reader arq = null; // objeto arquivo
-        BufferedReader entrada = null; // objeto leitor de arquivo
-        nomeArq += ".csv";
+    private List<LogsGiuliaCriticidade> transformarLogs(List<Logs> logs){
         List<LogsGiuliaCriticidade> listaLogs = new ArrayList<>();
 
-        try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
-            entrada = new BufferedReader(arq);
-        } catch (IOException e) {
-            System.out.println("Erro ao abrir o arquivo leImportaArquivoCsv");
-            System.exit(1);
-        }
-
-        try {
-            String[] registro;
-            //readLine é usado para ler uma linha do arquivo
-            String linha = entrada.readLine();
-
-            // separa cada da linha usando o delimitador ";"
-            // resgistro = linha.split(";");
-            // printa os titulos da coluna
-            System.out.println("Lendo e Importando CSV de dados do bucket-trusted");
-
-            linha = entrada.readLine();
-            DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            // converte de string para integer
-            // caso fosse de string para int usa-se parseint
-            while (linha != null) {
-
-                registro = linha.split(";");
-                Integer fk_servidor = Integer.valueOf(registro[0]);
-                String apelido = registro[1];
-                String tsString = registro[2];
-                LocalDateTime ts = LocalDateTime.parse(tsString, fmt);
-                Double usoCpu = Double.valueOf(registro[3].replace(",", "."));
-                Double usoRam = Double.valueOf(registro[4].replace(",", "."));
-                Double usoDisco = Double.valueOf(registro[5].replace(",", "."));
-                Double tmp_cpu = Double.valueOf(registro[6].replace(",", "."));
-                Double tmp_disco = Double.valueOf(registro[7].replace(",", "."));
-                Double memoria_swap = Double.valueOf(registro[8].replace(",", "."));
-                Integer qtd_processos = Integer.valueOf(registro[9]);
-                Long download_bytes = Long.valueOf(registro[10]);
-                Long upload_bytes = Long.valueOf(registro[11]);
-                Long pacotes_recebidos = Long.valueOf(registro[12]);
-                Long pacotes_enviados = Long.valueOf(registro[13]);
-                Integer dropin = Integer.valueOf(registro[14]);
-                Integer dropout = Integer.valueOf(registro[15]);
-                Long numero_leituras = Long.valueOf(registro[16]);
-                Long numero_escritas = Long.valueOf(registro[17]);
-                Long bytes_lidos = Long.valueOf(registro[18]);
-                Long bytes_escritos = Long.valueOf(registro[19]);
-                Integer tempo_leitura = Integer.valueOf(registro[20]);
-                Integer tempo_escrita = Integer.valueOf(registro[21]);
-
-                Double percentual = 0.0;
-                Integer minutos = 0;
-                String classificacao = "";
-
-                LogsGiuliaCriticidade Log = new LogsGiuliaCriticidade(fk_servidor, apelido, percentual, minutos, classificacao);
-                listaLogs.add(Log);
-                linha = entrada.readLine();
-            }
-        }catch (IOException e ){
-            System.out.println("Erro ao ler o arquivo");
-            e.printStackTrace();
-            System.exit(1);
-
-        }
-        finally {
-            try {
-                System.out.println("Arquivo importado com sucesso!\n");
-                entrada.close();
-                arq.close();
-            } catch (IOException e) {
-                System.out.println("Erro ao fechar o arquivo");
-            }
+        for (Logs log : logs){
+            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), log.getCpu(), 0, "");
+            listaLogs.add(logCriticidade);
         }
         return listaLogs;
     }
 
-    public List<LogsGiuliaCriticidade> gerarBolhasCpu() {
+    public void gerarBolhasCpu(List<Logs> logsConsolidados) {
 
-        awsCon.downloadBucketTrusted("logsGiulia.csv");
-        List<LogsGiuliaCriticidade> listaLogs = TratamentoDonut.leImportaArquivoCsv("logsGiulia");
+        List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
 
-        System.out.println("Estabelecendo conexão ao banco...");
-        Connection connection = new Connection();
-        JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
-        System.out.println("Conexão estabelecida com sucesso!\n");
-
-        listaIdServidores.clear();
-
+        Set<Integer> idsServidores = new LinkedHashSet<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
-            Integer id = log.getFk_servidor();
-
-            if (!listaIdServidores.contains(id)) {
-                listaIdServidores.add(id);
-            }
+            idsServidores.add(log.getFk_servidor());
         }
 
         List<LogsGiuliaCriticidade> listaBolhasCpu = new ArrayList<>();
-
-        for (Integer id : listaIdServidores) {
-            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
-            for (LogsGiuliaCriticidade log : listaLogs) {
-                if (log.getFk_servidor().equals(id)) {
-                    logsServidor.add(log);
-                }
-            }
-
-            String apelidoServidor = logsServidor.get(0).getApelido();
-
-            String selectTipo = ("""
+        String selectTipo = ("""
                 select pa.max
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
                 where c.tipo = (?) and pa.fk_servidor = (?);
             """);
 
-            Double limiteCpu = con.queryForObject(selectTipo, Double.class, "CPU", id);
+        for (Integer id : idsServidores) {
+            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
 
+            for (LogsGiuliaCriticidade log : listaLogs) {
+                if (log.getFk_servidor().equals(id)) {
+                    logsServidor.add(log);
+                }
+            }
+
+            Double limiteCpu = con.queryForObject(selectTipo, Double.class, "CPU", id);
             Integer minutosAcima = 0;
             Double maxPercentual = 0.0;
+
 
             for (int i = 0; i < logsServidor.size() - 1; i++) {
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
@@ -218,69 +85,57 @@ public class TratamentoBolhas {
                 }
             }
 
-            String classificacao;
-
-            if (minutosAcima >= 30){
-                classificacao = "CRITICO";
-            }
-
-            if (minutosAcima >= 5){
-                classificacao = "ATENCAO";
-            }
-
-            else {
-                classificacao = "OK";
-            }
-
+            if (minutosAcima > 0){
+                String apelidoServidor = logsServidor.get(0).getApelido();
+                String classificacao = "";
                 LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
+
+                if (minutosAcima >= 30) {
+                    classificacao = "CRITICO";
+                }
+
+                else if (minutosAcima >= 5) {
+                    classificacao = "ATENCAO";
+                }
+
+                else {
+                    classificacao = "OK";
+                }
+
+                bolha.setClassificacao(classificacao);
                 listaBolhasCpu.add(bolha);
+            }
         }
-
-        gravaArquivoJson(listaLogs, "criticidadeCpu");
-        awsCon.uploadBucketClient("tratamentoGiulia", "criticidadeCpu.json");
-        awsCon.limparTemporarios();
-
-        return listaBolhasCpu;
+        gravaArquivoJson(listaBolhasCpu, "criticidadeCpu");
+        awsCon.uploadBucketClient(PASTA_CLIENT, "criticidadeCpu.json");
     }
 
-    public List<LogsGiuliaCriticidade> gerarBolhasRam() {
+    public void gerarBolhasRam(List<Logs> logsConsolidados) {
 
-        awsCon.downloadBucketTrusted("logsGiulia.csv");
-        List<LogsGiuliaCriticidade> listaLogs = TratamentoDonut.leImportaArquivoCsv("logsGiulia");
+        List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
 
-        System.out.println("Estabelecendo conexão ao banco...");
-        Connection connection = new Connection();
-        JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
-        System.out.println("Conexão estabelecida com sucesso!\n");
-
-        listaIdServidores.clear();
-
+        Set<Integer> idsServidores = new LinkedHashSet<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
-            Integer id = log.getFk_servidor();
-
-            if (!listaIdServidores.contains(id)) {
-                listaIdServidores.add(id);
-            }
+            idsServidores.add(log.getFk_servidor());
         }
 
         List<LogsGiuliaCriticidade> listaBolhasRam = new ArrayList<>();
 
-        for (Integer id : listaIdServidores) {
-            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
-            for (LogsGiuliaCriticidade log : listaLogs) {
-                if (log.getFk_servidor().equals(id)) {
-                    logsServidor.add(log);
-                }
-            }
-
-            String apelidoServidor = logsServidor.get(0).getApelido();
-
-            String selectTipo = ("""
+        String selectTipo = ("""
                 select pa.max
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
                 where c.tipo = (?) and pa.fk_servidor = (?);
             """);
+
+        for (Integer id : idsServidores) {
+            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
+
+            for (LogsGiuliaCriticidade log : listaLogs) {
+                if (log.getFk_servidor().equals(id)) {
+                    logsServidor.add(log);
+                }
+            }
 
             Double limiteRam = con.queryForObject(selectTipo, Double.class, "RAM", id);
 
@@ -297,7 +152,7 @@ public class TratamentoBolhas {
                     minutosEntreLogs = 1;
                 }
 
-                Double uso = logAtual.getUsoCpu();
+                Double uso = logAtual.getUsoRam();
 
                 if (uso > limiteRam) {
                     minutosAcima += (int) minutosEntreLogs;
@@ -308,69 +163,59 @@ public class TratamentoBolhas {
                 }
             }
 
-            String classificacao;
+            if (minutosAcima > 0){
+                String apelidoServidor = logsServidor.get(0).getApelido();
+                String classificacao = "";
+                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
 
-            if (minutosAcima >= 30){
-                classificacao = "CRITICO";
+                if (minutosAcima >= 30) {
+                    classificacao = "CRITICO";
+                }
+
+                else if (minutosAcima >= 5) {
+                    classificacao = "ATENCAO";
+                }
+
+                else {
+                    classificacao = "OK";
+                }
+
+                bolha.setClassificacao(classificacao);
+                listaBolhasRam.add(bolha);
             }
-
-            if (minutosAcima >= 5){
-                classificacao = "ATENCAO";
-            }
-
-            else {
-                classificacao = "OK";
-            }
-
-            LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
-            listaBolhasRam.add(bolha);
         }
 
         gravaArquivoJson(listaLogs, "criticidadeRam");
-        awsCon.uploadBucketClient("tratamentoGiulia", "criticidadeRam.json");
-        awsCon.limparTemporarios();
-
-        return listaBolhasRam;
+        awsCon.uploadBucketClient(PASTA_CLIENT, "criticidadeRam.json");
     }
 
-    public List<LogsGiuliaCriticidade> gerarBolhasDisco() {
 
-        awsCon.downloadBucketTrusted("logsGiulia.csv");
-        List<LogsGiuliaCriticidade> listaLogs = TratamentoDonut.leImportaArquivoCsv("logsGiulia");
+    public void gerarBolhasDisco(List<Logs> logsConsolidados) {
 
-        System.out.println("Estabelecendo conexão ao banco...");
-        Connection connection = new Connection();
-        JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
-        System.out.println("Conexão estabelecida com sucesso!\n");
+        List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
 
-        listaIdServidores.clear();
-
+        Set<Integer> idsServidores = new LinkedHashSet<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
-            Integer id = log.getFk_servidor();
-
-            if (!listaIdServidores.contains(id)) {
-                listaIdServidores.add(id);
-            }
+            idsServidores.add(log.getFk_servidor());
         }
 
         List<LogsGiuliaCriticidade> listaBolhasDisco = new ArrayList<>();
 
-        for (Integer id : listaIdServidores) {
-            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
-            for (LogsGiuliaCriticidade log : listaLogs) {
-                if (log.getFk_servidor().equals(id)) {
-                    logsServidor.add(log);
-                }
-            }
-
-            String apelidoServidor = logsServidor.get(0).getApelido();
-
-            String selectTipo = ("""
+        String selectTipo = ("""
                 select pa.max
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
                 where c.tipo = (?) and pa.fk_servidor = (?);
             """);
+
+        for (Integer id : idsServidores) {
+            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
+
+            for (LogsGiuliaCriticidade log : listaLogs) {
+                if (log.getFk_servidor().equals(id)) {
+                    logsServidor.add(log);
+                }
+            }
 
             Double limiteDisco = con.queryForObject(selectTipo, Double.class, "DISCO", id);
 
@@ -387,7 +232,7 @@ public class TratamentoBolhas {
                     minutosEntreLogs = 1;
                 }
 
-                Double uso = logAtual.getUsoCpu();
+                Double uso = logAtual.getUsoDisco();
 
                 if (uso > limiteDisco) {
                     minutosAcima += (int) minutosEntreLogs;
@@ -398,28 +243,86 @@ public class TratamentoBolhas {
                 }
             }
 
-            String classificacao;
+            if (minutosAcima > 0){
+                String apelidoServidor = logsServidor.get(0).getApelido();
+                String classificacao = "";
+                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
 
-            if (minutosAcima >= 30){
-                classificacao = "CRITICO";
+                if (minutosAcima >= 30) {
+                    classificacao = "CRITICO";
+                }
+
+                else if (minutosAcima >= 5) {
+                    classificacao = "ATENCAO";
+                }
+
+                else {
+                    classificacao = "OK";
+                }
+
+                bolha.setClassificacao(classificacao);
+                listaBolhasDisco.add(bolha);
             }
 
-            if (minutosAcima >= 5){
-                classificacao = "ATENCAO";
-            }
-
-            else {
-                classificacao = "OK";
-            }
-
-            LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
-            listaBolhasDisco.add(bolha);
         }
 
         gravaArquivoJson(listaLogs, "criticidadeDisco");
-        awsCon.uploadBucketClient("tratamentoGiulia", "criticidadeDisco.json");
-        awsCon.limparTemporarios();
-
-        return listaBolhasDisco;
+        awsCon.uploadBucketClient(PASTA_CLIENT, "bolhasCpuGiulia.json");
     }
+
+    public static void gravaArquivoJson(List<LogsGiuliaCriticidade> lista, String nomeArq) {
+
+        String nome = nomeArq.endsWith(".json") ? nomeArq : nomeArq + ".json";
+        OutputStreamWriter saida = null;
+        Boolean deuRuim = false;
+
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+            saida.append("[");
+            Integer contador = 0;
+            for (LogsGiuliaCriticidade log : lista) {
+                if (contador > 0) {
+                    saida.append(",");
+                }
+                saida.write(String.format(Locale.US,""" 
+                           {
+                           "fk_servidor": %d,
+                           "apelido": "%s" ,
+                           "percentual": %.2f,
+                           "minutos": %d,
+                           "classificacao": "%s"
+                           }""",
+                        log.getFk_servidor(), log.getApelido(), log.getPercentual(), log.getMinutos(), log.getClassificacao() == null ? "" : log.getClassificacao()));
+                contador ++;
+            }
+            saida.append("]");
+            System.out.println("Arquivo Json de bolhas gerado com sucesso!");
+        }
+
+        catch (IOException erro) {
+            System.out.println("Erro ao gravar o arquivo de bolhas");
+            erro.printStackTrace();
+            deuRuim = true;
+        }
+
+        finally {
+
+            try {
+                if (saida != null){
+                    saida.close();
+                }
+            }
+
+            catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+
+            if (deuRuim) {
+                System.exit(1);
+            }
+        }
+    }
+
+
 }
