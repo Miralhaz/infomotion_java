@@ -30,6 +30,7 @@ public class TratamentoRede {
 
     public static List<LogConexao> csvJsonConexao (Integer idServidor) {
 
+        System.out.println("id servidor no csvJsonConexao" + idServidor);
         String nomeArq = "conexoes" + idServidor;
 
 
@@ -198,7 +199,7 @@ public class TratamentoRede {
                 Integer contador = 0;
                 for (LogRede log : listaRede) {
                     contador++;
-                    if (contador == lista.size()) {
+                    if (contador == listaRede.size()) {
                         saida.write(String.format(Locale.US, """
                                         {
                                         "fk_servidor": "%d",
@@ -214,7 +215,6 @@ public class TratamentoRede {
                     } else {
                         saida.write(String.format(Locale.US, """
                                         {
-                                        "id": "%d",
                                         "fk_servidor": "%d",
                                         "timeStamp": "%s",
                                         "uploadByte": "%d",
