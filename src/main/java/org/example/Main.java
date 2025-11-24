@@ -330,6 +330,10 @@ public class Main {
                 listaIdServidores.add(idDaVez);
             }
         }
+        //AREA TRATAMENTO DERECK
+
+
+
 
         // Pegando o id do servidor
         Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
@@ -343,6 +347,8 @@ public class Main {
 
         //Criando json Near Real Time
         tratamentoNearRealTime.logsEspecifico(logsConsolidados);
+
+        ///------------------------TRATAMENTO DE ALERTAS----------------------------///
 
         // Instânciando a lista de alertas
         List<Logs> listaAlertas = new ArrayList<>();
