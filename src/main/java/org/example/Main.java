@@ -339,7 +339,7 @@ public class Main {
             }
         }
         //AREA TRATAMENTO DERECK
-
+        
 
         // Pegando o id do servidor
         Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();

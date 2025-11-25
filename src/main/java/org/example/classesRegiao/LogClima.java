@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogClima {
+    private Integer fkServidor;
     private LocalDateTime dataHora;
     private Double probabilidadeChuva;
     private Double mmChuva;
@@ -14,12 +15,22 @@ public class LogClima {
     public LogClima() {
     }
 
-    public LogClima(String dataHoraString, Double humidade, Double mmChuva, Double probabilidadeChuva, Double temperatura) {
+
+    public LogClima(Integer fkServidor, String dataHoraString, Double humidade, Double mmChuva, Double probabilidadeChuva, Double temperatura) {
+        this.fkServidor = fkServidor;
         this.dataHora = LocalDateTime.parse(dataHoraString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         this.umidade = humidade;
         this.mmChuva = mmChuva;
         this.probabilidadeChuva = probabilidadeChuva;
         this.temperatura = temperatura;
+    }
+
+    public Integer getFkServidor() {
+        return fkServidor;
+    }
+
+    public void setFkServidor(Integer fkServidor) {
+        this.fkServidor = fkServidor;
     }
 
     public LocalDateTime getDataHora() {
