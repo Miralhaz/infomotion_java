@@ -188,6 +188,26 @@ public class AwsConnection {
         }
     }
 
+    public void uploadBucketClient(String nomeArq) {
+        String key = String.format("produto_final/%s", nomeArq);
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1")
+                            .key(key)
+                            .contentType("text/csv")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("Upload concluído para CLIENT: " + nomeArq);
+        }
+        catch (Exception e) {
+            System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
+            throw new RuntimeException("Falha no upload para Client", e);
+        }
+    }
+
     public void uploadBucketClient(String nomePasta, String nomeArq) {
         String key = String.format("%s/%s", nomePasta, nomeArq);
         try {

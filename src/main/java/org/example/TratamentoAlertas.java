@@ -73,8 +73,7 @@ public class TratamentoAlertas {
                 for (int l = 0; l < miniLista.size(); l++) { // For de análise da mini-lista
 
                     String selectTipo = (
-                            "select tipo from parametro_alerta pa\n" +
-                                    "inner join componentes c on c.id = pa.fk_componente where fk_componente = (?);"
+                            "select tipo from componentes where id = (?);"
                     );
                     String tipo = con.queryForObject(selectTipo, String.class, fk_componente);
 
