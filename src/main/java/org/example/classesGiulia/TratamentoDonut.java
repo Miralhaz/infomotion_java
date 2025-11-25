@@ -7,6 +7,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class TratamentoDonut {
@@ -35,15 +36,13 @@ public class TratamentoDonut {
     public Integer calcularMinutosAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, String componente){
         Integer contadorMinutos = 0;
 
-        for (int i = 0; i < logsServidor.size() - 1; i++) {
+        for (int i = 0; i < logsServidor.size(); i++) {
+            LogsGiuliaCriticidade primeiroLog = logsServidor.get(0);
+            LogsGiuliaCriticidade ultimoLog = logsServidor.get(logsServidor.size() - 1);
             LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-            LogsGiuliaCriticidade logProximo = logsServidor.get(i + 1);
 
-            long minutosEntreLogs = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp()).toMinutes();
-
-            if (minutosEntreLogs <= 0){
-                minutosEntreLogs = 1;
-            }
+            Duration minutos = Duration.between(primeiroLog.getTimestamp(), ultimoLog.getTimestamp());
+            long minutosEntreLogs = minutos.toMinutes();
 
             Double uso = 0.0;
 
@@ -76,7 +75,7 @@ public class TratamentoDonut {
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
 
-        Set<Integer> idsServidores = new LinkedHashSet<>();
+        List<Integer> idsServidores = new ArrayList<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
         }
@@ -103,27 +102,13 @@ public class TratamentoDonut {
 
             logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
 
-            List<Double> listaCpu   = con.queryForList(selectTipo, Double.class, "CPU", id);
-            List<Double> listaRam   = con.queryForList(selectTipo, Double.class, "RAM", id);
+            List<Double> listaCpu = con.queryForList(selectTipo, Double.class, "CPU", id);
+            List<Double> listaRam = con.queryForList(selectTipo, Double.class, "RAM", id);
             List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id);
 
-
-            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty()) {
-                System.out.printf(
-                        "Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO com unidade '%%'). Pulando esse servidor.%n",
-                        id
-                );
-                continue;
-            }
-
-            Double limiteCpu   = listaCpu.get(0);
-            Double limiteRam   = listaRam.get(0);
+            Double limiteCpu = listaCpu.get(0);
+            Double limiteRam = listaRam.get(0);
             Double limiteDisco = listaDisco.get(0);
-
-            if (limiteCpu == null && limiteRam == null && limiteDisco == null) {
-                System.out.printf("Servidor %d sem parametros de CPU/RAM/DISCO em %% - ignorando no donut.%n", id);
-                continue;
-            }
 
             Integer minCpu = 0;
             Integer minRam = 0;
@@ -140,14 +125,14 @@ public class TratamentoDonut {
             }
 
             String classificacao;
-            Integer maiorQtdMinutos = Math.max(minCpu, Math.max(minRam, minDisco));
+            Integer maiorMinuto = Math.max(minCpu, Math.max(minRam, minDisco));
 
-            if (maiorQtdMinutos >= 30){
+            if (maiorMinuto >= 30){
                 classificacao = "CRITICO";
                 contadorCritico++;
             }
 
-            else if(maiorQtdMinutos >= 5){
+            else if(maiorMinuto >= 5){
                 classificacao = "ATENCAO";
                 contadorAtencao++;
             }
@@ -159,13 +144,13 @@ public class TratamentoDonut {
 
             for (LogsGiuliaCriticidade log : logsServidor){
                 log.setClassificacao(classificacao);
-                log.setMinutos(maiorQtdMinutos);
+                log.setMinutos(maiorMinuto);
             }
         }
         gravaArquivoJson(listaLogs, "nivelCriticidadeGiulia");
         awsCon.uploadBucketClient(PASTA_CLIENT, "nivelCriticidadeGiulia.json");
 
-        System.out.printf("Donut - OK: %d | ATENCAO: %d | CRITICO: %d%n", contadorOk, contadorAtencao, contadorCritico);
+        System.out.printf("Donut:  OK: %d | ATENCAO: %d | CRITICO: %d%n", contadorOk, contadorAtencao, contadorCritico);
     }
 
     public static void gravaArquivoJson(List<LogsGiuliaCriticidade> lista, String nomeArq) {

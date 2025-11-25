@@ -45,8 +45,8 @@ public class TratamentoBolhas {
     public void gerarBolhasCpu(List<Logs> logsConsolidados) {
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
+        List<Integer> idsServidores = new ArrayList<>();
 
-        Set<Integer> idsServidores = new LinkedHashSet<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
         }
@@ -68,13 +68,9 @@ public class TratamentoBolhas {
                 }
             }
 
+            logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
+
             List<Double> listaCpu = con.queryForList(selectTipo, Double.class, "CPU", id);
-
-            if (listaCpu.isEmpty()) {
-                System.out.printf("Servidor %d sem parametro_alerta de CPU em %%. Pulando.%n", id);
-                continue;
-            }
-
             Double limiteCpu = listaCpu.get(0);
 
             Integer minutosAcima = 0;
@@ -82,14 +78,12 @@ public class TratamentoBolhas {
 
 
             for (int i = 0; i < logsServidor.size() - 1; i++) {
+                LogsGiuliaCriticidade primeiroLog = logsServidor.get(0);
+                LogsGiuliaCriticidade ultimoLog = logsServidor.get(logsServidor.size() - 1);
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                LogsGiuliaCriticidade logProximo  = logsServidor.get(i + 1);
 
-                long minutosEntreLogs = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp()).toMinutes();
-
-                if (minutosEntreLogs <= 0) {
-                    minutosEntreLogs = 1;
-                }
+                Duration minutos = Duration.between(primeiroLog.getTimestamp(), ultimoLog.getTimestamp());
+                long minutosEntreLogs = minutos.toMinutes();
 
                 Double uso = logAtual.getUsoCpu();
 
@@ -127,11 +121,12 @@ public class TratamentoBolhas {
         awsCon.uploadBucketClient(PASTA_CLIENT, "criticidadeCpu.json");
     }
 
+
     public void gerarBolhasRam(List<Logs> logsConsolidados) {
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
+        List<Integer> idsServidores = new ArrayList<>();
 
-        Set<Integer> idsServidores = new LinkedHashSet<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
         }
@@ -157,12 +152,6 @@ public class TratamentoBolhas {
             logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
 
             List<Double> listaRam = con.queryForList(selectTipo, Double.class, "CPU", id);
-
-            if (listaRam.isEmpty()) {
-                System.out.printf("Servidor %d sem parametro_alerta de CPU em %%. Pulando.%n", id);
-                continue;
-            }
-
             Double limiteRam = listaRam.get(0);
 
             Integer minutosAcima = 0;
@@ -170,9 +159,10 @@ public class TratamentoBolhas {
 
             for (int i = 0; i < logsServidor.size() - 1; i++) {
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                LogsGiuliaCriticidade logProximo  = logsServidor.get(i + 1);
+                LogsGiuliaCriticidade logProximo = logsServidor.get(i + 1);
 
-                long minutosEntreLogs = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp()).toMinutes();
+                Duration minutos = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp());
+                long minutosEntreLogs = minutos.toMinutes();
 
                 if (minutosEntreLogs <= 0) {
                     minutosEntreLogs = 1;
@@ -219,8 +209,8 @@ public class TratamentoBolhas {
     public void gerarBolhasDisco(List<Logs> logsConsolidados) {
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
+        List<Integer> idsServidores = new ArrayList<>();
 
-        Set<Integer> idsServidores = new LinkedHashSet<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
         }
@@ -243,20 +233,20 @@ public class TratamentoBolhas {
                 }
             }
 
-            Double limiteDisco = con.queryForObject(selectTipo, Double.class, "DISCO", id);
+            logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
+
+            List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id);
+            Double limiteDisco = listaDisco.get(0);
 
             Integer minutosAcima = 0;
             Double maxPercentual = 0.0;
 
             for (int i = 0; i < logsServidor.size() - 1; i++) {
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                LogsGiuliaCriticidade logProximo  = logsServidor.get(i + 1);
+                LogsGiuliaCriticidade logProximo = logsServidor.get(i + 1);
 
-                long minutosEntreLogs = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp()).toMinutes();
-
-                if (minutosEntreLogs <= 0) {
-                    minutosEntreLogs = 1;
-                }
+                Duration minutos = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp());
+                long minutosEntreLogs = minutos.toMinutes();
 
                 Double uso = logAtual.getUsoDisco();
 

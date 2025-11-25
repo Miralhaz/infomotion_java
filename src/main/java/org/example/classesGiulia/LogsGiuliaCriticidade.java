@@ -9,6 +9,7 @@ public class LogsGiuliaCriticidade {
     private Integer fk_servidor;
     private String apelido;
     private LocalDateTime timestamp;
+    private String dataHoraString;
     private Integer minutos;
     private Double usoCpu;
     private Double usoRam;
@@ -107,6 +108,18 @@ public class LogsGiuliaCriticidade {
         this.percentual = percentual;
     }
 
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getDataHoraString() {
+        return dataHoraString;
+    }
+
+    public void setDataHoraString(String dataHoraString) {
+        this.dataHoraString = dataHoraString;
+    }
+
     // toString():
     @Override
     public String toString() {
@@ -119,6 +132,7 @@ public class LogsGiuliaCriticidade {
                 " | usoRam:" + usoRam +
                 " | usoDisco:" + usoDisco +
                 " | classificacao:" + classificacao +
+                " | dataHoraString:" + dataHoraString +
                 '}';
     }
 }
