@@ -84,7 +84,7 @@ public class tratamentoNearRealTime {
 
         String url = "jdbc:mysql://localhost:3306/infomotion";
         String user = "root";
-        String pass = "Ren@n2005";
+        String pass = "041316miralha";
 
         String sql = """
         SELECT max, tipo, unidade_medida

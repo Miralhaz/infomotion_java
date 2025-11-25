@@ -24,23 +24,14 @@ public class JiraService {
 
     }
 
-
-    /**
-     * Cria um ticket no Jira Service Management.
-     *
-     * @param summary     O título do ticket.
-     * @param description O corpo do ticket.
-     * @throws Exception Se a chamada à API falhar.
-     */
-
     public static void createAlertTicket(String summary, String description) throws Exception {
 
         String formattedSummary = summary.replace("\"", "\\\"")
-                .replace("\n", " ") // Substitui por espaço
+                .replace("\n", " ")
                 .replace("\r", " ");
 
         String formattedDescription = description.replace("\"", "\\\"")
-                .replace("\n", " ") // Apenas substitui por espaço
+                .replace("\n", " ")
                 .replace("\r", " ");
 
         String jsonPayload = String.format("""
