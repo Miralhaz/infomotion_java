@@ -1,7 +1,6 @@
 package org.example.classesGiulia;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class LogsGiuliaCriticidade {
 
@@ -16,7 +15,12 @@ public class LogsGiuliaCriticidade {
     private String classificacao;
     private Double percentual;
 
-    // Construtor:
+    private Integer alertasCpu;
+    private Integer alertasRam;
+    private Integer alertasDisco;
+    private Integer totalAlertas;
+
+    // Construtores:
     public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Integer minutos, LocalDateTime timestamp, Double usoCpu, Double usoRam, Double usoDisco, String classificacao) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
@@ -34,6 +38,20 @@ public class LogsGiuliaCriticidade {
         this.percentual = percentual;
         this.minutos = minutos;
         this.classificacao = classificacao;
+    }
+
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, LocalDateTime timestamp, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, Integer alertasCpu, Integer alertasRam, Integer alertasDisco, Integer totalAlertas) {
+        this.fk_servidor = fk_servidor;
+        this.apelido = apelido;
+        this.timestamp = timestamp;
+        this.minutos = minutos;
+        this.usoCpu = usoCpu;
+        this.usoRam = usoRam;
+        this.usoDisco = usoDisco;
+        this.alertasCpu = alertasCpu;
+        this.alertasRam = alertasRam;
+        this.alertasDisco = alertasDisco;
+        this.totalAlertas = totalAlertas;
     }
 
     // Métodos:
@@ -57,6 +75,10 @@ public class LogsGiuliaCriticidade {
 
     public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
     }
 
     public Integer getMinutos() {
@@ -107,8 +129,36 @@ public class LogsGiuliaCriticidade {
         this.percentual = percentual;
     }
 
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+    public Integer getAlertasCpu() {
+        return alertasCpu;
+    }
+
+    public void setAlertasCpu(Integer alertasCpu) {
+        this.alertasCpu = alertasCpu;
+    }
+
+    public Integer getAlertasRam() {
+        return alertasRam;
+    }
+
+    public void setAlertasRam(Integer alertasRam) {
+        this.alertasRam = alertasRam;
+    }
+
+    public Integer getAlertasDisco() {
+        return alertasDisco;
+    }
+
+    public void setAlertasDisco(Integer alertasDisco) {
+        this.alertasDisco = alertasDisco;
+    }
+
+    public Integer getTotalAlertas() {
+        return totalAlertas;
+    }
+
+    public void setTotalAlertas(Integer totalAlertas) {
+        this.totalAlertas = totalAlertas;
     }
 
     // toString():
@@ -123,6 +173,11 @@ public class LogsGiuliaCriticidade {
                 " | usoRam:" + usoRam +
                 " | usoDisco:" + usoDisco +
                 " | classificacao:" + classificacao +
+                " | percentual:" + percentual +
+                " | alertasCpu:" + alertasCpu +
+                " | alertasRam:" + alertasRam +
+                " | alertasDisco:" + alertasDisco +
+                " | totalAlertas:" + totalAlertas +
                 '}';
     }
 }

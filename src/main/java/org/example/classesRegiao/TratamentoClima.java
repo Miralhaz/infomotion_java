@@ -6,18 +6,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class tratamentoClima {
+public class TratamentoClima {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static AwsConnection awsConnection;
     private static final String nomePasta = "Dashboard_Regiao";
     private static JdbcTemplate banco;
 
-    public tratamentoClima(AwsConnection awsConnection, JdbcTemplate banco) {
+    public TratamentoClima(AwsConnection awsConnection, JdbcTemplate banco) {
         this.awsConnection = awsConnection;
         this.banco = banco;
     }
@@ -26,29 +25,31 @@ public class tratamentoClima {
 
         List<Regiao> listaRegiao = co.query("SELECT id FROM regiao;",
                 new BeanPropertyRowMapper(Regiao.class));
-
+        System.out.println(listaRegiao);
 
         for (Regiao r : listaRegiao){
-            List<Integer> listaServidoresRegiao = co.query("SELECT  id FROM servidor where " + r.getId() + ";",
-                    new BeanPropertyRowMapper(Regiao.class));
+            System.out.println(r.getId());
+            List<Integer> listaServidoresRegiao = co.queryForList("SELECT id FROM servidor WHERE fk_regiao = ?",
+                    Integer.class, r.getId());
+            System.out.println(listaServidoresRegiao);
             List listaLogClima = new ArrayList<>();
             List listaLogRegiao = new ArrayList<>();
-            for (int i = 0; i < listaServidoresRegiao.size(); i++) {
-                List lista =  buscarClimaServidor(listaServidoresRegiao.get(i));
+
+            for (Integer f : listaServidoresRegiao) {
+                List lista =  buscarClimaServidor(f);
                 listaLogClima.addAll(lista);
-                List lista2 = buscarRegiaoServidor(listaServidoresRegiao.get(i));
+                List lista2 = buscarRegiaoServidor(f);
                 listaLogRegiao.addAll(lista2);
             }
 
             Regiao reg = new Regiao(r.getId());
             reg.setListaLogClima(listaLogClima);
             reg.setListaLogRegiao(listaLogRegiao);
-            
+
+
+
+
         }
-
-
-
-
     }
 
 
@@ -87,7 +88,7 @@ public class tratamentoClima {
             while (linha != null) {
 
                 registro = linha.split(";");
-                 Integer fkServidor = Integer.valueOf(registro[10]);
+                Integer fkServidor = Integer.valueOf(registro[9]);
                  String dataHora = registro[1];
                  Double probabilidadeChuva = Double.valueOf(registro[3]) ;
                  Double mmChuva = Double.valueOf(registro[2]);
@@ -119,7 +120,7 @@ public class tratamentoClima {
 
     public static List<LogRegiao> buscarRegiaoServidor(Integer idServidor){
 
-        String nomeArq = "clima"+ idServidor;
+        String nomeArq = "logs_consolidados_servidores";
 
         Reader arq = null;
         BufferedReader entrada = null;
@@ -168,7 +169,13 @@ public class tratamentoClima {
                 System.out.println("Erro ao fechar o arquivo");
             }
         }
-        awsConnection.deleteCsvLocal(nomeArq);
         return listaLogRegiao;
+    }
+
+
+    public void criarPrevisaoDeDados(){
+
+
+
     }
 }

@@ -1,9 +1,13 @@
 package org.example;
 
+import org.example.classesGiulia.TratamentoBolhas;
+import org.example.classesGiulia.TratamentoDonut;
+import org.example.classesGiulia.TratamentoHistorico;
 import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
+import org.example.classesRegiao.TratamentoClima;
 import org.example.classesRenan.tratamentoNearRealTime;
 import org.example.classesWillian.TratamentoWillian;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -554,8 +558,11 @@ public class Main {
                 }
             }
             //AREA TRATAMENTO DERECK
+        System.out.println("--------------------iniciando tratamento regiao------------------");
+            TratamentoClima tratamentoClima = new TratamentoClima(aws,con);
+            tratamentoClima.buscarRegioes(con);
 
-
+        //FIM AREA TRATAMENTO DERECK
             // Pegando o id do servidor
             Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
@@ -565,6 +572,20 @@ public class Main {
             TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
             // Criando json de conexao
             TratamentoRede.gravaArquivoJson(listaIdServidores);
+
+            // TRATAMENTO - GIULIA
+            TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
+            tratamentoDonut.classificarCriticidade(logsConsolidados);
+
+            TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
+            tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
+            tratamentoBolhas.gerarBolhasRam(logsConsolidados);
+            tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
+
+            TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
+            tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
+            tratamentoHistorico.classificarAlertas(logsConsolidados, 7);
+            tratamentoHistorico.classificarAlertas(logsConsolidados, 30);
 
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);

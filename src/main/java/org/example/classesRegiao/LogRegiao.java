@@ -17,7 +17,7 @@ public class LogRegiao {
     public LogRegiao(Integer fkServidor, Integer qtdRequisicoes, Double usoDisco, Double usoRam,String dataHoraString) {
         Random random = new Random();
         this.fkServidor = fkServidor;
-        this.qtdRequisicoes = (qtdRequisicoes * 1000) + random.nextInt(9999);
+        this.qtdRequisicoes = (qtdRequisicoes * 100) + random.nextInt(999);
         this.usoDisco = usoDisco;
         this.usoRam = usoRam;
         this.dataHora = LocalDateTime.parse(dataHoraString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
@@ -57,5 +57,16 @@ public class LogRegiao {
 
     public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
+    }
+
+    @Override
+    public String toString() {
+        return "LogRegiao{" +
+                "dataHora=" + dataHora +
+                ", fkServidor=" + fkServidor +
+                ", usoDisco=" + usoDisco +
+                ", usoRam=" + usoRam +
+                ", qtdRequisicoes=" + qtdRequisicoes +
+                '}';
     }
 }
