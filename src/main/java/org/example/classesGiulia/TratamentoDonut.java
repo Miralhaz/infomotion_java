@@ -12,15 +12,18 @@ import java.util.*;
 
 public class TratamentoDonut {
 
+    // Atributos:
     private AwsConnection awsCon;
     private final JdbcTemplate con;
     private static final String PASTA_CLIENT = "tratamentos_giulia";
 
+    // Construtor:
     public TratamentoDonut(AwsConnection awsCon, JdbcTemplate con) {
         this.awsCon = awsCon;
         this.con = con;
     }
 
+    // Métodos:
     private List<LogsGiuliaCriticidade> transformarLogs(List<Logs> logs){
         List<LogsGiuliaCriticidade> listaLogs = new ArrayList<>();
 
@@ -223,7 +226,7 @@ public class TratamentoDonut {
                 saida.write(String.format(Locale.US,""" 
                            {
                            "fk_servidor": %d,
-                           "apelido": "%s" ,
+                           "apelido": "%s",
                            "timestamp": "%s",
                            "minutos": %d,
                            "cpu": %.2f,

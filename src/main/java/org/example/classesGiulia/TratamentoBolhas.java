@@ -392,7 +392,7 @@ public class TratamentoBolhas {
                 saida.write(String.format(Locale.US,""" 
                            {
                            "fk_servidor": %d,
-                           "apelido": "%s" ,
+                           "apelido": "%s",
                            "percentual": %.2f,
                            "minutos": %d,
                            "classificacao": "%s"

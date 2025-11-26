@@ -2,6 +2,7 @@ package org.example;
 
 import org.example.classesGiulia.TratamentoBolhas;
 import org.example.classesGiulia.TratamentoDonut;
+import org.example.classesGiulia.TratamentoHistorico;
 import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
@@ -559,6 +560,11 @@ public class Main {
             tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
             tratamentoBolhas.gerarBolhasRam(logsConsolidados);
             tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
+
+            TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
+            tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
+            tratamentoHistorico.classificarAlertas(logsConsolidados, 7);
+            tratamentoHistorico.classificarAlertas(logsConsolidados, 30);
 
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
