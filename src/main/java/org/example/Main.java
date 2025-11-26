@@ -537,6 +537,7 @@ public class Main {
                 }
             }
             //AREA TRATAMENTO DERECK
+        System.out.println("--------------------iniciando tratamento regiao------------------");
               TratamentoClima.buscarRegioes(con);
 
         //FIM AREA TRATAMENTO DERECK

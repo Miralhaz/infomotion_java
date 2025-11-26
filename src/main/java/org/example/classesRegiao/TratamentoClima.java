@@ -39,6 +39,8 @@ public class TratamentoClima {
                 listaLogRegiao.addAll(lista2);
             }
 
+            System.out.println(listaLogClima);
+            System.out.println(listaRegiao);
             Regiao reg = new Regiao(r.getId());
             reg.setListaLogClima(listaLogClima);
             reg.setListaLogRegiao(listaLogRegiao);
