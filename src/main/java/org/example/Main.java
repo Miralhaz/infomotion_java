@@ -497,6 +497,7 @@ public class Main {
 
             Integer fk_servidor_arquivo = logsDoArquivo.get(0).getFk_servidor();
             TratamentoAlertas.analisarAlertasNoArquivoRaw(con, fk_servidor_arquivo, logsDoArquivo, aws);
+            TratamentoCardsServidores.atualizarStatusServidor(fk_servidor_arquivo, logsDoArquivo, aws, con);
         }
         aws.limparTemporarios();
         // Fim da área tratamento alertas

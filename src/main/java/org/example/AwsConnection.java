@@ -331,6 +331,45 @@ public class AwsConnection {
         }
     }
 
+    public void downloadCardsServidoresBucket(String nomeArq) {
+        String key = String.format("status_servidores/%s", nomeArq);
+
+        try {
+            s3.getObject(
+                    GetObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1")
+                            .key(key)
+                            .build(),
+                    Paths.get(nomeArq)
+            );
+        } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
+            System.out.println("Arquivo de status não encontrado. Será criado um novo.");
+        } catch (Exception e) {
+            System.err.println("Erro ao baixar status: " + e.getMessage());
+        }
+    }
+
+    public void uploadCardsServidoresBucket(String nomeArq) {
+        String key = String.format("status_servidores/%s", nomeArq);
+
+        try {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket("s3-client-infomotion-1")
+                            .key(key)
+                            .contentType("application/json")
+                            .build(),
+                    RequestBody.fromFile(Path.of(nomeArq))
+            );
+
+            System.out.println("Upload concluído: " + key);
+            deleteCsvLocal(nomeArq);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao fazer upload de status: " + e.getMessage());
+        }
+    }
+
     public void deleteCsvLocal(String nomeArq){
         try {
             Path caminho = Path.of(nomeArq);

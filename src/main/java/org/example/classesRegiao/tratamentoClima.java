@@ -1,14 +1,12 @@
 package org.example.classesRegiao;
 
-import org.apache.commons.math3.analysis.function.Log;
 import org.example.AwsConnection;
-import org.example.classesRede.LogConexao;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +22,42 @@ public class tratamentoClima {
         this.banco = banco;
     }
 
+    public static void buscarRegioes(JdbcTemplate co){
 
-    public List<LogClima> buscarCsvClima(Integer idServidor){
+        List<Regiao> listaRegiao = co.query("SELECT id FROM regiao;",
+                new BeanPropertyRowMapper(Regiao.class));
+
+
+        for (Regiao r : listaRegiao){
+            List<Integer> listaServidoresRegiao = co.query("SELECT  id FROM servidor where " + r.getId() + ";",
+                    new BeanPropertyRowMapper(Regiao.class));
+            List listaLogClima = new ArrayList<>();
+            List listaLogRegiao = new ArrayList<>();
+            for (int i = 0; i < listaServidoresRegiao.size(); i++) {
+                List lista =  buscarClimaServidor(listaServidoresRegiao.get(i));
+                listaLogClima.addAll(lista);
+                List lista2 = buscarRegiaoServidor(listaServidoresRegiao.get(i));
+                listaLogRegiao.addAll(lista2);
+            }
+
+            Regiao reg = new Regiao(r.getId());
+            reg.setListaLogClima(listaLogClima);
+            reg.setListaLogRegiao(listaLogRegiao);
+            
+        }
+
+
+
+
+    }
+
+
+
+
+
+
+
+    public static List<LogClima> buscarClimaServidor(Integer idServidor){
 
         String nomeArq = "clima"+ idServidor;
 
@@ -81,5 +113,62 @@ public class tratamentoClima {
         }
         awsConnection.deleteCsvLocal(nomeArq);
         return listaClima;
+    }
+
+
+
+    public static List<LogRegiao> buscarRegiaoServidor(Integer idServidor){
+
+        String nomeArq = "clima"+ idServidor;
+
+        Reader arq = null;
+        BufferedReader entrada = null;
+        nomeArq += ".csv";
+        List<LogRegiao> listaLogRegiao = new ArrayList<>();
+
+
+        try {
+            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            entrada = new BufferedReader(arq);
+        } catch (IOException e) {
+            System.out.println("Erro ao abrir o arquivo [csvConsolidado]");
+            System.exit(1);
+        }
+
+        try {
+            String[] registro;
+
+            String linha = null;
+
+            linha = entrada.readLine();
+
+            while (linha != null) {
+
+                registro = linha.split(";");
+                Integer fkServidor = Integer.valueOf(registro[0]);
+                 Double usoDisco  = Double.valueOf(registro[5]);
+                 Double usoRam  = Double.valueOf(registro[4]);
+                 Integer qtdRequisicoes  = Integer.valueOf(registro[8]);
+                String dataHora = registro[2];
+
+                LogRegiao logRegiao = new LogRegiao(fkServidor,qtdRequisicoes, usoDisco,usoRam,dataHora);
+                listaLogRegiao.add(logRegiao);
+                linha = entrada.readLine();
+            }
+        }catch (IOException e ){
+            System.out.println("Erro ao ler o arquivo");
+            e.printStackTrace();
+            System.exit(1);
+
+        }finally {
+            try {
+                entrada.close();
+                arq.close();
+            } catch (IOException e) {
+                System.out.println("Erro ao fechar o arquivo");
+            }
+        }
+        awsConnection.deleteCsvLocal(nomeArq);
+        return listaLogRegiao;
     }
 }

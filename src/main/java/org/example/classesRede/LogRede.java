@@ -15,13 +15,13 @@ public class LogRede {
     private Integer packetLossReceived;
     private Integer packetLossSent;
     private String dataHoraString;
-    private Integer parametroDown;
-    private Integer parametroUp;
-    private Integer parametroPacotesRecebidos;
-    private Integer ParametroPacotesEnviados;
+    private Double parametroDown;
+    private Double parametroUp;
+    private Double parametroPacotesRecebidos;
+    private Double ParametroPacotesEnviados;
 
 
-    public LogRede(String dataHoraString, Long uploadByte, Long downloadByte, Long packetReceived, Long packetSent, Integer packetLossReceived, Integer packetLossSent, Integer fk_servidor, Integer parametroDown, Integer parametroUp, Integer parametroPacotesRecebidos, Integer ParametroPacotesEnviados) {
+    public LogRede(String dataHoraString, Long uploadByte, Long downloadByte, Long packetReceived, Long packetSent, Integer packetLossReceived, Integer packetLossSent, Integer fk_servidor, Double parametroDown, Double parametroUp, Double parametroPacotesRecebidos, Double ParametroPacotesEnviados) {
         this.fk_servidor = fk_servidor;
         this.uploadByte = uploadByte;
         this.downloadByte = downloadByte;
@@ -87,19 +87,19 @@ public class LogRede {
         return dataHoraString;
     }
 
-    public Integer getParametroDown() {
+    public Double getParametroDown() {
         return parametroDown;
     }
 
-    public Integer getParametroUp() {
+    public Double getParametroUp() {
         return parametroUp;
     }
 
-    public Integer getParametroPacotesRecebidos() {
+    public Double getParametroPacotesRecebidos() {
         return parametroPacotesRecebidos;
     }
 
-    public Integer getParametroPacotesEnviados() {
+    public Double getParametroPacotesEnviados() {
         return ParametroPacotesEnviados;
     }
 }
