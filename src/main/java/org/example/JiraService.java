@@ -10,11 +10,11 @@ import java.util.Base64;
 
 public class JiraService {
 
-    private static final String JIRA_BASE_URL = "https://sentinela-grupo-3.atlassian.net";
+    private static final String JIRA_BASE_URL = "https://sentinela-grupo-3.atlassian.net/";
     private static final String API_EMAIL = "lucas.silva051@sptech.school";
     private static final String API_TOKEN = "";
     private static final String PROJECT_KEY = "INF";
-    private static final String ISSUE_TYPE_ID = "10057";
+    private static final String ISSUE_TYPE_ID = "10057"; // 10009
 
     private static String getBasicAuthHeader() {
 

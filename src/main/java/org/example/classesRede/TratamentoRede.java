@@ -188,7 +188,7 @@ public class TratamentoRede {
                                         "laddr": "%s",
                                         "raddr": "%s",
                                         "status": "%s"
-                                        }""",
+                                        },""",
                                 log.getNomeConexao() ,log.getFk_servidor(), log.getDataHoraString(), log.getIdProcessoConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
                     }
                 }

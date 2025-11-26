@@ -47,52 +47,54 @@ public class TratamentoAlertas {
                     fk_componente
             );
 
-            String unidadeMedida = con.queryForObject(
+            List<String> unidadesMedida = con.queryForList(
                     "SELECT unidade_medida FROM parametro_alerta WHERE fk_componente = ?",
                     String.class,
                     fk_componente
             );
 
-            System.out.println("   📊 " + tipo + " (" + unidadeMedida + ") | Limite: " + limiteMax + " | Duração: " + duracaoMin + " min");
+            for (String unidadeMedida : unidadesMedida) {
+                System.out.println("   📊 " + tipo + " (" + unidadeMedida + ") | Limite: " + limiteMax + " | Duração: " + duracaoMin + " min");
 
-            List<Logs> alertasDesteComponente = detectarAlerta(
-                    logsDoArquivo,
-                    tipo,
-                    unidadeMedida,
-                    limiteMax,
-                    duracaoMin
-            );
+                List<Logs> alertasDesteComponente = detectarAlerta(
+                        logsDoArquivo,
+                        tipo,
+                        unidadeMedida,
+                        limiteMax,
+                        duracaoMin
+                );
 
-            if (!alertasDesteComponente.isEmpty()) {
-                Double valorMax = alertasDesteComponente.stream()
-                        .mapToDouble(log -> obterValorDoLog(log, tipo, unidadeMedida))
-                        .max()
-                        .orElse(0.0);
+                if (!alertasDesteComponente.isEmpty()) {
+                    Double valorMax = alertasDesteComponente.stream()
+                            .mapToDouble(log -> obterValorDoLog(log, tipo, unidadeMedida))
+                            .max()
+                            .orElse(0.0);
 
-                Double valorMin = alertasDesteComponente.stream()
-                        .mapToDouble(log -> obterValorDoLog(log, tipo, unidadeMedida))
-                        .min()
-                        .orElse(0.0);
+                    Double valorMin = alertasDesteComponente.stream()
+                            .mapToDouble(log -> obterValorDoLog(log, tipo, unidadeMedida))
+                            .min()
+                            .orElse(0.0);
 
-                String insertAlerta = "INSERT INTO alertas (fk_parametro, max, min) VALUES (?,?,?)";
-                con.update(insertAlerta, fk_parametroAlerta, valorMax, valorMin);
+                    String insertAlerta = "INSERT INTO alertas (fk_parametro, max, min) VALUES (?,?,?)";
+                    con.update(insertAlerta, fk_parametroAlerta, valorMax, valorMin);
 
-                Logs ultimoLog = alertasDesteComponente.get(alertasDesteComponente.size() - 1);
+                    Logs ultimoLog = alertasDesteComponente.get(alertasDesteComponente.size() - 1);
 
-                enviarNotificacoes(fk_servidor, tipo, unidadeMedida, valorMax, valorMin, duracaoMin, ultimoLog);
+                    enviarNotificacoes(fk_servidor, tipo, unidadeMedida, valorMax, valorMin, duracaoMin, ultimoLog);
 
-                todosAlertasDetectados.addAll(alertasDesteComponente);
+                    todosAlertasDetectados.addAll(alertasDesteComponente);
 
-                System.out.println("🚨 ALERTA! Pico: " + valorMax + unidadeMedida);
+                    System.out.println("🚨 ALERTA! Pico: " + valorMax + unidadeMedida);
+                }
             }
-        }
 
-        if (!todosAlertasDetectados.isEmpty()) {
-            System.out.println("Total de alertas neste arquivo: " + todosAlertasDetectados.size());
-            gravaArquivoCsv(todosAlertasDetectados, "alertas_" + fk_servidor);
-            aws.uploadBucketTrusted("alertas_" + fk_servidor + ".csv");
-        } else {
-            System.out.println("Nenhum alerta detectado");
+            if (!todosAlertasDetectados.isEmpty()) {
+                System.out.println("Total de alertas neste arquivo: " + todosAlertasDetectados.size());
+                gravaArquivoCsv(todosAlertasDetectados, "alertas_" + fk_servidor);
+                aws.uploadBucketTrusted("alertas_" + fk_servidor + ".csv");
+            } else {
+                System.out.println("Nenhum alerta detectado");
+            }
         }
     }
 
