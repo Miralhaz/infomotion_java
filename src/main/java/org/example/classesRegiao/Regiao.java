@@ -19,4 +19,21 @@ public class Regiao {
     public Integer getId() {
         return id;
     }
+
+
+    public List<LogClima> getListaLogClima() {
+        return listaLogClima;
+    }
+
+    public void setListaLogClima(List<LogClima> listaLogClima) {
+        this.listaLogClima = listaLogClima;
+    }
+
+    public List<LogRegiao> getListaLogRegiao() {
+        return listaLogRegiao;
+    }
+
+    public void setListaLogRegiao(List<LogRegiao> listaLogRegiao) {
+        this.listaLogRegiao = listaLogRegiao;
+    }
 }

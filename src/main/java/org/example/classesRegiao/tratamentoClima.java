@@ -31,22 +31,19 @@ public class tratamentoClima {
         for (Regiao r : listaRegiao){
             List<Integer> listaServidoresRegiao = co.query("SELECT  id FROM servidor where " + r.getId() + ";",
                     new BeanPropertyRowMapper(Regiao.class));
-
+            List listaLogClima = new ArrayList<>();
+            List listaLogRegiao = new ArrayList<>();
             for (int i = 0; i < listaServidoresRegiao.size(); i++) {
-                buscarClimaServidor(listaServidoresRegiao.get(0));
-
-
-
-
+                List lista =  buscarClimaServidor(listaServidoresRegiao.get(i));
+                listaLogClima.addAll(lista);
+                List lista2 = buscarRegiaoServidor(listaServidoresRegiao.get(i));
+                listaLogRegiao.addAll(lista2);
             }
 
-
-
-
-
-
-
-
+            Regiao reg = new Regiao(r.getId());
+            reg.setListaLogClima(listaLogClima);
+            reg.setListaLogRegiao(listaLogRegiao);
+            
         }
 
 
