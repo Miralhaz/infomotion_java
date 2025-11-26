@@ -28,6 +28,10 @@ public class Regiao {
         return listaLogClima;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public void setListaLogClima(List<LogClima> listaLogClima) {
         this.listaLogClima = listaLogClima;
     }
@@ -38,5 +42,14 @@ public class Regiao {
 
     public void setListaLogRegiao(List<LogRegiao> listaLogRegiao) {
         this.listaLogRegiao = listaLogRegiao;
+    }
+
+    @Override
+    public String toString() {
+        return "Regiao{" +
+                "id=" + id +
+                ", listaLogClima=" + listaLogClima +
+                ", listaLogRegiao=" + listaLogRegiao +
+                '}';
     }
 }

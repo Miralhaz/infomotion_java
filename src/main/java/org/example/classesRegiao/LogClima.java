@@ -76,4 +76,16 @@ public class LogClima {
     public void setTemperatura(Double temperatura) {
         this.temperatura = temperatura;
     }
+
+    @Override
+    public String toString() {
+        return "LogClima{" +
+                "dataHora=" + dataHora +
+                ", fkServidor=" + fkServidor +
+                ", probabilidadeChuva=" + probabilidadeChuva +
+                ", mmChuva=" + mmChuva +
+                ", temperatura=" + temperatura +
+                ", umidade=" + umidade +
+                '}';
+    }
 }

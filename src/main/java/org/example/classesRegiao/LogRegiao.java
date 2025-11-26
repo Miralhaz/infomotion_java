@@ -58,4 +58,15 @@ public class LogRegiao {
     public void setDataHora(LocalDateTime dataHora) {
         this.dataHora = dataHora;
     }
+
+    @Override
+    public String toString() {
+        return "LogRegiao{" +
+                "dataHora=" + dataHora +
+                ", fkServidor=" + fkServidor +
+                ", usoDisco=" + usoDisco +
+                ", usoRam=" + usoRam +
+                ", qtdRequisicoes=" + qtdRequisicoes +
+                '}';
+    }
 }
