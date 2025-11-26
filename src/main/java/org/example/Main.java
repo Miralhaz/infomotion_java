@@ -4,6 +4,7 @@ import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
+import org.example.classesRegiao.TratamentoClima;
 import org.example.classesRenan.tratamentoNearRealTime;
 import org.example.classesWillian.TratamentoWillian;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -534,8 +535,9 @@ public class Main {
                 }
             }
             //AREA TRATAMENTO DERECK
+              TratamentoClima.buscarRegioes(con);
 
-
+        //FIM AREA TRATAMENTO DERECK
             // Pegando o id do servidor
             Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
