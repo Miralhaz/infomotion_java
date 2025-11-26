@@ -1,0 +1,22 @@
+package org.example.classesRegiao;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Regiao {
+    private Integer id;
+    private List<LogClima> listaLogClima;
+    private List<LogRegiao> listaLogRegiao;
+
+
+    public Regiao(Integer id) {
+        this.id = id;
+        this.listaLogRegiao = new ArrayList<>();
+        this.listaLogClima = new ArrayList<>();
+    }
+
+
+    public Integer getId() {
+        return id;
+    }
+}
