@@ -86,70 +86,76 @@ public class tratamentoNearRealTime {
 
         ParametrosServidor params = new ParametrosServidor();
 
+        String url = "jdbc:mysql://localhost:3306/infomotion";
+        String user = "root";
+        String pass = "041316miralha";
+
         String sql = """
         SELECT max, tipo, unidade_medida
         FROM parametro_alerta p
         INNER JOIN componentes c ON c.id = p.fk_componente
-        WHERE p.fk_servidor = ?
+        WHERE p.fk_servidor = ?;
     """;
 
-        List<ParametroAlerta> parametros = con.query(
-                sql,
-                new BeanPropertyRowMapper<>(ParametroAlerta.class),
-                fkServidor
-        );
+        try (Connection conn = DriverManager.getConnection(url, user, pass);
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-        for (ParametroAlerta alerta : parametros) {
+            stmt.setInt(1, fkServidor);
+            ResultSet rs = stmt.executeQuery();
 
-            double max = alerta.getMax();
-            String tipo = alerta.getTipo();
-            String unidade = alerta.getUnidade_medida();
+            while (rs.next()) {
+                double max = rs.getDouble("max");
+                String tipo = rs.getString("tipo");
+                String unidade = rs.getString("unidade_medida");
 
-            switch (tipo) {
+                switch (tipo) {
 
-                case "CPU" -> {
-                    if (unidade.equals("%"))
-                        params.maxCpuUso = max;
-                    else if (unidade.equals("C"))
-                        params.maxCpuTemp = max;
-                }
+                    case "CPU" -> {
+                        if (unidade.equals("%"))
+                            params.maxCpuUso = max;
+                        else if (unidade.equals("C"))
+                            params.maxCpuTemp = max;
+                    }
 
-                case "RAM" -> params.maxRam = max;
+                    case "RAM" -> params.maxRam = max;
 
-                case "DISCO" -> {
-                    if (unidade.equals("%"))
-                        params.maxDiscoUso = max;
-                    else if (unidade.equals("C"))
-                        params.maxDiscoTemp = max;
-                }
+                    case "DISCO" -> {
+                        if (unidade.equals("%"))
+                            params.maxDiscoUso = max;
+                        else if (unidade.equals("C"))
+                            params.maxDiscoTemp = max;
+                    }
 
-                case "REDE" -> {
-                    if (unidade.equals("DOWNLOAD"))
-                        params.maxRedeDownload = (long) max;
-                    else if (unidade.equals("UPLOAD"))
-                        params.maxRedeUpload = (long) max;
+                    case "REDE" -> {
+                        if (unidade.equals("DOWNLOAD"))
+                            params.maxRedeDownload = (long) max;
+                        else if (unidade.equals("UPLOAD"))
+                            params.maxRedeUpload = (long) max;
+                    }
                 }
             }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
 
-        // valores padrões caso não tenha nada no banco
-        if (params.maxCpuUso == null) params.maxCpuUso = 50.0;
-        if (params.maxCpuTemp == null) params.maxCpuTemp = 70.0;
+        if (params.maxCpuUso == null)      params.maxCpuUso = 50.0;
+        if (params.maxCpuTemp == null)     params.maxCpuTemp = 70.0;
 
-        if (params.maxRam == null) params.maxRam = 50.0;
+        if (params.maxRam == null)         params.maxRam = 50.0;
 
-        if (params.maxDiscoUso == null) params.maxDiscoUso = 50.0;
-        if (params.maxDiscoTemp == null) params.maxDiscoTemp = 60.0;
+        if (params.maxDiscoUso == null)    params.maxDiscoUso = 50.0;
+        if (params.maxDiscoTemp == null)   params.maxDiscoTemp = 60.0;
 
         if (params.maxRedeDownload == null) params.maxRedeDownload = 5000000L;
-        if (params.maxRedeUpload == null) params.maxRedeUpload = 5000000L;
+        if (params.maxRedeUpload == null)   params.maxRedeUpload = 5000000L;
 
         return params;
     }
 
 
 
-    public static void gerarJson(LogsNearRealTime log, ParametrosServidor params, String nomeArq) throws IOException {
+    public static void gerarJson(LogsNearRealTime log, ParametrosServidor params,  String nomeArq) throws IOException {
         OutputStreamWriter saida = null;
         boolean deuRuim = false;
 

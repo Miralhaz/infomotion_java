@@ -43,9 +43,10 @@ public class TratamentoBolhas {
     }
 
     public void gerarBolhasCpu(List<Logs> logsConsolidados) {
+        System.out.println("\n༜ Gerando bolhas de CPU...");
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
-        List<Integer> idsServidores = new ArrayList<>();
+        Set<Integer> idsServidores = new LinkedHashSet<>();
 
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
@@ -53,14 +54,26 @@ public class TratamentoBolhas {
 
         List<LogsGiuliaCriticidade> listaBolhasCpu = new ArrayList<>();
         String selectTipo = ("""
-                select pa.max
+                select cast(pa.max as decimal(10,2)) as limite
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+                where c.tipo = 'CPU' and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+            """);
+
+        String selectDuracao = ("""
+                select cast(pa.duracao_min as unsigned) as duracao
+                from parametro_alerta pa
+                inner join componentes c on c.id = pa.fk_componente
+                where c.tipo = 'CPU' and pa.fk_servidor = (?) and pa.unidade_medida = '%';
             """);
 
         for (Integer id : idsServidores) {
             List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
+
+            Integer contadorMinutos = 0;
+            Integer contadorDuracao = 0;
+            LocalDateTime dataInicioCaptura = null;
+            Double maxPercentual = 0.0;
 
             for (LogsGiuliaCriticidade log : listaLogs) {
                 if (log.getFk_servidor().equals(id)) {
@@ -70,42 +83,60 @@ public class TratamentoBolhas {
 
             logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
 
-            List<Double> listaCpu = con.queryForList(selectTipo, Double.class, "CPU", id);
+            List<Double> listaCpu = con.queryForList(selectTipo, Double.class, id);
+            List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, id);
+
+            if (listaCpu.isEmpty() || listaDuracaoCpu.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro CPU em %% - pulando.%n", id);
+                continue;
+            }
+
             Double limiteCpu = listaCpu.get(0);
-
-            Integer minutosAcima = 0;
-            Double maxPercentual = 0.0;
-
+            Integer duracaoCpu = listaDuracaoCpu.get(0);
 
             for (int i = 0; i < logsServidor.size() - 1; i++) {
-                LogsGiuliaCriticidade primeiroLog = logsServidor.get(0);
-                LogsGiuliaCriticidade ultimoLog = logsServidor.get(logsServidor.size() - 1);
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-
-                Duration minutos = Duration.between(primeiroLog.getTimestamp(), ultimoLog.getTimestamp());
-                long minutosEntreLogs = minutos.toMinutes();
-
                 Double uso = logAtual.getUsoCpu();
+                maxPercentual = Math.max(maxPercentual, uso);
+                Boolean acimaLimite = uso > limiteCpu;
 
-                if (uso > limiteCpu) {
-                    minutosAcima += (int) minutosEntreLogs;
+                if (acimaLimite){
+                    contadorDuracao++;
+
+                    if (contadorDuracao == 1){
+                        dataInicioCaptura = logAtual.getTimestamp();
+                    }
                 }
 
-                if (uso > maxPercentual) {
-                    maxPercentual = uso;
+                else{
+                    if (contadorDuracao >= duracaoCpu && dataInicioCaptura != null){
+                        LocalDateTime dataFinalCaptura = logsServidor.get(i - 1).getTimestamp();
+                        long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+                        Integer minutos = (int) Math.max(1, (seg + 59)/60);
+                        contadorMinutos += minutos;
+                    }
+                    contadorDuracao = 0;
+                    dataInicioCaptura = null;
                 }
             }
 
-            if (minutosAcima >= 0){
+            if (contadorDuracao >= duracaoCpu && dataInicioCaptura != null){
+                LocalDateTime dataFinalCaptura = logsServidor.get(logsServidor.size() - 1).getTimestamp();
+                long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+                Integer minutos = (int) Math.max(1, (seg + 59)/60);
+                contadorMinutos += minutos;
+            }
+
+            if (contadorMinutos > 0){
                 String apelidoServidor = logsServidor.get(0).getApelido();
                 String classificacao = "";
-                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
+                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, contadorMinutos, classificacao);
 
-                if (minutosAcima >= 30) {
+                if (contadorMinutos >= 30) {
                     classificacao = "CRITICO";
                 }
 
-                else if (minutosAcima >= 5) {
+                else if (contadorMinutos >= 5) {
                     classificacao = "ATENCAO";
                 }
 
@@ -123,25 +154,37 @@ public class TratamentoBolhas {
 
 
     public void gerarBolhasRam(List<Logs> logsConsolidados) {
+        System.out.println("\n༜ Gerando bolhas de RAM...");
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
-        List<Integer> idsServidores = new ArrayList<>();
+        Set<Integer> idsServidores = new LinkedHashSet<>();
 
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
         }
 
         List<LogsGiuliaCriticidade> listaBolhasRam = new ArrayList<>();
-
         String selectTipo = ("""
-                select pa.max
+                select cast(pa.max as decimal(10,2)) as limite
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+                where c.tipo = 'RAM' and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+            """);
+
+        String selectDuracao = ("""
+                select cast(pa.duracao_min as unsigned) as duracao
+                from parametro_alerta pa
+                inner join componentes c on c.id = pa.fk_componente
+                where c.tipo = 'RAM' and pa.fk_servidor = (?) and pa.unidade_medida = '%';
             """);
 
         for (Integer id : idsServidores) {
             List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
+
+            Integer contadorMinutos = 0;
+            Integer contadorDuracao = 0;
+            LocalDateTime dataInicioCaptura = null;
+            Double maxPercentual = 0.0;
 
             for (LogsGiuliaCriticidade log : listaLogs) {
                 if (log.getFk_servidor().equals(id)) {
@@ -151,44 +194,60 @@ public class TratamentoBolhas {
 
             logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
 
-            List<Double> listaRam = con.queryForList(selectTipo, Double.class, "CPU", id);
-            Double limiteRam = listaRam.get(0);
+            List<Double> listaRam = con.queryForList(selectTipo, Double.class, id);
+            List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, id);
 
-            Integer minutosAcima = 0;
-            Double maxPercentual = 0.0;
+            if (listaRam.isEmpty() || listaDuracaoRam.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro RAM em %% - pulando.%n", id);
+                continue;
+            }
+
+            Double limiteRam = listaRam.get(0);
+            Integer duracaoRam = listaDuracaoRam.get(0);
 
             for (int i = 0; i < logsServidor.size() - 1; i++) {
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                LogsGiuliaCriticidade logProximo = logsServidor.get(i + 1);
-
-                Duration minutos = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp());
-                long minutosEntreLogs = minutos.toMinutes();
-
-                if (minutosEntreLogs <= 0) {
-                    minutosEntreLogs = 1;
-                }
-
                 Double uso = logAtual.getUsoRam();
+                maxPercentual = Math.max(maxPercentual, uso);
+                Boolean acimaLimite = uso > limiteRam;
 
-                if (uso > limiteRam) {
-                    minutosAcima += (int) minutosEntreLogs;
+                if (acimaLimite){
+                    contadorDuracao++;
+
+                    if (contadorDuracao == 1){
+                        dataInicioCaptura = logAtual.getTimestamp();
+                    }
                 }
 
-                if (uso > maxPercentual) {
-                    maxPercentual = uso;
+                else{
+                    if (contadorDuracao >= duracaoRam && dataInicioCaptura != null){
+                        LocalDateTime dataFinalCaptura = logsServidor.get(i - 1).getTimestamp();
+                        long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+                        Integer minutos = (int) Math.max(1, (seg + 59)/60);
+                        contadorMinutos += minutos;
+                    }
+                    contadorDuracao = 0;
+                    dataInicioCaptura = null;
                 }
             }
 
-            if (minutosAcima >= 0){
+            if (contadorDuracao >= duracaoRam && dataInicioCaptura != null){
+                LocalDateTime dataFinalCaptura = logsServidor.get(logsServidor.size() - 1).getTimestamp();
+                long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+                Integer minutos = (int) Math.max(1, (seg + 59)/60);
+                contadorMinutos += minutos;
+            }
+
+            if (contadorMinutos > 0){
                 String apelidoServidor = logsServidor.get(0).getApelido();
                 String classificacao = "";
-                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
+                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, contadorMinutos, classificacao);
 
-                if (minutosAcima >= 30) {
+                if (contadorMinutos >= 30) {
                     classificacao = "CRITICO";
                 }
 
-                else if (minutosAcima >= 5) {
+                else if (contadorMinutos >= 5) {
                     classificacao = "ATENCAO";
                 }
 
@@ -200,32 +259,43 @@ public class TratamentoBolhas {
                 listaBolhasRam.add(bolha);
             }
         }
-
         gravaArquivoJson(listaBolhasRam, "criticidadeRam");
         awsCon.uploadBucketClient(PASTA_CLIENT, "criticidadeRam.json");
     }
 
 
     public void gerarBolhasDisco(List<Logs> logsConsolidados) {
+        System.out.println("\n༜ Gerando bolhas de DISCO...");
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
-        List<Integer> idsServidores = new ArrayList<>();
+        Set<Integer> idsServidores = new LinkedHashSet<>();
 
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
         }
 
         List<LogsGiuliaCriticidade> listaBolhasDisco = new ArrayList<>();
-
         String selectTipo = ("""
-                select pa.max
+                select cast(pa.max as decimal(10,2)) as limite
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+                where c.tipo = 'DISCO' and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+            """);
+
+        String selectDuracao = ("""
+                select cast(pa.duracao_min as unsigned) as duracao
+                from parametro_alerta pa
+                inner join componentes c on c.id = pa.fk_componente
+                where c.tipo = 'DISCO' and pa.fk_servidor = (?) and pa.unidade_medida = '%';
             """);
 
         for (Integer id : idsServidores) {
             List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
+
+            Integer contadorMinutos = 0;
+            Integer contadorDuracao = 0;
+            LocalDateTime dataInicioCaptura = null;
+            Double maxPercentual = 0.0;
 
             for (LogsGiuliaCriticidade log : listaLogs) {
                 if (log.getFk_servidor().equals(id)) {
@@ -235,40 +305,60 @@ public class TratamentoBolhas {
 
             logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
 
-            List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id);
-            Double limiteDisco = listaDisco.get(0);
+            List<Double> listaDisco = con.queryForList(selectTipo, Double.class, id);
+            List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, id);
 
-            Integer minutosAcima = 0;
-            Double maxPercentual = 0.0;
+            if (listaDisco.isEmpty() || listaDuracaoDisco.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro DISCO em %% - pulando.%n", id);
+                continue;
+            }
+
+            Double limiteDisco = listaDisco.get(0);
+            Integer duracaoDisco = listaDuracaoDisco.get(0);
 
             for (int i = 0; i < logsServidor.size() - 1; i++) {
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                LogsGiuliaCriticidade logProximo = logsServidor.get(i + 1);
-
-                Duration minutos = Duration.between(logAtual.getTimestamp(), logProximo.getTimestamp());
-                long minutosEntreLogs = minutos.toMinutes();
-
                 Double uso = logAtual.getUsoDisco();
+                maxPercentual = Math.max(maxPercentual, uso);
+                Boolean acimaLimite = uso > limiteDisco;
 
-                if (uso > limiteDisco) {
-                    minutosAcima += (int) minutosEntreLogs;
+                if (acimaLimite){
+                    contadorDuracao++;
+
+                    if (contadorDuracao == 1){
+                        dataInicioCaptura = logAtual.getTimestamp();
+                    }
                 }
 
-                if (uso > maxPercentual) {
-                    maxPercentual = uso;
+                else{
+                    if (contadorDuracao >= duracaoDisco && dataInicioCaptura != null){
+                        LocalDateTime dataFinalCaptura = logsServidor.get(i - 1).getTimestamp();
+                        long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+                        Integer minutos = (int) Math.max(1, (seg + 59)/60);
+                        contadorMinutos += minutos;
+                    }
+                    contadorDuracao = 0;
+                    dataInicioCaptura = null;
                 }
             }
 
-            if (minutosAcima > 0){
+            if (contadorDuracao >= duracaoDisco && dataInicioCaptura != null){
+                LocalDateTime dataFinalCaptura = logsServidor.get(logsServidor.size() - 1).getTimestamp();
+                long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+                Integer minutos = (int) Math.max(1, (seg + 59)/60);
+                contadorMinutos += minutos;
+            }
+
+            if (contadorMinutos > 0){
                 String apelidoServidor = logsServidor.get(0).getApelido();
                 String classificacao = "";
-                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, minutosAcima, classificacao);
+                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxPercentual, contadorMinutos, classificacao);
 
-                if (minutosAcima >= 30) {
+                if (contadorMinutos >= 30) {
                     classificacao = "CRITICO";
                 }
 
-                else if (minutosAcima >= 5) {
+                else if (contadorMinutos >= 5) {
                     classificacao = "ATENCAO";
                 }
 
@@ -279,11 +369,9 @@ public class TratamentoBolhas {
                 bolha.setClassificacao(classificacao);
                 listaBolhasDisco.add(bolha);
             }
-
         }
-
         gravaArquivoJson(listaBolhasDisco, "criticidadeDisco");
-        awsCon.uploadBucketClient(PASTA_CLIENT, "bolhasCpuGiulia.json");
+        awsCon.uploadBucketClient(PASTA_CLIENT, "criticidadeDisco.json");
     }
 
     public static void gravaArquivoJson(List<LogsGiuliaCriticidade> lista, String nomeArq) {
@@ -300,6 +388,7 @@ public class TratamentoBolhas {
                 if (contador > 0) {
                     saida.append(",");
                 }
+
                 saida.write(String.format(Locale.US,""" 
                            {
                            "fk_servidor": %d,
@@ -339,6 +428,4 @@ public class TratamentoBolhas {
             }
         }
     }
-
-
 }

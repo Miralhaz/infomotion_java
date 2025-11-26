@@ -9,6 +9,8 @@ import java.time.format.DateTimeFormatter;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class LogConexao {
 
+    @JsonProperty("nome_processo")
+    private String nomeConexao;
     @JsonProperty("fk_servidor")
     private Integer fk_servidor;
     @JsonProperty("timestamp")
@@ -16,8 +18,6 @@ public class LogConexao {
     private LocalDateTime dataHora;
     @JsonProperty("pid")
     private Integer idProcessoConexao;
-    @JsonProperty("")
-    private String nomeConexao;
     @JsonProperty("raddr")
     private String raddr;
     @JsonProperty("laddr")
@@ -28,26 +28,26 @@ public class LogConexao {
 
 
 
-    public LogConexao(Integer fk_servidor, String dataHoraString, Integer idProcessoConexao, String nomeConexao, String raddr, String laddr, String status) {
-        this.fk_servidor = fk_servidor;
-        this.idProcessoConexao = idProcessoConexao;
+    public LogConexao(String nomeConexao ,Integer fk_servidor, String dataHoraString, Integer idProcessoConexao, String laddr, String raddr, String status) {
         this.nomeConexao = nomeConexao;
-        this.raddr = raddr;
-        this.laddr = laddr;
-        this.status = status;
+        this.fk_servidor = fk_servidor;
         this.dataHoraString = dataHoraString;
+        this.idProcessoConexao = idProcessoConexao;
+        this.laddr = laddr;
+        this.raddr = raddr;
+        this.status = status;
     }
 
     @Override
     public String toString() {
         return "LogConexao{" +
-                "fk_servidor=" + fk_servidor +
-                ", idProcessoConexao=" + idProcessoConexao +
-                ", nomeConexao='" + nomeConexao + '\'' +
-                ", raddr='" + raddr + '\'' +
-                ", laddr='" + laddr + '\'' +
-                ", status='" + status + '\'' +
+                "nomeConexao='" + nomeConexao + '\'' +
+                ", fk_servidor=" + fk_servidor +
                 ", dataHoraString='" + dataHoraString + '\'' +
+                ", idProcessoConexao=" + idProcessoConexao +
+                ", laddr='" + laddr + '\'' +
+                ", raddr='" + raddr + '\'' +
+                ", status='" + status + '\'' +
                 '}';
     }
 

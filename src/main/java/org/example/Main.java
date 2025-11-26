@@ -5,6 +5,7 @@ import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
 import org.example.classesRenan.tratamentoNearRealTime;
+import org.example.classesWillian.TratamentoWillian;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -85,14 +86,6 @@ public class Main {
             try {
                 aws.downloadBucketRaw(chaveRaw);
                 List<Logs> logsDoArquivo = leImportaArquivoCsv(chaveRaw);
-
-                try {// ----------------------------- TRATAMENTO DE ALERTAS -----------------------------
-                    Integer fk_servidor = logsDoArquivo.get(1).getFk_servidor();
-                    TratamentoAlertas.TratamentoAlertas(con, fk_servidor, logsDoArquivo, aws);
-                } catch (Exception e) {
-                    System.out.println("ERRO ao processar a ETL");
-                    e.printStackTrace();
-                }
 
                 logsNovosParaConsolidar.addAll(logsDoArquivo);
                 System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
@@ -488,6 +481,27 @@ public class Main {
         JdbcTemplate con = new JdbcTemplate(connection.getDataSource());
         System.out.println("Conexão estabelecida com sucesso!\n");
 
+        // Tratamento de alertas
+        List<String> arquivosRaw = aws.listarArquivosRaw();
+
+        for (String nomeArquivo : arquivosRaw) {
+            System.out.println("\nProcessando: " + nomeArquivo);
+            aws.downloadBucketRaw(nomeArquivo);
+
+            List<Logs> logsDoArquivo = leImportaArquivoCsv(nomeArquivo);
+
+            if (logsDoArquivo.isEmpty()) {
+                System.out.println("Arquivo sem registros, continuando...");
+                continue;
+            }
+
+            Integer fk_servidor_arquivo = logsDoArquivo.get(0).getFk_servidor();
+            TratamentoAlertas.analisarAlertasNoArquivoRaw(con, fk_servidor_arquivo, logsDoArquivo, aws);
+        }
+        aws.limparTemporarios();
+        // Fim da área tratamento alertas
+
+
         consolidarArquivosRaw(con);
         consolidarEspecificacoesRaw(con);
         System.out.println("Lendo arquivo consolidado para iniciar tratamentos...");
@@ -504,36 +518,65 @@ public class Main {
         TratamentoProcessos.consolidarArquivosRawProcessos();
         TratamentoProcessos tratarProcessos = new TratamentoProcessos(aws, con);
         tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
+        // FIM DA ÁREA TRATAMENTO MIRALHA
 
-
-        for (Logs log : logsConsolidados) {
-            Boolean idJaAdicionado = false;
-            Integer idDaVez = log.getFk_servidor();
-            for (int i : listaIdServidores) {
-                if (idDaVez == i) {
-                    idJaAdicionado = true;
+            for (Logs log : logsConsolidados) {
+                Boolean idJaAdicionado = false;
+                Integer idDaVez = log.getFk_servidor();
+                for (int i : listaIdServidores) {
+                    if (idDaVez == i) {
+                        idJaAdicionado = true;
+                    }
+                }
+                if (!idJaAdicionado) {
+                    listaIdServidores.add(idDaVez);
                 }
             }
-            if (!idJaAdicionado) {
-                listaIdServidores.add(idDaVez);
-            }
-        }
-        //AREA TRATAMENTO DERECK
-        
+            //AREA TRATAMENTO DERECK
 
-        // Pegando o id do servidor
-        Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
-        // TRATAMENTO REDE
-        TratamentoRede tratamentoRede = new TratamentoRede(aws, con);
-        // Criando Json de rede
-        TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
-        // Criando json de conexao
-        TratamentoRede.gravaArquivoJson(listaIdServidores);
+            // Pegando o id do servidor
+            Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
-        //Criando json Near Real Time
-        tratamentoNearRealTime.logsEspecifico(logsConsolidados);
+            // TRATAMENTO REDE
+            TratamentoRede tratamentoRede = new TratamentoRede(aws, con);
+            // Criando Json de rede
+            TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
+            // Criando json de conexao
+            TratamentoRede.gravaArquivoJson(listaIdServidores);
 
+            //Criando json Near Real Time
+            tratamentoNearRealTime.logsEspecifico(logsConsolidados);
+
+
+
+        // tratamento willian inicio
+        System.out.println("Iniciando ETL de Logs Consolidado -> JSON Dashboard...");
+
+        Connection dbConnection = new Connection(); // Instancia a conexão com o BD
+
+        // Limpa a área de trabalho local de arquivos antigos (CSV/JSON)
         aws.limparTemporarios();
+
+        try {
+            // Instancia a sua classe de tratamento, passando as conexões
+            TratamentoWillian tratamentoWillian = new TratamentoWillian(aws, dbConnection);
+
+            // Roda o pipeline completo: Download, Tratamento, Upload
+            tratamentoWillian.executarTratamento();
+
+            System.out.println("\n✅ Processo de ETL concluído com sucesso!");
+            System.out.println("Arquivo dashboard_data.json enviado para s3-client-infomotion-1/tratamentos_willian/");
+
+        } catch (Exception e) {
+            System.err.println("\n🛑 Ocorreu um erro FATAL na execução da ETL.");
+            e.printStackTrace();
+        } finally {
+            // Garante a limpeza final
+            aws.limparTemporarios();
+        }
+        // tratamento willian final
+
+            aws.limparTemporarios();
+        }
     }
-}

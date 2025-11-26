@@ -68,14 +68,14 @@ public class TratamentoRede {
             while (linha != null) {
 
                 registro = linha.split(";");
-                Integer fk_servidor = Integer.valueOf(registro[1]);
-                String dataHoraString = registro[2];
-                Integer idProcessoConexao = Integer.valueOf(registro[3]);
-                String nomeConexao = registro[4];
-                String raddr = registro[5];
-                String laddr = registro[6];
+                String nomeProcesso = String.valueOf(registro[1]);
+                Integer fk_servidor = Integer.valueOf(registro[2]);
+                String dataHoraString = registro[3];
+                Integer idProcessoConexao = Integer.valueOf(registro[4]);
+                String laddr = registro[5];
+                String raddr = registro[6];
                 String status = registro[7];
-                LogConexao logConexao = new LogConexao(fk_servidor, dataHoraString, idProcessoConexao, nomeConexao, raddr, laddr, status);
+                LogConexao logConexao = new LogConexao(nomeProcesso, fk_servidor, dataHoraString, idProcessoConexao, laddr, raddr, status);
                 listaLogsConexao.add(logConexao);
                 linha = entrada.readLine();
             }
@@ -169,27 +169,27 @@ public class TratamentoRede {
                     if (contador == lista.size()) {
                         saida.write(String.format(Locale.US, """
                                         {
+                                        "nome_processo": "%s"
                                         "fk_servidor": "%d",
-                                        "idProcessoConexao": "%s",
                                         "timeStamp": "%s",
-                                        "nomeConexao": "%s",
+                                        "idProcessoConexao": "%s",
                                         "laddr": "%s",
                                         "raddr": "%s",
                                         "status": "%s"
                                         }""",
-                                log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
+                                log.getNomeConexao() ,log.getFk_servidor(), log.getDataHoraString(), log.getIdProcessoConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
                     } else {
                         saida.write(String.format(Locale.US, """
                                         {
+                                        "nome_processo": "%s"
                                         "fk_servidor": "%d",
-                                        "idProcessoConexao": "%s",
                                         "timeStamp": "%s",
-                                        "nomeConexao": "%s",
-                                        "raddr": "%s",
+                                        "idProcessoConexao": "%s",
                                         "laddr": "%s",
+                                        "raddr": "%s",
                                         "status": "%s"
-                                        },""",
-                                log.getFk_servidor(), log.getIdProcessoConexao(), log.getDataHoraString(), log.getNomeConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
+                                        }""",
+                                log.getNomeConexao() ,log.getFk_servidor(), log.getDataHoraString(), log.getIdProcessoConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
                     }
                 }
                 saida.append("]");
