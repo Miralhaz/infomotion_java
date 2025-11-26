@@ -550,6 +550,15 @@ public class Main {
             // Criando json de conexao
             TratamentoRede.gravaArquivoJson(listaIdServidores);
 
+            // TRATAMENTO - GIULIA
+            TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
+            tratamentoDonut.classificarCriticidade(logsConsolidados);
+
+            TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
+            tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
+            tratamentoBolhas.gerarBolhasRam(logsConsolidados);
+            tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
+
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
