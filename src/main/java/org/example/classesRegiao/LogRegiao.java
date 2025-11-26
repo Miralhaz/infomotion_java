@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Random;
 
 public class LogRegiao {
-    private String fkServidor;
+    private Integer fkServidor;
     private Double usoDisco;
     private Double usoRam;
     private Integer qtdRequisicoes;
@@ -14,7 +14,7 @@ public class LogRegiao {
     public LogRegiao() {
     }
 
-    public LogRegiao(String fkServidor, Integer qtdRequisicoes, Double usoDisco, Double usoRam,String dataHoraString) {
+    public LogRegiao(Integer fkServidor, Integer qtdRequisicoes, Double usoDisco, Double usoRam,String dataHoraString) {
         Random random = new Random();
         this.fkServidor = fkServidor;
         this.qtdRequisicoes = (qtdRequisicoes * 1000) + random.nextInt(9999);
@@ -22,10 +22,10 @@ public class LogRegiao {
         this.usoRam = usoRam;
         this.dataHora = LocalDateTime.parse(dataHoraString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
-    public String getFkServidor() {
+    public Integer getFkServidor() {
         return fkServidor;
     }
-    public void setFkServidor(String fkServidor) {
+    public void setFkServidor(Integer fkServidor) {
         this.fkServidor = fkServidor;
     }
     public Integer getQtdRequisicoes() {
