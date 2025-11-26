@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.classesGiulia.TratamentoBolhas;
+import org.example.classesGiulia.TratamentoDonut;
 import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
@@ -545,6 +547,15 @@ public class Main {
             TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
             // Criando json de conexao
             TratamentoRede.gravaArquivoJson(listaIdServidores);
+
+            // TRATAMENTO - GIULIA
+            TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
+            tratamentoDonut.classificarCriticidade(logsConsolidados);
+
+            TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
+            tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
+            tratamentoBolhas.gerarBolhasRam(logsConsolidados);
+            tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
 
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
