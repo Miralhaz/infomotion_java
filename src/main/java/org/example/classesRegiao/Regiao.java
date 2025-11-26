@@ -9,6 +9,9 @@ public class Regiao {
     private List<LogRegiao> listaLogRegiao;
 
 
+    public Regiao() {
+    }
+
     public Regiao(Integer id) {
         this.id = id;
         this.listaLogRegiao = new ArrayList<>();

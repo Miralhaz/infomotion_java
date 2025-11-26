@@ -6,6 +6,7 @@ import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
+import org.example.classesRegiao.TratamentoClima;
 import org.example.classesRenan.tratamentoNearRealTime;
 import org.example.classesWillian.TratamentoWillian;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -89,7 +90,15 @@ public class Main {
                 aws.downloadBucketRaw(chaveRaw);
                 List<Logs> logsDoArquivo = leImportaArquivoCsv(chaveRaw);
 
-                logsNovosParaConsolidar.addAll(logsDoArquivo);
+                Integer fk_servidor = logsDoArquivo.get(1).getFk_servidor();
+                try {
+
+                    TratamentoAlertas.TratamentoAlertas(con, fk_servidor, logsDoArquivo, aws);
+                    logsNovosParaConsolidar.addAll(logsDoArquivo);
+                } catch (Exception e) {
+                    System.out.println("Erro no tratamento de alertas");
+                    e.printStackTrace();
+                }
                 System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
 
                 aws.deleteCsvLocal(chaveRaw);
@@ -498,7 +507,6 @@ public class Main {
             }
 
             Integer fk_servidor_arquivo = logsDoArquivo.get(0).getFk_servidor();
-            TratamentoAlertas.analisarAlertasNoArquivoRaw(con, fk_servidor_arquivo, logsDoArquivo, aws);
             TratamentoCardsServidores.atualizarStatusServidor(fk_servidor_arquivo, logsDoArquivo, aws, con);
         }
         aws.limparTemporarios();
@@ -536,17 +544,18 @@ public class Main {
                 }
             }
             //AREA TRATAMENTO DERECK
+        System.out.println("--------------------iniciando tratamento regiao------------------");
+              TratamentoClima.buscarRegioes(con);
 
-
+        //FIM AREA TRATAMENTO DERECK
             // Pegando o id do servidor
             Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
             // TRATAMENTO REDE
-            TratamentoRede tratamentoRede = new TratamentoRede(aws, con);
             // Criando Json de rede
-            TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores);
+            TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores, con, aws);
             // Criando json de conexao
-            TratamentoRede.gravaArquivoJson(listaIdServidores);
+            TratamentoRede.gravaArquivoJson(listaIdServidores, aws);
 
             // TRATAMENTO - GIULIA
             TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);

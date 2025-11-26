@@ -6,18 +6,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class tratamentoClima {
+public class TratamentoClima {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private static AwsConnection awsConnection;
     private static final String nomePasta = "Dashboard_Regiao";
     private static JdbcTemplate banco;
 
-    public tratamentoClima(AwsConnection awsConnection, JdbcTemplate banco) {
+    public TratamentoClima(AwsConnection awsConnection, JdbcTemplate banco) {
         this.awsConnection = awsConnection;
         this.banco = banco;
     }
@@ -40,15 +39,19 @@ public class tratamentoClima {
                 listaLogRegiao.addAll(lista2);
             }
 
+            System.out.println(listaLogClima);
+            System.out.println(listaRegiao);
             Regiao reg = new Regiao(r.getId());
             reg.setListaLogClima(listaLogClima);
             reg.setListaLogRegiao(listaLogRegiao);
-            
+
+
+
+
+
+
+
         }
-
-
-
-
     }
 
 
@@ -170,5 +173,12 @@ public class tratamentoClima {
         }
         awsConnection.deleteCsvLocal(nomeArq);
         return listaLogRegiao;
+    }
+
+
+    public void criarPrevisaoDeDados(){
+
+
+
     }
 }
