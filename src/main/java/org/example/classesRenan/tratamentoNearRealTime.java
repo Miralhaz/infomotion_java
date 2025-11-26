@@ -83,12 +83,7 @@ public class tratamentoNearRealTime {
         }
     }
     public static ParametrosServidor carregarParametros(Integer fkServidor, JdbcTemplate con) {
-
         ParametrosServidor params = new ParametrosServidor();
-
-        String url = "jdbc:mysql://localhost:3306/infomotion";
-        String user = "root";
-        String pass = "041316miralha";
 
         String sql = """
         SELECT max, tipo, unidade_medida
@@ -97,7 +92,7 @@ public class tratamentoNearRealTime {
         WHERE p.fk_servidor = ?;
     """;
 
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
+        try (java.sql.Connection conn = con.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, fkServidor);
