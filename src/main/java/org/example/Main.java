@@ -1,5 +1,7 @@
 package org.example;
 
+import org.example.classesGiulia.TratamentoBolhas;
+import org.example.classesGiulia.TratamentoDonut;
 import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
