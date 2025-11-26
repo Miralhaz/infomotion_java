@@ -72,9 +72,9 @@ public class TratamentoRede {
                 Integer fk_servidor = Integer.valueOf(registro[2]);
                 String dataHoraString = registro[3];
                 Integer idProcessoConexao = Integer.valueOf(registro[4]);
-                String laddr = registro[5];
-                String raddr = registro[6];
-                String status = registro[7];
+                String laddr = registro[7];
+                String raddr = registro[8];
+                String status = registro[9];
                 LogConexao logConexao = new LogConexao(nomeProcesso, fk_servidor, dataHoraString, idProcessoConexao, laddr, raddr, status);
                 listaLogsConexao.add(logConexao);
                 linha = entrada.readLine();
@@ -105,21 +105,21 @@ public class TratamentoRede {
                 new BeanPropertyRowMapper<>(Parametro_alerta.class),
                 1);
 
-        Integer parametroDown = 0;
-        Integer parametroUp = 0;
-        Integer parametroPacotesRecebidos = 0;
-        Integer parametroPacotesEnviados = 0;
+        Double parametroDown = 0.0;
+        Double parametroUp = 0.0;
+        Double parametroPacotesRecebidos = 0.0;
+        Double parametroPacotesEnviados = 0.0;
 
         for (Parametro_alerta pa : metrica){
 
             if (pa.getUnidadeMedida().equalsIgnoreCase("DOWNLOAD")){
-                parametroDown = Integer.getInteger(String.valueOf(pa.getMax()));
+                parametroDown = pa.getMax();
             } else if (pa.getUnidadeMedida().equalsIgnoreCase("UPLOAD")){
-                parametroUp = Integer.getInteger(String.valueOf(pa.getMax()));
+                parametroUp = pa.getMax();
             } else if (pa.getUnidadeMedida().equalsIgnoreCase("PCKT_RCVD")){
-                parametroPacotesRecebidos = Integer.getInteger(String.valueOf(pa.getMax()));
+                parametroPacotesRecebidos = pa.getMax();
             } else if (pa.getUnidadeMedida().equalsIgnoreCase("PCKT_SNT")){
-                parametroPacotesEnviados = Integer.getInteger(String.valueOf(pa.getMax()));
+                parametroPacotesEnviados = pa.getMax();
             }
 
         }
@@ -167,9 +167,10 @@ public class TratamentoRede {
                 for (LogConexao log : lista) {
                     contador++;
                     if (contador == lista.size()) {
+                        System.out.println("Log que vai virar Json de conexão" + log);
                         saida.write(String.format(Locale.US, """
                                         {
-                                        "nome_processo": "%s"
+                                        "nome_processo": "%s",
                                         "fk_servidor": "%d",
                                         "timeStamp": "%s",
                                         "idProcessoConexao": "%s",
@@ -181,14 +182,14 @@ public class TratamentoRede {
                     } else {
                         saida.write(String.format(Locale.US, """
                                         {
-                                        "nome_processo": "%s"
+                                        "nome_processo": "%s",
                                         "fk_servidor": "%d",
                                         "timeStamp": "%s",
                                         "idProcessoConexao": "%s",
                                         "laddr": "%s",
                                         "raddr": "%s",
                                         "status": "%s"
-                                        }""",
+                                        },""",
                                 log.getNomeConexao() ,log.getFk_servidor(), log.getDataHoraString(), log.getIdProcessoConexao(), log.getLaddr(), log.getRaddr(), log.getStatus()));
                     }
                 }
@@ -252,10 +253,10 @@ public class TratamentoRede {
                                             "packetReceived": "%d",
                                             "packetLossSent": "%d",
                                             "packetLossReceived": "%d",
-                                            "parametroDown": "%d",
-                                            "parametroUp": "%d",
-                                            "parametroPacotesRecebidos": "%d".
-                                            "parametroPacotesEnviados": "%d"
+                                            "parametroDown": "%.0f",
+                                            "parametroUp": "%.0f",
+                                            "parametroPacotesRecebidos": "%.0f",
+                                            "parametroPacotesEnviados": "%.0f"
                                             }""",
                                     log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived(), log.getParametroDown(), log.getParametroUp(), log.getParametroPacotesRecebidos(), log.getParametroPacotesEnviados()));
                         } else {
@@ -270,10 +271,10 @@ public class TratamentoRede {
                                             "packetReceived": "%d",
                                             "packetLossSent": "%d",
                                             "packetLossReceived": "%d",
-                                            "parametroDown": "%d",
-                                            "parametroUp": "%d",
-                                            "parametroPacotesRecebidos": "%d".
-                                            "parametroPacotesEnviados": "%d"
+                                            "parametroDown": "%.0f",
+                                            "parametroUp": "%.0f",
+                                            "parametroPacotesRecebidos": "%.0f",
+                                            "parametroPacotesEnviados": "%.0f"
                                             },""",
                                     log.getFk_servidor(), log.getDataHoraString(), log.getUploadByte(), log.getDownloadByte(), log.getPacketSent(), log.getPacketReceived(), log.getPacketLossSent(), log.getPacketLossReceived(), log.getParametroDown(), log.getParametroUp(), log.getParametroPacotesRecebidos(), log.getParametroPacotesEnviados()));
                         }
