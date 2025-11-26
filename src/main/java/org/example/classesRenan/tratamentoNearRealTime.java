@@ -2,8 +2,10 @@ package org.example.classesRenan;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.example.AwsConnection;
-import org.example.Logs;
+import org.example.*;
+import org.example.Connection;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.*;
 
@@ -67,7 +69,8 @@ public class tratamentoNearRealTime {
                 logfinal.add(ultimoLog);
 
                 String nomeArquivo = "data" + ultimoLog.getFk_servidor() + ".json";
-                ParametrosServidor params = carregarParametros(ultimoLog.getFk_servidor());
+                JdbcTemplate con = new JdbcTemplate(new Connection().getDataSource());
+                ParametrosServidor params = carregarParametros(ultimoLog.getFk_servidor(), con);
 
                 try {
                     gerarJson(ultimoLog, params, nomeArquivo);
@@ -79,12 +82,8 @@ public class tratamentoNearRealTime {
 
         }
     }
-    public static ParametrosServidor carregarParametros(Integer fkServidor) {
+    public static ParametrosServidor carregarParametros(Integer fkServidor, JdbcTemplate con) {
         ParametrosServidor params = new ParametrosServidor();
-
-        String url = "jdbc:mysql://localhost:3306/infomotion";
-        String user = "root";
-        String pass = "041316miralha";
 
         String sql = """
         SELECT max, tipo, unidade_medida
@@ -93,7 +92,7 @@ public class tratamentoNearRealTime {
         WHERE p.fk_servidor = ?;
     """;
 
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
+        try (java.sql.Connection conn = con.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, fkServidor);
@@ -186,7 +185,7 @@ public class tratamentoNearRealTime {
                 "maxDiscoTemp": %.2f,
                 "maxDownload": %.2f,
                 "maxUpload" : %.2f
-        }
+        },
 }
 """,
                     log.getFk_servidor(),

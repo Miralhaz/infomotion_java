@@ -109,6 +109,50 @@ public class Main {
         System.out.println("\nConsolidação concluída");
     }
 
+    public static void consolidarEspecificacoesRaw(JdbcTemplate con) {
+        final String arquivoEspecificadosConsolidadoTrusted = "logs_especificados_consolidados_servidores";
+
+        System.out.println("\nIniciando consolidação...");
+
+        aws.downloadTemperaturaBucket(arquivoEspecificadosConsolidadoTrusted + ".csv");
+
+        List<String> arquivosRawParaProcessar = aws.listarEspecificacoesRaw();
+        List<LogsEspecificacoes> logsNovosParaConsolidar = new ArrayList<>();
+
+        if (arquivosRawParaProcessar.isEmpty()) {
+            System.out.println("Nenhum arquivo RAW novo encontrado para processamento (Padrão: data[n].csv).");
+            return;
+        }
+
+        System.out.printf("Encontrados %d arquivos RAW para processar.\n", arquivosRawParaProcessar.size());
+
+        for (String chaveRaw : arquivosRawParaProcessar) {
+            try {
+                aws.downloadBucketRaw(chaveRaw);
+                List<LogsEspecificacoes> logsDoArquivo = leEspecificacoesCsv(chaveRaw);
+
+                logsNovosParaConsolidar.addAll(logsDoArquivo);
+                System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
+
+                aws.deleteCsvLocal(chaveRaw);
+
+            } catch (Exception e) {
+                System.err.println("ERRO ao processar arquivo RAW " + chaveRaw + ". Pulando para o próximo: " + e.getMessage());
+            }
+        }
+
+        if (logsNovosParaConsolidar.isEmpty()) {
+            System.out.println("Nenhum novo log válido foi lido e consolidado. Upload para Trusted abortado.");
+            return;
+        }
+
+        gravaArquivoCsvEspecificacoes(logsNovosParaConsolidar, arquivoEspecificadosConsolidadoTrusted);
+        aws.uploadBucketTrusted(arquivoEspecificadosConsolidadoTrusted + ".csv");
+
+
+        System.out.println("\nConsolidação concluída");
+    }
+
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
         OutputStreamWriter saida = null;
         Boolean deuRuim = false;
@@ -222,6 +266,141 @@ public class Main {
       return listaLogs;
     }
 
+    public static void gravaArquivoCsvEspecificacoes(List<LogsEspecificacoes> lista, String nomeArq) {
+        OutputStreamWriter saida = null;
+        boolean deuRuim = false;
+        nomeArq += ".csv";
+
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+        } catch (IOException erro) {
+            System.out.println("Erro ao abrir o arquivo gravaArquivoCsvEspecificacoes");
+            System.exit(1);
+        }
+
+        try {
+            // Cabeçalho
+            saida.append("fk_servidor;swap_total;ram_total;quantidade_cpus;quantidade_nucleos;capacidade_total_disco;qtd_particoes;particoes;data_hora\n");
+
+            // Conteúdo
+            for (LogsEspecificacoes log : lista) {
+
+                // Montar concatenação das partições (ex: "C:\\: 88.7% | D:\\: 34.3% | E:\\: 12.4%")
+                StringBuilder sbParticoes = new StringBuilder();
+
+                for (int i = 0; i < log.getParticoes().size(); i++) {
+                    Particao p = log.getParticoes().get(i);
+
+                    sbParticoes.append(p.getNome())
+                            .append(": ")
+                            .append(p.getUso())
+                            .append("%");
+
+                    if (i < log.getParticoes().size() - 1) {
+                        sbParticoes.append(" | ");
+                    }
+                }
+
+                saida.write(String.format(Locale.US,
+                        "%d;%.2f;%.2f;%d;%d;%.2f;%d;%s;%s\n",
+                        log.getFkServidor(),
+                        log.getSwapTotal(),
+                        log.getRamTotal(),
+                        log.getQuantidadeCpus(),
+                        log.getQuantidadeNucleos(),
+                        log.getCapacidadeTotalDisco(),
+                        log.getParticoes().size(),
+                        sbParticoes.toString(),
+                        log.getDataHora()
+                ));
+            }
+
+        } catch (IOException erro) {
+            System.out.println("Erro ao gravar o arquivo");
+            erro.printStackTrace();
+            deuRuim = true;
+        } finally {
+            try {
+                if (saida != null) saida.close();
+            } catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+
+            if (deuRuim) System.exit(1);
+        }
+    }
+
+
+
+    public static List<LogsEspecificacoes> leEspecificacoesCsv(String nomeArq) {
+        Reader arq = null;
+        BufferedReader entrada = null;
+        List<LogsEspecificacoes> lista = new ArrayList<>();
+
+        try {
+            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            entrada = new BufferedReader(arq);
+        } catch (IOException e) {
+            System.out.println("Erro ao abrir arquivo de especificações");
+            System.exit(1);
+        }
+
+        try {
+            String linha = entrada.readLine(); // cabeçalho
+
+            linha = entrada.readLine(); // primeira linha útil
+
+            while (linha != null) {
+
+                String[] registro = linha.split(";");
+
+                Integer fkServidor = Integer.valueOf(registro[1]);
+                Double swap = Double.valueOf(registro[2].replace(",", "."));
+                Double ram = Double.valueOf(registro[3].replace(",", "."));
+                Integer qtdCpus = Integer.valueOf(registro[4]);
+                Integer qtdNucleos = Integer.valueOf(registro[5]);
+                Double capacidadeDisco = Double.valueOf(registro[6].replace(",", "."));
+                Double qtdParticoes = Double.valueOf(registro[7].replace(",", "."));
+
+                // partições (pode ter N)
+                String campoParticoes = registro[8]; // ex: "C:\: 88.7% | D:\: 34.3%"
+
+                List<String> listaParticoes = new ArrayList<>();
+
+                String[] particoes = campoParticoes.split("\\|");
+
+                for (String p : particoes) {
+                    listaParticoes.add(p.trim()); // adiciona exatamente como está
+                }
+
+                String dataHora = registro[9];
+
+                LogsEspecificacoes log = new LogsEspecificacoes(
+                        fkServidor, swap, ram, qtdCpus, qtdNucleos,
+                        capacidadeDisco, qtdParticoes, listaParticoes, dataHora
+                );
+
+                lista.add(log);
+
+                linha = entrada.readLine();
+            }
+
+        } catch (Exception e) {
+            System.out.println("Erro ao ler especificações: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                entrada.close();
+                arq.close();
+            } catch (IOException e) {
+                System.out.println("Erro ao fechar arquivo");
+            }
+        }
+
+        return lista;
+    }
+
     public static  List<Logs> leImportaArquivoCsvTrusted(String nomeArq){
         Reader arq = null; // objeto aquivo
         BufferedReader entrada = null; // objeto leitor de arquivo
@@ -324,6 +503,7 @@ public class Main {
 
 
         consolidarArquivosRaw(con);
+        consolidarEspecificacoesRaw(con);
         System.out.println("Lendo arquivo consolidado para iniciar tratamentos...");
         List<Logs> logsConsolidados = leImportaArquivoCsvTrusted("logs_consolidados_servidores.csv");
 

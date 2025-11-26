@@ -111,4 +111,5 @@ public class LogsNearRealTime {
     public void setDownloadByte(Long downloadByte) {
         this.downloadByte = downloadByte;
     }
+
 }

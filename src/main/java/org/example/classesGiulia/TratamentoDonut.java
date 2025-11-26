@@ -33,17 +33,14 @@ public class TratamentoDonut {
     }
 
 
-    public Integer calcularMinutosAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, String componente){
+    public Integer calcularMinutosAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente){
+
         Integer contadorMinutos = 0;
+        Integer contadorDuracao = 0;
+        LocalDateTime dataInicioCaptura = null;
 
         for (int i = 0; i < logsServidor.size(); i++) {
-            LogsGiuliaCriticidade primeiroLog = logsServidor.get(0);
-            LogsGiuliaCriticidade ultimoLog = logsServidor.get(logsServidor.size() - 1);
             LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-
-            Duration minutos = Duration.between(primeiroLog.getTimestamp(), ultimoLog.getTimestamp());
-            long minutosEntreLogs = minutos.toMinutes();
-
             Double uso = 0.0;
 
             if (componente.equalsIgnoreCase("CPU")){
@@ -58,15 +55,40 @@ public class TratamentoDonut {
                 uso = logAtual.getUsoDisco();
             }
 
-            if (uso > limite){
-                contadorMinutos += (int) minutosEntreLogs;
+            Boolean acimaLimite = uso > limite;
+
+            if (acimaLimite){
+                contadorDuracao++;
+
+                if (contadorDuracao == 1){
+                    dataInicioCaptura = logAtual.getTimestamp();
+                }
             }
+
+            else{
+                if (contadorDuracao >= duracao && dataInicioCaptura != null){
+                    LocalDateTime dataFinalCaptura = logsServidor.get(i - 1).getTimestamp();
+                    long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+                    Integer minutos = (int) Math.max(1, (seg + 59)/60);
+                    contadorMinutos += minutos;
+                }
+                contadorDuracao = 0;
+                dataInicioCaptura = null;
+            }
+        }
+
+        if (contadorDuracao >= duracao && dataInicioCaptura != null){
+            LocalDateTime dataFinalCaptura = logsServidor.get(logsServidor.size() - 1).getTimestamp();
+            long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
+            Integer minutos = (int) Math.max(1, (seg + 59)/60);
+            contadorMinutos += minutos;
         }
         return contadorMinutos;
     }
 
 
     public void classificarCriticidade(List<Logs> logsConsolidados) {
+        System.out.println("\n◎ Classificando criticidade de componentes...");
 
         if (logsConsolidados == null || logsConsolidados.isEmpty()) {
             System.out.println("Nenhum log recebido para calcular criticidade (donut).");
@@ -75,7 +97,7 @@ public class TratamentoDonut {
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
 
-        List<Integer> idsServidores = new ArrayList<>();
+        Set<Integer> idsServidores = new LinkedHashSet<>();
         for (LogsGiuliaCriticidade log : listaLogs) {
             idsServidores.add(log.getFk_servidor());
         }
@@ -85,7 +107,14 @@ public class TratamentoDonut {
         Integer contadorCritico = 0;
 
         String selectTipo = ("""
-                select pa.max
+                select cast(pa.max as decimal(10,2)) as limite
+                from parametro_alerta pa
+                inner join componentes c on c.id = pa.fk_componente
+                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+            """);
+
+        String selectDuracao = ("""
+                select cast(pa.duracao_min as unsigned) as duracao
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
                 where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
@@ -106,22 +135,40 @@ public class TratamentoDonut {
             List<Double> listaRam = con.queryForList(selectTipo, Double.class, "RAM", id);
             List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id);
 
+            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO em '%%'). Pulando.%n", id);
+                continue;
+            }
+
             Double limiteCpu = listaCpu.get(0);
             Double limiteRam = listaRam.get(0);
             Double limiteDisco = listaDisco.get(0);
+
+            List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id);
+            List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, "RAM", id);
+            List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id);
+
+            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty()) {
+                System.out.printf("Servidor %d sem duracao_min completo. Pulando.%n", id);
+                continue;
+            }
+
+            Integer duracaoCpu = listaDuracaoCpu.get(0);
+            Integer duracaoRam = listaDuracaoRam.get(0);
+            Integer duracaoDisco = listaDuracaoDisco.get(0);
 
             Integer minCpu = 0;
             Integer minRam = 0;
             Integer minDisco = 0;
 
-            if (limiteCpu != null) {
-                minCpu = calcularMinutosAcimaComponente(logsServidor, limiteCpu, "CPU");
+            if (limiteCpu != null && duracaoCpu != null) {
+                minCpu = calcularMinutosAcimaComponente(logsServidor, limiteCpu, duracaoCpu, "CPU");
             }
-            if (limiteRam != null) {
-                minRam = calcularMinutosAcimaComponente(logsServidor, limiteRam, "RAM");
+            if (limiteRam != null && duracaoRam != null) {
+                minRam = calcularMinutosAcimaComponente(logsServidor, limiteRam, duracaoRam, "RAM");
             }
-            if (limiteDisco != null) {
-                minDisco = calcularMinutosAcimaComponente(logsServidor, limiteDisco, "DISCO");
+            if (limiteDisco != null && duracaoDisco != null) {
+                minDisco = calcularMinutosAcimaComponente(logsServidor, limiteDisco, duracaoDisco, "DISCO");
             }
 
             String classificacao;
@@ -170,6 +217,9 @@ public class TratamentoDonut {
                     saida.append(",");
                 }
 
+                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+                String timestamp = (log.getTimestamp() == null) ? "" : log.getTimestamp().format(formatador);
+
                 saida.write(String.format(Locale.US,""" 
                            {
                            "fk_servidor": %d,
@@ -181,7 +231,7 @@ public class TratamentoDonut {
                            "disco": %.2f,
                            "classificacao": "%s"
                            }""",
-                        log.getFk_servidor(), log.getApelido(), log.getTimestamp(), log.getMinutos() == null ? 0 : log.getMinutos(), log.getUsoCpu(), log.getUsoRam(), log.getUsoDisco(), log.getClassificacao() == null ? "" : log.getClassificacao()));
+                        log.getFk_servidor(), log.getApelido(), timestamp, log.getMinutos() == null ? 0 : log.getMinutos(), log.getUsoCpu(), log.getUsoRam(), log.getUsoDisco(), log.getClassificacao() == null ? "" : log.getClassificacao()));
 
                 contador ++;
             }

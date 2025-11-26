@@ -335,4 +335,6 @@ public class Logs {
                 " | Tempo Leitura:" + tempo_leitura +
                 " | Tempo Escrita:" + tempo_escrita;
     }
+
+
 }
