@@ -56,6 +56,30 @@ public class AwsConnection {
         return chaves;
     }
 
+    public List<String> listarEspecificacoesRaw() {
+        List<String> chaves = new ArrayList<>();
+
+        String regexFiltro = "^EspecificacoesHardware\\d+\\.csv$";
+
+        ListObjectsV2Request listReq = ListObjectsV2Request.builder()
+                .bucket("s3-raw-infomotion-1")
+                .build();
+
+        s3.listObjectsV2Paginator(listReq)
+                .stream()
+                .forEach(response ->
+                        response.contents().forEach(s3Object -> {
+                            String key = s3Object.key();
+
+                            if (key.matches(regexFiltro)) {
+                                chaves.add(key);
+                            }
+                        })
+                );
+
+        return chaves;
+    }
+
     public List<String> listarArquivosRawProcessos() {
         List<String> chaves = new ArrayList<>();
 

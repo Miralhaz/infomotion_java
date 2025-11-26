@@ -2,8 +2,10 @@ package org.example.classesRenan;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.example.AwsConnection;
-import org.example.Logs;
+import org.example.*;
+import org.example.Connection;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.*;
 
@@ -67,7 +69,8 @@ public class tratamentoNearRealTime {
                 logfinal.add(ultimoLog);
 
                 String nomeArquivo = "data" + ultimoLog.getFk_servidor() + ".json";
-                ParametrosServidor params = carregarParametros(ultimoLog.getFk_servidor());
+                JdbcTemplate con = new JdbcTemplate(new Connection().getDataSource());
+                ParametrosServidor params = carregarParametros(ultimoLog.getFk_servidor(), con);
 
                 try {
                     gerarJson(ultimoLog, params, nomeArquivo);
@@ -79,79 +82,74 @@ public class tratamentoNearRealTime {
 
         }
     }
-    public static ParametrosServidor carregarParametros(Integer fkServidor) {
-        ParametrosServidor params = new ParametrosServidor();
+    public static ParametrosServidor carregarParametros(Integer fkServidor, JdbcTemplate con) {
 
-        String url = "jdbc:mysql://localhost:3306/infomotion";
-        String user = "root";
-        String pass = "Ren@n2005";
+        ParametrosServidor params = new ParametrosServidor();
 
         String sql = """
         SELECT max, tipo, unidade_medida
         FROM parametro_alerta p
         INNER JOIN componentes c ON c.id = p.fk_componente
-        WHERE p.fk_servidor = ?;
+        WHERE p.fk_servidor = ?
     """;
 
-        try (Connection conn = DriverManager.getConnection(url, user, pass);
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        List<ParametroAlerta> parametros = con.query(
+                sql,
+                new BeanPropertyRowMapper<>(ParametroAlerta.class),
+                fkServidor
+        );
 
-            stmt.setInt(1, fkServidor);
-            ResultSet rs = stmt.executeQuery();
+        for (ParametroAlerta alerta : parametros) {
 
-            while (rs.next()) {
-                double max = rs.getDouble("max");
-                String tipo = rs.getString("tipo");
-                String unidade = rs.getString("unidade_medida");
+            double max = alerta.getMax();
+            String tipo = alerta.getTipo();
+            String unidade = alerta.getUnidade_medida();
 
-                switch (tipo) {
+            switch (tipo) {
 
-                    case "CPU" -> {
-                        if (unidade.equals("%"))
-                            params.maxCpuUso = max;
-                        else if (unidade.equals("C"))
-                            params.maxCpuTemp = max;
-                    }
+                case "CPU" -> {
+                    if (unidade.equals("%"))
+                        params.maxCpuUso = max;
+                    else if (unidade.equals("C"))
+                        params.maxCpuTemp = max;
+                }
 
-                    case "RAM" -> params.maxRam = max;
+                case "RAM" -> params.maxRam = max;
 
-                    case "DISCO" -> {
-                        if (unidade.equals("%"))
-                            params.maxDiscoUso = max;
-                        else if (unidade.equals("C"))
-                            params.maxDiscoTemp = max;
-                    }
+                case "DISCO" -> {
+                    if (unidade.equals("%"))
+                        params.maxDiscoUso = max;
+                    else if (unidade.equals("C"))
+                        params.maxDiscoTemp = max;
+                }
 
-                    case "REDE" -> {
-                        if (unidade.equals("DOWNLOAD"))
-                            params.maxRedeDownload = (long) max;
-                        else if (unidade.equals("UPLOAD"))
-                            params.maxRedeUpload = (long) max;
-                    }
+                case "REDE" -> {
+                    if (unidade.equals("DOWNLOAD"))
+                        params.maxRedeDownload = (long) max;
+                    else if (unidade.equals("UPLOAD"))
+                        params.maxRedeUpload = (long) max;
                 }
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
 
-        if (params.maxCpuUso == null)      params.maxCpuUso = 50.0;
-        if (params.maxCpuTemp == null)     params.maxCpuTemp = 70.0;
+        // valores padrões caso não tenha nada no banco
+        if (params.maxCpuUso == null) params.maxCpuUso = 50.0;
+        if (params.maxCpuTemp == null) params.maxCpuTemp = 70.0;
 
-        if (params.maxRam == null)         params.maxRam = 50.0;
+        if (params.maxRam == null) params.maxRam = 50.0;
 
-        if (params.maxDiscoUso == null)    params.maxDiscoUso = 50.0;
-        if (params.maxDiscoTemp == null)   params.maxDiscoTemp = 60.0;
+        if (params.maxDiscoUso == null) params.maxDiscoUso = 50.0;
+        if (params.maxDiscoTemp == null) params.maxDiscoTemp = 60.0;
 
         if (params.maxRedeDownload == null) params.maxRedeDownload = 5000000L;
-        if (params.maxRedeUpload == null)   params.maxRedeUpload = 5000000L;
+        if (params.maxRedeUpload == null) params.maxRedeUpload = 5000000L;
 
         return params;
     }
 
 
 
-    public static void gerarJson(LogsNearRealTime log, ParametrosServidor params,  String nomeArq) throws IOException {
+    public static void gerarJson(LogsNearRealTime log, ParametrosServidor params, String nomeArq) throws IOException {
         OutputStreamWriter saida = null;
         boolean deuRuim = false;
 
@@ -186,7 +184,7 @@ public class tratamentoNearRealTime {
                 "maxDiscoTemp": %.2f,
                 "maxDownload": %.2f,
                 "maxUpload" : %.2f
-        }
+        },
 }
 """,
                     log.getFk_servidor(),
