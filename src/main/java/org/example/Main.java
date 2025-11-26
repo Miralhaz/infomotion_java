@@ -363,23 +363,43 @@ public class Main {
                 Double capacidadeDisco = Double.valueOf(registro[6].replace(",", "."));
                 Double qtdParticoes = Double.valueOf(registro[7].replace(",", "."));
 
-                // partições (pode ter N)
-                String campoParticoes = registro[8]; // ex: "C:\: 88.7% | D:\: 34.3%"
+                String campoParticoes = registro[8];
+                String dataHora = registro[9];
 
-                List<String> listaParticoes = new ArrayList<>();
+                List<Particao> listaParticoes = new ArrayList<>();
 
                 String[] particoes = campoParticoes.split("\\|");
 
                 for (String p : particoes) {
-                    listaParticoes.add(p.trim()); // adiciona exatamente como está
-                }
 
-                String dataHora = registro[9];
+                    if (p == null || p.isBlank()) continue;
+
+                    String[] partes = p.split(":", 2);
+                    if (partes.length < 2) continue;
+
+                    String nome = partes[0].trim();
+                    String valorStr = partes[1].replace("%", "").trim();
+
+                    try {
+                        // remover \: e qualquer lixo
+                        valorStr = valorStr.replaceAll("[^0-9.,]", "");
+
+                        double uso = Double.parseDouble(valorStr.replace(",", "."));
+                        listaParticoes.add(new Particao(nome, uso));
+
+                    } catch (Exception e) {
+                        System.err.println("Partição inválida: '" + nome + "' (valor='" + valorStr + "')");
+                    }
+                }
+                List<String> listaStr = listaParticoes.stream()
+                        .map(p -> p.getNome() + ": " + p.getUso() + "%")
+                        .toList();
 
                 LogsEspecificacoes log = new LogsEspecificacoes(
                         fkServidor, swap, ram, qtdCpus, qtdNucleos,
-                        capacidadeDisco, qtdParticoes, listaParticoes, dataHora
+                        capacidadeDisco, qtdParticoes, listaStr, dataHora
                 );
+
 
                 lista.add(log);
 
