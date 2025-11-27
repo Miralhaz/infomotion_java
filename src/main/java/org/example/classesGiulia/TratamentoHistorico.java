@@ -84,7 +84,7 @@ public class TratamentoHistorico {
     }
 
     public void classificarAlertas(List<Logs> logsConsolidados, Integer dias) {
-        System.out.println("\n◎ Classificando alertas...");
+        System.out.println("\n⚠\uFE0F Classificando alertas...");
 
         if (logsConsolidados == null || logsConsolidados.isEmpty()) {
             System.out.println("Nenhum log recebido para calcular alertas");

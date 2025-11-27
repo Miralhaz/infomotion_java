@@ -96,7 +96,7 @@ public class TratamentoHistoricoServidor {
     }
 
     public void classificarAlertas(List<Logs> logsConsolidados, Integer dias) {
-        System.out.println("\n◎ Classificando alertas...");
+        System.out.println("\n⚠\uFE0F Classificando alertas de um servidor...");
 
         if (logsConsolidados == null || logsConsolidados.isEmpty()) {
             System.out.println("Nenhum log recebido para calcular alertas");
@@ -200,7 +200,7 @@ public class TratamentoHistoricoServidor {
                 row.put("alertasCpu", aCpu);
                 row.put("alertasRam", aRam);
                 row.put("alertasDisco", aDisco);
-                row.put("total", aCpu + aRam + aDisco);
+                row.put("totalAlertas", aCpu + aRam + aDisco);
 
                 lista.add(row);
             }
@@ -210,7 +210,7 @@ public class TratamentoHistoricoServidor {
         awsCon.uploadBucketClient(PASTA_CLIENT, nome + ".json");
     }
 
-    public static void gravaArquivoJson(List<Map<String, Object>> listaLogs, String nomeArq) {
+    public static void gravaArquivoJson(List<Map<String, Object>> lista, String nomeArq) {
 
         String nome = nomeArq.endsWith(".json") ? nomeArq : nomeArq + ".json";
         OutputStreamWriter saida = null;
@@ -219,11 +219,10 @@ public class TratamentoHistoricoServidor {
         try {
             saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
             saida.append("[");
-            Integer contador = 0;
 
-            for (int i = 0; i < listaLogs.size(); i++) {
-                Map<String, Object> obj = listaLogs.get(i);
-                if (contador > 0) {
+            for (int i = 0; i < lista.size(); i++) {
+                Map<String, Object> obj = lista.get(i);
+                if (i > 0) {
                     saida.append(",");
                 }
 
@@ -238,14 +237,13 @@ public class TratamentoHistoricoServidor {
                            "totalAlertas": %d
                            }""",
                         (Integer) obj.get("fk_servidor"),
-                        ((String) obj.get("apelido")).replace("\"","\\\""),
-                        ((String) obj.get("timestamp")).replace("\"","\\\""),
+                        (String) obj.get("apelido"),
+                        (String) obj.get("timestamp"),
                         (Integer) obj.get("alertasCpu"),
                         (Integer) obj.get("alertasRam"),
                         (Integer) obj.get("alertasDisco"),
-                        (Integer) obj.get("total")
+                        (Integer) obj.get("totalAlertas")
                 ));
-                contador ++;
             }
             saida.append("]");
             System.out.println("Arquivo Json de histórico de um servidor gerado com sucesso!");
@@ -267,7 +265,7 @@ public class TratamentoHistoricoServidor {
             }
 
             catch (IOException erro) {
-                System.out.println("Erro ao fechar o arquivo Json de donut");
+                System.out.println("Erro ao fechar o arquivo Json de histórico de um servidor!");
                 deuRuim = true;
             }
 

@@ -43,7 +43,7 @@ public class TratamentoBolhas {
     }
 
     public void gerarBolhasCpu(List<Logs> logsConsolidados) {
-        System.out.println("\n༜ Gerando bolhas de CPU...");
+        System.out.println("\n\uD83E\uDEE7 Gerando bolhas de CPU...");
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
         Set<Integer> idsServidores = new LinkedHashSet<>();
@@ -154,7 +154,7 @@ public class TratamentoBolhas {
 
 
     public void gerarBolhasRam(List<Logs> logsConsolidados) {
-        System.out.println("\n༜ Gerando bolhas de RAM...");
+        System.out.println("\n\uD83E\uDEE7 Gerando bolhas de RAM...");
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
         Set<Integer> idsServidores = new LinkedHashSet<>();
@@ -265,7 +265,7 @@ public class TratamentoBolhas {
 
 
     public void gerarBolhasDisco(List<Logs> logsConsolidados) {
-        System.out.println("\n༜ Gerando bolhas de DISCO...");
+        System.out.println("\n\uD83E\uDEE7 Gerando bolhas de DISCO...");
 
         List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
         Set<Integer> idsServidores = new LinkedHashSet<>();

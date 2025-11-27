@@ -91,7 +91,7 @@ public class TratamentoDonut {
 
 
     public void classificarCriticidade(List<Logs> logsConsolidados) {
-        System.out.println("\n◎ Classificando criticidade de componentes...");
+        System.out.println("\n\uD83C\uDF69 Classificando criticidade de componentes...");
 
         if (logsConsolidados == null || logsConsolidados.isEmpty()) {
             System.out.println("Nenhum log recebido para calcular criticidade (donut).");
