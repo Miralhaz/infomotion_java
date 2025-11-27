@@ -14,9 +14,10 @@ public class LogsEspecificacoes {
     private List<Particao> particoes;
     private String dataHora;
 
+    // ✔ Construtor chamado pelo main (lista de Strings)
     public LogsEspecificacoes(Integer fkServidor, Double swap, Double ram, Integer qtdCpus,
                               Integer qtdNucleos, Double capacidadeDisco, Double qtdParticoes,
-                              List<String> listaParticoes, String dataHora) {
+                              List<String> listaParticoesStr, String dataHora) {
 
         this.fkServidor = fkServidor;
         this.swapTotal = swap;
@@ -24,113 +25,78 @@ public class LogsEspecificacoes {
         this.quantidadeCpus = qtdCpus;
         this.quantidadeNucleos = qtdNucleos;
         this.capacidadeTotalDisco = capacidadeDisco;
+        this.particoes = parseParticoes(listaParticoesStr);
         this.dataHora = dataHora;
-
-        if (listaParticoes != null && !listaParticoes.isEmpty()) {
-
-            this.particoes = new ArrayList<>();
-
-            for (String texto : listaParticoes) {
-                this.particoes.addAll(parseParticoes(texto));
-            }
-
-        } else {
-            this.particoes = new ArrayList<>(); // evita NPE
-        }
     }
 
-
-    public static List<Particao> parseParticoes(String textoParticoes) {
-        List<Particao> lista = new ArrayList<>();
-
-        if (textoParticoes == null || textoParticoes.isEmpty()) {
-            return lista;
-        }
-
-        String[] blocos = textoParticoes.split("\\|");
-
-        for (String bloco : blocos) {
-            bloco = bloco.trim();
-
-            String[] partes = bloco.split(":");
-
-            if (partes.length < 3) continue;
-
-            String nome = partes[0].trim();
-            String valorStr = partes[2].replace("%","").trim(); // 88.7
-
-            Double uso = Double.valueOf(valorStr);
-
-            lista.add(new Particao(nome, uso));
-        }
-
-        return lista;
-    }
-
-
-
-    public Integer getFkServidor() {
-        return fkServidor;
-    }
-
-    public void setFkServidor(Integer fkServidor) {
+    // ✔ Construtor opcional
+    public LogsEspecificacoes(Integer fkServidor) {
         this.fkServidor = fkServidor;
+        this.swapTotal = 0.0;
+        this.ramTotal = 0.0;
+        this.quantidadeCpus = 0;
+        this.quantidadeNucleos = 0;
+        this.capacidadeTotalDisco = 0.0;
+        this.particoes = new ArrayList<>();
+        this.dataHora = "";
     }
 
-    public Double getSwapTotal() {
-        return swapTotal;
+    private List<Particao> parseParticoes(List<String> lista) {
+        List<Particao> listaConvertida = new ArrayList<>();
+
+        if (lista == null) return listaConvertida;
+
+        for (String texto : lista) {
+
+            // Ex: "C: 90.5%" → letra = C | uso = 90.5
+            texto = texto.trim();
+            if (texto.isEmpty()) continue;
+
+            try {
+                String[] partes = texto.split(":");
+                String letra = partes[0].trim();
+
+                String percentualStr = partes[1].replace("%", "").trim();
+                Double percentual = Double.valueOf(percentualStr);
+
+                listaConvertida.add(new Particao(letra, percentual));
+
+            } catch (Exception e) {
+                System.out.println("Erro ao converter partição: " + texto);
+            }
+        }
+
+        return listaConvertida;
     }
 
-    public void setSwapTotal(Double swapTotal) {
-        this.swapTotal = swapTotal;
-    }
 
-    public Double getRamTotal() {
-        return ramTotal;
-    }
+    // Getters/Setters
+    public Integer getFkServidor() { return fkServidor; }
+    public void setFkServidor(Integer fkServidor) { this.fkServidor = fkServidor; }
 
-    public void setRamTotal(Double ramTotal) {
-        this.ramTotal = ramTotal;
-    }
+    public Double getSwapTotal() { return swapTotal; }
+    public void setSwapTotal(Double swapTotal) { this.swapTotal = swapTotal; }
 
-    public Integer getQuantidadeCpus() {
-        return quantidadeCpus;
-    }
+    public Double getRamTotal() { return ramTotal; }
+    public void setRamTotal(Double ramTotal) { this.ramTotal = ramTotal; }
 
-    public void setQuantidadeCpus(Integer quantidadeCpus) {
-        this.quantidadeCpus = quantidadeCpus;
-    }
+    public Integer getQuantidadeCpus() { return quantidadeCpus; }
+    public void setQuantidadeCpus(Integer quantidadeCpus) { this.quantidadeCpus = quantidadeCpus; }
 
-    public Integer getQuantidadeNucleos() {
-        return quantidadeNucleos;
-    }
+    public Integer getQuantidadeNucleos() { return quantidadeNucleos; }
+    public void setQuantidadeNucleos(Integer quantidadeNucleos) { this.quantidadeNucleos = quantidadeNucleos; }
 
-    public void setQuantidadeNucleos(Integer quantidadeNucleos) {
-        this.quantidadeNucleos = quantidadeNucleos;
-    }
+    public Double getCapacidadeTotalDisco() { return capacidadeTotalDisco; }
+    public void setCapacidadeTotalDisco(Double capacidadeTotalDisco) { this.capacidadeTotalDisco = capacidadeTotalDisco; }
 
-    public Double getCapacidadeTotalDisco() {
-        return capacidadeTotalDisco;
-    }
+    public List<Particao> getParticoes() { return particoes; }
+    public void setParticoes(List<Particao> particoes) { this.particoes = particoes; }
 
-    public void setCapacidadeTotalDisco(Double capacidadeTotalDisco) {
-        this.capacidadeTotalDisco = capacidadeTotalDisco;
-    }
+    public String getDataHora() { return dataHora; }
+    public void setDataHora(String dataHora) { this.dataHora = dataHora; }
 
-    public List<Particao> getParticoes() {
-        return particoes;
-    }
-
-    public void setParticoes(List<Particao> particoes) {
-        this.particoes = particoes;
-    }
-
-    public String getDataHora() {
-        return dataHora;
-    }
-
-    public void setDataHora(String dataHora) {
-        this.dataHora = dataHora;
+    @Override
+    public String toString() {
+        return "LogsEspecificacoes{fk=" + fkServidor + ", particoes=" + particoes + "}";
     }
 }
-

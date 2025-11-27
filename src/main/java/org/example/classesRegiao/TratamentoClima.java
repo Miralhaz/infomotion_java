@@ -25,28 +25,26 @@ public class TratamentoClima {
 
         List<Regiao> listaRegiao = co.query("SELECT id FROM regiao;",
                 new BeanPropertyRowMapper(Regiao.class));
-
+        System.out.println(listaRegiao);
 
         for (Regiao r : listaRegiao){
-            List<Integer> listaServidoresRegiao = co.query("SELECT  id FROM servidor where " + r.getId() + ";",
-                    new BeanPropertyRowMapper(Regiao.class));
+            System.out.println(r.getId());
+            List<Integer> listaServidoresRegiao = co.queryForList("SELECT id FROM servidor WHERE fk_regiao = ?",
+                    Integer.class, r.getId());
+            System.out.println(listaServidoresRegiao);
             List listaLogClima = new ArrayList<>();
             List listaLogRegiao = new ArrayList<>();
-            for (int i = 0; i < listaServidoresRegiao.size(); i++) {
-                List lista =  buscarClimaServidor(listaServidoresRegiao.get(i));
+
+            for (Integer f : listaServidoresRegiao) {
+                List lista =  buscarClimaServidor(f);
                 listaLogClima.addAll(lista);
-                List lista2 = buscarRegiaoServidor(listaServidoresRegiao.get(i));
+                List lista2 = buscarRegiaoServidor(f);
                 listaLogRegiao.addAll(lista2);
             }
 
-            System.out.println(listaLogClima);
-            System.out.println(listaRegiao);
             Regiao reg = new Regiao(r.getId());
             reg.setListaLogClima(listaLogClima);
             reg.setListaLogRegiao(listaLogRegiao);
-
-
-
 
 
 
@@ -90,7 +88,7 @@ public class TratamentoClima {
             while (linha != null) {
 
                 registro = linha.split(";");
-                 Integer fkServidor = Integer.valueOf(registro[10]);
+                Integer fkServidor = Integer.valueOf(registro[9]);
                  String dataHora = registro[1];
                  Double probabilidadeChuva = Double.valueOf(registro[3]) ;
                  Double mmChuva = Double.valueOf(registro[2]);
@@ -122,7 +120,7 @@ public class TratamentoClima {
 
     public static List<LogRegiao> buscarRegiaoServidor(Integer idServidor){
 
-        String nomeArq = "clima"+ idServidor;
+        String nomeArq = "logs_consolidados_servidores";
 
         Reader arq = null;
         BufferedReader entrada = null;
@@ -171,7 +169,6 @@ public class TratamentoClima {
                 System.out.println("Erro ao fechar o arquivo");
             }
         }
-        awsConnection.deleteCsvLocal(nomeArq);
         return listaLogRegiao;
     }
 
