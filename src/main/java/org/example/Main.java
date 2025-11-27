@@ -3,6 +3,7 @@ package org.example;
 import org.example.classesGiulia.TratamentoBolhas;
 import org.example.classesGiulia.TratamentoDonut;
 import org.example.classesGiulia.TratamentoHistorico;
+import org.example.classesGiulia.TratamentoHistoricoServidor;
 import org.example.classesMiralha.TratamentoProcessos;
 import org.example.classesMiralha.TratamentoTemperaturaCpu;
 import org.example.classesMiralha.TratamentoTemperaturaDisco;
@@ -579,19 +580,24 @@ public class Main {
             // Criando json de conexao
             TratamentoRede.gravaArquivoJson(listaIdServidores, aws);
 
-            // TRATAMENTO - GIULIA
-            TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
-            tratamentoDonut.classificarCriticidade(logsConsolidados);
+        // TRATAMENTO - GIULIA
+        TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
+        tratamentoDonut.classificarCriticidade(logsConsolidados);
 
-            TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
-            tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
-            tratamentoBolhas.gerarBolhasRam(logsConsolidados);
-            tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
+        TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
+        tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
+        tratamentoBolhas.gerarBolhasRam(logsConsolidados);
+        tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
 
-            TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
-            tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
-            tratamentoHistorico.classificarAlertas(logsConsolidados, 7);
-            tratamentoHistorico.classificarAlertas(logsConsolidados, 30);
+        TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
+        tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
+        tratamentoHistorico.classificarAlertas(logsConsolidados, 7);
+        tratamentoHistorico.classificarAlertas(logsConsolidados, 30);
+
+        TratamentoHistoricoServidor tratamentoHistoricoServidor = new TratamentoHistoricoServidor(aws, con);
+        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 1);
+        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 7);
+        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 30);
 
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
