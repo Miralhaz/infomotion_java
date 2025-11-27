@@ -9,17 +9,17 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class TratamentoHistorico {
-
+public class TratamentoHistoricoServidor {
     // Atributos:
     private AwsConnection awsCon;
     private final JdbcTemplate con;
     private static final String PASTA_CLIENT = "tratamentos_giulia";
 
     // Construtor:
-    public TratamentoHistorico(AwsConnection awsCon, JdbcTemplate con) {
+    public TratamentoHistoricoServidor(AwsConnection awsCon, JdbcTemplate con) {
         this.con = con;
         this.awsCon = awsCon;
     }
@@ -36,11 +36,19 @@ public class TratamentoHistorico {
         return listaLogs;
     }
 
-    public Integer calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente){
+    private static LocalDateTime validarDias(LocalDateTime t, Integer dias) {
+        if (t == null) return null;
+        if (dias == 1) {
+            return t.withMinute(0).withSecond(0).withNano(0);
+        }
+        return t.toLocalDate().atStartOfDay();
+    }
 
-        Integer contadorAlertas = 0;
+    public Map<LocalDateTime, Integer> calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Integer dias){
+
+        Map<LocalDateTime, Integer> contadorAlertas = new TreeMap<>();
         Integer contadorDuracao = 0;
-        LocalDateTime dataInicioCaptura = null;
+        LocalDateTime dataInicio = null;
 
         for (int i = 0; i < logsServidor.size(); i++) {
             LogsGiuliaCriticidade logAtual = logsServidor.get(i);
@@ -64,21 +72,25 @@ public class TratamentoHistorico {
                 contadorDuracao++;
 
                 if (contadorDuracao == 1){
-                    dataInicioCaptura = logAtual.getTimestamp();
+                    dataInicio = logAtual.getTimestamp();
                 }
             }
 
             else{
-                if (contadorDuracao >= duracao && dataInicioCaptura != null){
-                    contadorAlertas++;
+                if (contadorDuracao >= duracao && dataInicio != null){
+                    LocalDateTime dataFinal = logsServidor.get(i - 1).getTimestamp();
+                    LocalDateTime dia = validarDias(dataFinal, dias);
+                    contadorAlertas.merge(dia, 1, Integer::sum);
                 }
                 contadorDuracao = 0;
-                dataInicioCaptura = null;
+                dataInicio = null;
             }
         }
 
-        if (contadorDuracao >= duracao && dataInicioCaptura != null){
-            contadorAlertas++;
+        if (contadorDuracao >= duracao && dataInicio != null){
+            LocalDateTime dataFinal = logsServidor.get(logsServidor.size() - 1).getTimestamp();
+            LocalDateTime dia = validarDias(dataFinal, dias);
+            contadorAlertas.merge(dia, 1, Integer::sum);
         }
         return contadorAlertas;
     }
@@ -101,7 +113,6 @@ public class TratamentoHistorico {
         }
 
         List<Map<String, Object>> lista = new ArrayList<>();
-
         for (Integer id : idsServidores){
             List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
 
@@ -164,39 +175,42 @@ public class TratamentoHistorico {
             Integer duracaoRam = listaDuracaoRam.get(0);
             Integer duracaoDisco = listaDuracaoDisco.get(0);
 
-            Integer alertasCpu = 0;
-            Integer alertasRam = 0;
-            Integer alertasDisco = 0;
+            Map<LocalDateTime, Integer> alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU", dias);;
+            Map<LocalDateTime, Integer> alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM", dias);
+            Map<LocalDateTime, Integer> alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO", dias);
 
-            if (limiteCpu != null && duracaoCpu != null) {
-                alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU");
+            Set<LocalDateTime> alertas = new TreeSet<>();
+            alertas.addAll(alertasCpu.keySet());
+            alertas.addAll(alertasRam.keySet());
+            alertas.addAll(alertasDisco.keySet());
+
+            String apelido = logsServidor.isEmpty() ? "" : logsServidor.get(0).getApelido();
+
+            DateTimeFormatter fmt = (dias == 1) ? DateTimeFormatter.ofPattern("dd/MM/yyyy HH:00") : DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            for (LocalDateTime k : alertas) {
+                int aCpu = alertasCpu.getOrDefault(k, 0);
+                int aRam = alertasRam.getOrDefault(k, 0);
+                int aDisco = alertasDisco.getOrDefault(k, 0);
+
+                Map<String, Object> row = new LinkedHashMap<>();
+                row.put("fk_servidor", id);
+                row.put("apelido", apelido);
+                row.put("timestamp", k.format(fmt));
+                row.put("alertasCpu", aCpu);
+                row.put("alertasRam", aRam);
+                row.put("alertasDisco", aDisco);
+                row.put("total", aCpu + aRam + aDisco);
+
+                lista.add(row);
             }
-            if (limiteRam != null && duracaoRam != null) {
-                alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM");
-            }
-            if (limiteDisco != null && duracaoDisco != null) {
-                alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO");
-            }
-
-            Integer totalAlertas = alertasCpu + alertasRam + alertasDisco;
-
-            Map<String, Object> row = new LinkedHashMap<>();
-            row.put("fk_servidor", id);
-            row.put("apelido", logsServidor.isEmpty() ? "" : logsServidor.get(0).getApelido());
-            row.put("dias", dias);
-            row.put("alertasCpu", alertasCpu);
-            row.put("alertasRam", alertasRam);
-            row.put("alertasDisco", alertasDisco);
-            row.put("totalAlertas", totalAlertas);
-
-            lista.add(row);
         }
-        String nome = "historicoAlertas_" + dias;
+        String nome = "historicoAlertasLinhas_" + dias;
         gravaArquivoJson(lista, nome);
         awsCon.uploadBucketClient(PASTA_CLIENT, nome + ".json");
     }
 
-    public static void gravaArquivoJson(List<Map<String, Object>> lista, String nomeArq) {
+    public static void gravaArquivoJson(List<Map<String, Object>> listaLogs, String nomeArq) {
 
         String nome = nomeArq.endsWith(".json") ? nomeArq : nomeArq + ".json";
         OutputStreamWriter saida = null;
@@ -205,11 +219,11 @@ public class TratamentoHistorico {
         try {
             saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
             saida.append("[");
+            Integer contador = 0;
 
-            for (int i = 0; i < lista.size(); i++) {
-                Map<String, Object> map = lista.get(i);
-
-                if (i > 0) {
+            for (int i = 0; i < listaLogs.size(); i++) {
+                Map<String, Object> obj = listaLogs.get(i);
+                if (contador > 0) {
                     saida.append(",");
                 }
 
@@ -217,28 +231,29 @@ public class TratamentoHistorico {
                            {
                            "fk_servidor": %d,
                            "apelido": "%s",
-                           "dias": %d,
+                           "timestamp": "%s",
                            "alertasCpu": %d,
                            "alertasRam": %d,
                            "alertasDisco": %d,
                            "totalAlertas": %d
                            }""",
-                        (Integer) map.get("fk_servidor"),
-                        (String) map.get("apelido"),
-                        (Integer) map.get("dias"),
-                        (Integer) map.get("alertasCpu"),
-                        (Integer) map.get("alertasRam"),
-                        (Integer) map.get("alertasDisco"),
-                        (Integer) map.get("totalAlertas")
+                        (Integer) obj.get("fk_servidor"),
+                        ((String) obj.get("apelido")).replace("\"","\\\""),
+                        ((String) obj.get("timestamp")).replace("\"","\\\""),
+                        (Integer) obj.get("alertasCpu"),
+                        (Integer) obj.get("alertasRam"),
+                        (Integer) obj.get("alertasDisco"),
+                        (Integer) obj.get("total")
                 ));
+                contador ++;
             }
             saida.append("]");
-            System.out.println("Arquivo Json de hisórico de alertas gerado com sucesso!");
+            System.out.println("Arquivo Json de histórico de um servidor gerado com sucesso!");
 
         }
 
         catch (IOException erro) {
-            System.out.println("Erro ao gravar o arquivo Json de hisórico de alertas!");
+            System.out.println("Erro ao gravar o arquivo Json de histórico de um servidor!");
             erro.printStackTrace();
             deuRuim = true;
         }
@@ -252,7 +267,7 @@ public class TratamentoHistorico {
             }
 
             catch (IOException erro) {
-                System.out.println("Erro ao fechar o arquivo Json de hisórico de alertas");
+                System.out.println("Erro ao fechar o arquivo Json de donut");
                 deuRuim = true;
             }
 
