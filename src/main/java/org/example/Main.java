@@ -568,7 +568,7 @@ public class Main {
             //AREA TRATAMENTO DERECK
         System.out.println("--------------------iniciando tratamento regiao------------------");
             TratamentoClima tratamentoClima = new TratamentoClima(aws,con);
-            tratamentoClima.buscarRegioes(con);
+            tratamentoClima.buscarRegioes(con,logsConsolidados);
 
         //FIM AREA TRATAMENTO DERECK
             // Pegando o id do servidor

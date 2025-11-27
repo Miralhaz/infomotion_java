@@ -14,13 +14,12 @@ public class LogRegiao {
     public LogRegiao() {
     }
 
-    public LogRegiao(Integer fkServidor, Integer qtdRequisicoes, Double usoDisco, Double usoRam,String dataHoraString) {
-        Random random = new Random();
+    public LogRegiao(Integer fkServidor, Integer qtdRequisicoes, Double usoDisco, Double usoRam,LocalDateTime dataHora) {
         this.fkServidor = fkServidor;
-        this.qtdRequisicoes = (qtdRequisicoes * 100) + random.nextInt(999);
+        this.qtdRequisicoes = qtdRequisicoes;
         this.usoDisco = usoDisco;
         this.usoRam = usoRam;
-        this.dataHora = LocalDateTime.parse(dataHoraString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.dataHora = dataHora;
     }
     public Integer getFkServidor() {
         return fkServidor;

@@ -1,6 +1,7 @@
 package org.example.classesRegiao;
 
 import org.example.AwsConnection;
+import org.example.Logs;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -21,15 +22,15 @@ public class TratamentoClima {
         this.banco = banco;
     }
 
-    public static void buscarRegioes(JdbcTemplate co){
+    public static void buscarRegioes(JdbcTemplate co, List<Logs> listaLogs){
 
-        List<Regiao> listaRegiao = co.query("SELECT id FROM regiao;",
+        List<Regiao> listaRegiaoIdRegiao = co.query("SELECT id FROM regiao;",
                 new BeanPropertyRowMapper(Regiao.class));
-        System.out.println(listaRegiao);
+        System.out.println(listaRegiaoIdRegiao);
 
-        for (Regiao r : listaRegiao){
+        for (Regiao r : listaRegiaoIdRegiao){
             System.out.println(r.getId());
-            List<Integer> listaServidoresRegiao = co.queryForList("SELECT id FROM servidor WHERE fk_regiao = ?",
+            List<Integer> listaServidoresRegiao = co.queryForList("SELECT id FROM servidor WHERE fk_regiao = (?)",
                     Integer.class, r.getId());
             System.out.println(listaServidoresRegiao);
             List listaLogClima = new ArrayList<>();
@@ -38,7 +39,7 @@ public class TratamentoClima {
             for (Integer f : listaServidoresRegiao) {
                 List lista =  buscarClimaServidor(f);
                 listaLogClima.addAll(lista);
-                List lista2 = buscarRegiaoServidor(f);
+                List lista2 = buscarRegiaoServidor(f,listaLogs);
                 listaLogRegiao.addAll(lista2);
             }
 
@@ -125,58 +126,16 @@ public class TratamentoClima {
 
 
 
-    public static List<LogRegiao> buscarRegiaoServidor(Integer idServidor){
-
-        String nomeArq = "logs_consolidados_servidores";
-
-        Reader arq = null;
-        BufferedReader entrada = null;
-        nomeArq += ".csv";
+    public static List<LogRegiao> buscarRegiaoServidor(Integer idServidor, List<Logs> listaLogs){
         List<LogRegiao> listaLogRegiao = new ArrayList<>();
 
-
-        try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
-            entrada = new BufferedReader(arq);
-        } catch (IOException e) {
-            System.out.println("Erro ao abrir o arquivo [csvConsolidado]");
-            System.exit(1);
-        }
-
-        try {
-            String[] registro;
-
-            String linha = null;
-
-            linha = entrada.readLine();
-
-            while (linha != null) {
-
-                registro = linha.split(";");
-                Integer fkServidor = Integer.valueOf(registro[0]);
-                 Double usoDisco  = Double.valueOf(registro[5]);
-                 Double usoRam  = Double.valueOf(registro[4]);
-                 Integer qtdRequisicoes  = Integer.valueOf(registro[8]);
-                 String dataHora = registro[2];
-                String dataHoraFormatado = dataHora.replace('T',' ');
-
-                //LogRegiao logRegiao = new LogRegiao(fkServidor,qtdRequisicoes, usoDisco,usoRam,dataHora.replace('T', ' '));
-                //listaLogRegiao.add(logRegiao);
-               // linha = entrada.readLine();
-            }
-        }catch (IOException e ){
-            System.out.println("Erro ao ler o arquivo");
-            e.printStackTrace();
-            System.exit(1);
-
-        }finally {
-            try {
-                entrada.close();
-                arq.close();
-            } catch (IOException e) {
-                System.out.println("Erro ao fechar o arquivo");
+        for (Logs l : listaLogs){
+            if (idServidor.equals(l.getFk_servidor())){
+                LogRegiao lr = new LogRegiao(l.getFk_servidor(),l.getQtd_processos(),l.getDisco(),l.getRam(),l.getDataHora());
+                listaLogRegiao.add(lr);
             }
         }
+
         return listaLogRegiao;
     }
 
