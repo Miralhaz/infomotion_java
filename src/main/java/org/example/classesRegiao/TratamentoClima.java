@@ -84,19 +84,26 @@ public class TratamentoClima {
             String linha = null;
 
             linha = entrada.readLine();
-
+            int contador = 0;
             while (linha != null) {
 
                 registro = linha.split(";");
-                Integer fkServidor = Integer.valueOf(registro[9]);
-                 String dataHora = registro[1];
-                 Double probabilidadeChuva = Double.valueOf(registro[3]) ;
-                 Double mmChuva = Double.valueOf(registro[2]);
-                 Double temperatura = Double.valueOf(registro[5]);
-                 Double umidade = Double.valueOf(registro[6]);
 
-                 LogClima logClima = new LogClima(fkServidor,dataHora,probabilidadeChuva,mmChuva,temperatura,umidade);
-                listaClima.add(logClima);
+                if (contador > 0) {
+                    Integer fkServidor = Integer.valueOf(registro[9]);
+                    String dataHora = registro[1];
+                    Double probabilidadeChuva = Double.valueOf(registro[3]);
+                    Double mmChuva = Double.valueOf(registro[2]);
+                    Double temperatura = Double.valueOf(registro[5]);
+                    Double umidade = Double.valueOf(registro[6]);
+
+                    String dataHoraFormatado = dataHora.replace('T',' ');
+                    LogClima logClima = new LogClima(fkServidor, dataHoraFormatado, probabilidadeChuva, mmChuva, temperatura, umidade);
+                    listaClima.add(logClima);
+                }
+
+                contador++;
+
                 linha = entrada.readLine();
             }
         }catch (IOException e ){
@@ -150,11 +157,12 @@ public class TratamentoClima {
                  Double usoDisco  = Double.valueOf(registro[5]);
                  Double usoRam  = Double.valueOf(registro[4]);
                  Integer qtdRequisicoes  = Integer.valueOf(registro[8]);
-                String dataHora = registro[2];
+                 String dataHora = registro[2];
+                String dataHoraFormatado = dataHora.replace('T',' ');
 
-                LogRegiao logRegiao = new LogRegiao(fkServidor,qtdRequisicoes, usoDisco,usoRam,dataHora);
-                listaLogRegiao.add(logRegiao);
-                linha = entrada.readLine();
+                //LogRegiao logRegiao = new LogRegiao(fkServidor,qtdRequisicoes, usoDisco,usoRam,dataHora.replace('T', ' '));
+                //listaLogRegiao.add(logRegiao);
+               // linha = entrada.readLine();
             }
         }catch (IOException e ){
             System.out.println("Erro ao ler o arquivo");

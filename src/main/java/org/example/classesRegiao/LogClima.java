@@ -18,7 +18,7 @@ public class LogClima {
 
     public LogClima(Integer fkServidor, String dataHoraString, Double humidade, Double mmChuva, Double probabilidadeChuva, Double temperatura) {
         this.fkServidor = fkServidor;
-        this.dataHora = LocalDateTime.parse(dataHoraString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        this.dataHora = LocalDateTime.parse(dataHoraString, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
         this.umidade = humidade;
         this.mmChuva = mmChuva;
         this.probabilidadeChuva = probabilidadeChuva;
