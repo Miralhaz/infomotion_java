@@ -113,6 +113,7 @@ public class TratamentoHistoricoServidor {
         }
 
         List<Map<String, Object>> lista = new ArrayList<>();
+
         for (Integer id : idsServidores){
             List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
 
@@ -195,7 +196,7 @@ public class TratamentoHistoricoServidor {
 
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("fk_servidor", id);
-                row.put("apelido", apelido);
+                row.put("apelido", logsServidor.isEmpty() ? "" : logsServidor.get(0).getApelido());
                 row.put("timestamp", k.format(fmt));
                 row.put("alertasCpu", aCpu);
                 row.put("alertasRam", aRam);
