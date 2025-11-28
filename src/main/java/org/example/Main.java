@@ -10,8 +10,7 @@ import org.example.classesMiralha.TratamentoTemperaturaDisco;
 import org.example.classesRede.TratamentoRede;
 import org.example.classesRegiao.TratamentoClima;
 import org.example.classesRenan.tratamentoNearRealTime;
-import org.example.classesWillian.TratamentoWillian;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.example.classesWillian.ProcessadorDiscoWillian;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
@@ -630,30 +629,16 @@ public class Main {
 
 
         // tratamento willian inicio
-        System.out.println("Iniciando ETL de Logs Consolidado -> JSON Dashboard...");
+        System.out.println("🚀 Iniciando ETL de Disco (Willian)...");
 
-        Connection dbConnection = new Connection(); // Instancia a conexão com o BD
+        AwsConnection aws = new AwsConnection();
+        Connection db = new Connection();
 
-        // Limpa a área de trabalho local de arquivos antigos (CSV/JSON)
-        aws.limparTemporarios();
+        ProcessadorDiscoWillian processador = new ProcessadorDiscoWillian(aws, db);
+        processador.executarTratamento();
 
-        try {
-            // Instancia a sua classe de tratamento, passando as conexões
-            TratamentoWillian tratamentoWillian = new TratamentoWillian(aws, dbConnection);
+        System.out.println("✅ ETL de Disco concluído!");
 
-            // Roda o pipeline completo: Download, Tratamento, Upload
-            tratamentoWillian.executarTratamento();
-
-            System.out.println("\n✅ Processo de ETL concluído com sucesso!");
-            System.out.println("Arquivo dashboard_data.json enviado para s3-client-infomotion-1/tratamentos_willian/");
-
-        } catch (Exception e) {
-            System.err.println("\n🛑 Ocorreu um erro FATAL na execução da ETL.");
-            e.printStackTrace();
-        } finally {
-            // Garante a limpeza final
-            aws.limparTemporarios();
-        }
         // tratamento willian final
 
             aws.limparTemporarios();
