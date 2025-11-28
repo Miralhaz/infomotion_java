@@ -1,0 +1,17 @@
+[{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"dias": 1,
+"alertasCpu": 0,
+"alertasRam": 1,
+"alertasDisco": 0,
+"totalAlertas": 1
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"dias": 1,
+"alertasCpu": 0,
+"alertasRam": 0,
+"alertasDisco": 0,
+"totalAlertas": 0
+}]

@@ -1,0 +1,4825 @@
+[{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:12:49",
+"minutos": 2,
+"cpu": 5.40,
+"ram": 86.90,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:12:57",
+"minutos": 2,
+"cpu": 9.10,
+"ram": 86.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:03",
+"minutos": 2,
+"cpu": 57.80,
+"ram": 86.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:10",
+"minutos": 2,
+"cpu": 77.90,
+"ram": 85.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:16",
+"minutos": 2,
+"cpu": 77.00,
+"ram": 85.90,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:23",
+"minutos": 2,
+"cpu": 42.00,
+"ram": 85.60,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:31",
+"minutos": 2,
+"cpu": 32.90,
+"ram": 85.60,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:38",
+"minutos": 2,
+"cpu": 29.20,
+"ram": 85.60,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:46",
+"minutos": 2,
+"cpu": 30.30,
+"ram": 85.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:13:52",
+"minutos": 2,
+"cpu": 60.30,
+"ram": 85.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:00",
+"minutos": 2,
+"cpu": 99.60,
+"ram": 86.50,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:10",
+"minutos": 2,
+"cpu": 98.90,
+"ram": 86.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:18",
+"minutos": 2,
+"cpu": 31.80,
+"ram": 85.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:25",
+"minutos": 2,
+"cpu": 4.80,
+"ram": 84.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:32",
+"minutos": 2,
+"cpu": 3.20,
+"ram": 84.30,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:38",
+"minutos": 2,
+"cpu": 19.10,
+"ram": 84.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:46",
+"minutos": 2,
+"cpu": 40.70,
+"ram": 85.20,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:14:54",
+"minutos": 2,
+"cpu": 43.20,
+"ram": 85.20,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:15:02",
+"minutos": 2,
+"cpu": 38.10,
+"ram": 84.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:15:09",
+"minutos": 2,
+"cpu": 35.40,
+"ram": 84.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:15:17",
+"minutos": 2,
+"cpu": 34.30,
+"ram": 84.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:15:24",
+"minutos": 2,
+"cpu": 29.80,
+"ram": 84.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:15:32",
+"minutos": 2,
+"cpu": 67.00,
+"ram": 84.50,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:15:43",
+"minutos": 2,
+"cpu": 98.90,
+"ram": 84.50,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:51",
+"minutos": 2,
+"cpu": 12.20,
+"ram": 79.50,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:56",
+"minutos": 2,
+"cpu": 11.80,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:00",
+"minutos": 2,
+"cpu": 15.10,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:04",
+"minutos": 2,
+"cpu": 23.00,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:08",
+"minutos": 2,
+"cpu": 21.10,
+"ram": 80.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:13",
+"minutos": 2,
+"cpu": 27.00,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:17",
+"minutos": 2,
+"cpu": 11.10,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:21",
+"minutos": 2,
+"cpu": 7.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:25",
+"minutos": 2,
+"cpu": 8.20,
+"ram": 79.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:29",
+"minutos": 2,
+"cpu": 11.90,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:33",
+"minutos": 2,
+"cpu": 10.30,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:37",
+"minutos": 2,
+"cpu": 11.20,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:41",
+"minutos": 2,
+"cpu": 6.60,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:45",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:49",
+"minutos": 2,
+"cpu": 6.70,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:53",
+"minutos": 2,
+"cpu": 9.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:57",
+"minutos": 2,
+"cpu": 6.50,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:01",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.40,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:05",
+"minutos": 2,
+"cpu": 6.90,
+"ram": 79.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:09",
+"minutos": 2,
+"cpu": 13.20,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:41",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:46",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:49",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:53",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:57",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:01",
+"minutos": 0,
+"cpu": 5.40,
+"ram": 90.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:05",
+"minutos": 0,
+"cpu": 6.60,
+"ram": 89.70,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:09",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:13",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:16",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:20",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:24",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:28",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.30,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:32",
+"minutos": 0,
+"cpu": 7.20,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:36",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:40",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:43",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:47",
+"minutos": 0,
+"cpu": 3.30,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:51",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:55",
+"minutos": 0,
+"cpu": 3.80,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:03",
+"minutos": 0,
+"cpu": 1.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:07",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:11",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:15",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:19",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:23",
+"minutos": 0,
+"cpu": 3.20,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:26",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:30",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:34",
+"minutos": 0,
+"cpu": 1.90,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:38",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:42",
+"minutos": 0,
+"cpu": 4.30,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:46",
+"minutos": 0,
+"cpu": 2.70,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:49",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:53",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:57",
+"minutos": 0,
+"cpu": 4.50,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:01",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:05",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:08",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:12",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:16",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:13",
+"minutos": 0,
+"cpu": 5.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:17",
+"minutos": 0,
+"cpu": 4.70,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:20",
+"minutos": 0,
+"cpu": 6.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:24",
+"minutos": 0,
+"cpu": 5.30,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:28",
+"minutos": 0,
+"cpu": 12.10,
+"ram": 84.90,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:32",
+"minutos": 0,
+"cpu": 11.00,
+"ram": 85.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:36",
+"minutos": 0,
+"cpu": 13.90,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:39",
+"minutos": 0,
+"cpu": 11.10,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:43",
+"minutos": 0,
+"cpu": 11.20,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:47",
+"minutos": 0,
+"cpu": 12.40,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:51",
+"minutos": 0,
+"cpu": 11.50,
+"ram": 85.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:54",
+"minutos": 0,
+"cpu": 7.50,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:58",
+"minutos": 0,
+"cpu": 19.60,
+"ram": 87.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:02",
+"minutos": 0,
+"cpu": 14.80,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:06",
+"minutos": 0,
+"cpu": 10.80,
+"ram": 87.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:10",
+"minutos": 0,
+"cpu": 8.00,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:13",
+"minutos": 0,
+"cpu": 8.10,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:17",
+"minutos": 0,
+"cpu": 9.00,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:20",
+"minutos": 0,
+"cpu": 5.90,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:24",
+"minutos": 0,
+"cpu": 6.30,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:20",
+"minutos": 0,
+"cpu": 6.00,
+"ram": 83.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:26",
+"minutos": 0,
+"cpu": 5.10,
+"ram": 80.90,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:31",
+"minutos": 0,
+"cpu": 2.30,
+"ram": 80.00,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:37",
+"minutos": 0,
+"cpu": 3.30,
+"ram": 80.80,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:43",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 79.90,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:48",
+"minutos": 0,
+"cpu": 7.00,
+"ram": 79.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:54",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 79.70,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:00",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 79.70,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:06",
+"minutos": 0,
+"cpu": 1.80,
+"ram": 79.70,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:11",
+"minutos": 0,
+"cpu": 75.30,
+"ram": 79.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:17",
+"minutos": 0,
+"cpu": 93.00,
+"ram": 79.80,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:24",
+"minutos": 0,
+"cpu": 92.20,
+"ram": 79.80,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:32",
+"minutos": 0,
+"cpu": 93.80,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:39",
+"minutos": 0,
+"cpu": 64.40,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:47",
+"minutos": 0,
+"cpu": 78.60,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:54",
+"minutos": 0,
+"cpu": 10.50,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:00",
+"minutos": 0,
+"cpu": 47.40,
+"ram": 79.00,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:08",
+"minutos": 0,
+"cpu": 86.40,
+"ram": 78.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:15",
+"minutos": 0,
+"cpu": 22.00,
+"ram": 78.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:21",
+"minutos": 0,
+"cpu": 2.70,
+"ram": 78.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:27",
+"minutos": 0,
+"cpu": 62.10,
+"ram": 78.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:35",
+"minutos": 0,
+"cpu": 91.40,
+"ram": 78.40,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:43",
+"minutos": 0,
+"cpu": 85.30,
+"ram": 78.40,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:51",
+"minutos": 0,
+"cpu": 87.60,
+"ram": 78.40,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:16",
+"minutos": 2,
+"cpu": 7.30,
+"ram": 81.60,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:20",
+"minutos": 2,
+"cpu": 10.10,
+"ram": 81.60,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:25",
+"minutos": 2,
+"cpu": 28.60,
+"ram": 83.20,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:29",
+"minutos": 2,
+"cpu": 26.40,
+"ram": 82.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:33",
+"minutos": 2,
+"cpu": 27.60,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:38",
+"minutos": 2,
+"cpu": 27.00,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:42",
+"minutos": 2,
+"cpu": 27.10,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:46",
+"minutos": 2,
+"cpu": 23.10,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:51",
+"minutos": 2,
+"cpu": 24.00,
+"ram": 82.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:55",
+"minutos": 2,
+"cpu": 18.80,
+"ram": 82.60,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:59",
+"minutos": 2,
+"cpu": 23.60,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:04",
+"minutos": 2,
+"cpu": 23.40,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:08",
+"minutos": 2,
+"cpu": 24.40,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:12",
+"minutos": 2,
+"cpu": 20.40,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:17",
+"minutos": 2,
+"cpu": 27.60,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:21",
+"minutos": 2,
+"cpu": 25.40,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:25",
+"minutos": 2,
+"cpu": 23.80,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:29",
+"minutos": 2,
+"cpu": 23.40,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:34",
+"minutos": 2,
+"cpu": 24.00,
+"ram": 82.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:38",
+"minutos": 2,
+"cpu": 26.50,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:30:20",
+"minutos": 2,
+"cpu": 5.30,
+"ram": 86.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:30:28",
+"minutos": 2,
+"cpu": 32.80,
+"ram": 86.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:30:40",
+"minutos": 2,
+"cpu": 99.90,
+"ram": 86.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:30:54",
+"minutos": 2,
+"cpu": 99.70,
+"ram": 85.10,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:04",
+"minutos": 2,
+"cpu": 98.60,
+"ram": 84.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:14",
+"minutos": 2,
+"cpu": 69.70,
+"ram": 84.50,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:20",
+"minutos": 2,
+"cpu": 76.60,
+"ram": 84.50,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:27",
+"minutos": 2,
+"cpu": 78.60,
+"ram": 84.50,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:34",
+"minutos": 2,
+"cpu": 76.10,
+"ram": 84.50,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:40",
+"minutos": 2,
+"cpu": 77.30,
+"ram": 84.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:47",
+"minutos": 2,
+"cpu": 36.00,
+"ram": 84.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:31:54",
+"minutos": 2,
+"cpu": 39.40,
+"ram": 84.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:02",
+"minutos": 2,
+"cpu": 33.40,
+"ram": 84.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:09",
+"minutos": 2,
+"cpu": 31.00,
+"ram": 84.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:17",
+"minutos": 2,
+"cpu": 30.80,
+"ram": 84.60,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:24",
+"minutos": 2,
+"cpu": 29.30,
+"ram": 84.70,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:31",
+"minutos": 2,
+"cpu": 20.70,
+"ram": 84.40,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:40",
+"minutos": 2,
+"cpu": 3.90,
+"ram": 84.10,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:48",
+"minutos": 2,
+"cpu": 3.90,
+"ram": 82.60,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:32:57",
+"minutos": 2,
+"cpu": 75.10,
+"ram": 82.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:33:10",
+"minutos": 2,
+"cpu": 98.60,
+"ram": 82.90,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:33:20",
+"minutos": 2,
+"cpu": 98.50,
+"ram": 82.90,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:33:31",
+"minutos": 2,
+"cpu": 98.90,
+"ram": 82.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 1,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 20:33:41",
+"minutos": 2,
+"cpu": 99.00,
+"ram": 82.80,
+"disco": 16.30,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:51",
+"minutos": 2,
+"cpu": 12.20,
+"ram": 79.50,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:56",
+"minutos": 2,
+"cpu": 11.80,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:00",
+"minutos": 2,
+"cpu": 15.10,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:04",
+"minutos": 2,
+"cpu": 23.00,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:08",
+"minutos": 2,
+"cpu": 21.10,
+"ram": 80.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:13",
+"minutos": 2,
+"cpu": 27.00,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:17",
+"minutos": 2,
+"cpu": 11.10,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:21",
+"minutos": 2,
+"cpu": 7.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:25",
+"minutos": 2,
+"cpu": 8.20,
+"ram": 79.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:29",
+"minutos": 2,
+"cpu": 11.90,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:33",
+"minutos": 2,
+"cpu": 10.30,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:37",
+"minutos": 2,
+"cpu": 11.20,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:41",
+"minutos": 2,
+"cpu": 6.60,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:45",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:49",
+"minutos": 2,
+"cpu": 6.70,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:53",
+"minutos": 2,
+"cpu": 9.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:57",
+"minutos": 2,
+"cpu": 6.50,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:01",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.40,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:05",
+"minutos": 2,
+"cpu": 6.90,
+"ram": 79.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:09",
+"minutos": 2,
+"cpu": 13.20,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:41",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:46",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:49",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:53",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:57",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:01",
+"minutos": 0,
+"cpu": 5.40,
+"ram": 90.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:05",
+"minutos": 0,
+"cpu": 6.60,
+"ram": 89.70,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:09",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:13",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:16",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:20",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:24",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:28",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.30,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:32",
+"minutos": 0,
+"cpu": 7.20,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:36",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:40",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:43",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:47",
+"minutos": 0,
+"cpu": 3.30,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:51",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:55",
+"minutos": 0,
+"cpu": 3.80,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:03",
+"minutos": 0,
+"cpu": 1.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:07",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:11",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:15",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:19",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:23",
+"minutos": 0,
+"cpu": 3.20,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:26",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:30",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:34",
+"minutos": 0,
+"cpu": 1.90,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:38",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:42",
+"minutos": 0,
+"cpu": 4.30,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:46",
+"minutos": 0,
+"cpu": 2.70,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:49",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:53",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:57",
+"minutos": 0,
+"cpu": 4.50,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:01",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:05",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:08",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:12",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:16",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:13",
+"minutos": 0,
+"cpu": 5.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:17",
+"minutos": 0,
+"cpu": 4.70,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:20",
+"minutos": 0,
+"cpu": 6.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:24",
+"minutos": 0,
+"cpu": 5.30,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:28",
+"minutos": 0,
+"cpu": 12.10,
+"ram": 84.90,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:32",
+"minutos": 0,
+"cpu": 11.00,
+"ram": 85.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:36",
+"minutos": 0,
+"cpu": 13.90,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:39",
+"minutos": 0,
+"cpu": 11.10,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:43",
+"minutos": 0,
+"cpu": 11.20,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:47",
+"minutos": 0,
+"cpu": 12.40,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:51",
+"minutos": 0,
+"cpu": 11.50,
+"ram": 85.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:54",
+"minutos": 0,
+"cpu": 7.50,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:58",
+"minutos": 0,
+"cpu": 19.60,
+"ram": 87.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:02",
+"minutos": 0,
+"cpu": 14.80,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:06",
+"minutos": 0,
+"cpu": 10.80,
+"ram": 87.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:10",
+"minutos": 0,
+"cpu": 8.00,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:13",
+"minutos": 0,
+"cpu": 8.10,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:17",
+"minutos": 0,
+"cpu": 9.00,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:20",
+"minutos": 0,
+"cpu": 5.90,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:24",
+"minutos": 0,
+"cpu": 6.30,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:20",
+"minutos": 0,
+"cpu": 6.00,
+"ram": 83.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:26",
+"minutos": 0,
+"cpu": 5.10,
+"ram": 80.90,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:31",
+"minutos": 0,
+"cpu": 2.30,
+"ram": 80.00,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:37",
+"minutos": 0,
+"cpu": 3.30,
+"ram": 80.80,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:43",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 79.90,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:48",
+"minutos": 0,
+"cpu": 7.00,
+"ram": 79.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:53:54",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 79.70,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:00",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 79.70,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:06",
+"minutos": 0,
+"cpu": 1.80,
+"ram": 79.70,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:11",
+"minutos": 0,
+"cpu": 75.30,
+"ram": 79.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:17",
+"minutos": 0,
+"cpu": 93.00,
+"ram": 79.80,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:24",
+"minutos": 0,
+"cpu": 92.20,
+"ram": 79.80,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:32",
+"minutos": 0,
+"cpu": 93.80,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:39",
+"minutos": 0,
+"cpu": 64.40,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:47",
+"minutos": 0,
+"cpu": 78.60,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:54:54",
+"minutos": 0,
+"cpu": 10.50,
+"ram": 79.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:00",
+"minutos": 0,
+"cpu": 47.40,
+"ram": 79.00,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:08",
+"minutos": 0,
+"cpu": 86.40,
+"ram": 78.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:15",
+"minutos": 0,
+"cpu": 22.00,
+"ram": 78.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:21",
+"minutos": 0,
+"cpu": 2.70,
+"ram": 78.60,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:27",
+"minutos": 0,
+"cpu": 62.10,
+"ram": 78.50,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:35",
+"minutos": 0,
+"cpu": 91.40,
+"ram": 78.40,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:43",
+"minutos": 0,
+"cpu": 85.30,
+"ram": 78.40,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "27/11/2025 13:55:51",
+"minutos": 0,
+"cpu": 87.60,
+"ram": 78.40,
+"disco": 17.70,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:16",
+"minutos": 2,
+"cpu": 7.30,
+"ram": 81.60,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:20",
+"minutos": 2,
+"cpu": 10.10,
+"ram": 81.60,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:25",
+"minutos": 2,
+"cpu": 28.60,
+"ram": 83.20,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:29",
+"minutos": 2,
+"cpu": 26.40,
+"ram": 82.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:33",
+"minutos": 2,
+"cpu": 27.60,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:38",
+"minutos": 2,
+"cpu": 27.00,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:42",
+"minutos": 2,
+"cpu": 27.10,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:46",
+"minutos": 2,
+"cpu": 23.10,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:51",
+"minutos": 2,
+"cpu": 24.00,
+"ram": 82.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:55",
+"minutos": 2,
+"cpu": 18.80,
+"ram": 82.60,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:39:59",
+"minutos": 2,
+"cpu": 23.60,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:04",
+"minutos": 2,
+"cpu": 23.40,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:08",
+"minutos": 2,
+"cpu": 24.40,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:12",
+"minutos": 2,
+"cpu": 20.40,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:17",
+"minutos": 2,
+"cpu": 27.60,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:21",
+"minutos": 2,
+"cpu": 25.40,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:25",
+"minutos": 2,
+"cpu": 23.80,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:29",
+"minutos": 2,
+"cpu": 23.40,
+"ram": 82.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:34",
+"minutos": 2,
+"cpu": 24.00,
+"ram": 82.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 15:40:38",
+"minutos": 2,
+"cpu": 26.50,
+"ram": 82.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:51",
+"minutos": 2,
+"cpu": 12.20,
+"ram": 79.50,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:56",
+"minutos": 2,
+"cpu": 11.80,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:00",
+"minutos": 2,
+"cpu": 15.10,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:04",
+"minutos": 2,
+"cpu": 23.00,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:08",
+"minutos": 2,
+"cpu": 21.10,
+"ram": 80.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:13",
+"minutos": 2,
+"cpu": 27.00,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:17",
+"minutos": 2,
+"cpu": 11.10,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:21",
+"minutos": 2,
+"cpu": 7.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:25",
+"minutos": 2,
+"cpu": 8.20,
+"ram": 79.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:29",
+"minutos": 2,
+"cpu": 11.90,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:33",
+"minutos": 2,
+"cpu": 10.30,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:37",
+"minutos": 2,
+"cpu": 11.20,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:41",
+"minutos": 2,
+"cpu": 6.60,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:45",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:49",
+"minutos": 2,
+"cpu": 6.70,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:53",
+"minutos": 2,
+"cpu": 9.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:57",
+"minutos": 2,
+"cpu": 6.50,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:01",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.40,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:05",
+"minutos": 2,
+"cpu": 6.90,
+"ram": 79.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:09",
+"minutos": 2,
+"cpu": 13.20,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:41",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:46",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:49",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:53",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:57",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:01",
+"minutos": 0,
+"cpu": 5.40,
+"ram": 90.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:05",
+"minutos": 0,
+"cpu": 6.60,
+"ram": 89.70,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:09",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:13",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:16",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:20",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:24",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:28",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.30,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:32",
+"minutos": 0,
+"cpu": 7.20,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:36",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:40",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:43",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:47",
+"minutos": 0,
+"cpu": 3.30,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:51",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:55",
+"minutos": 0,
+"cpu": 3.80,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:03",
+"minutos": 0,
+"cpu": 1.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:07",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:11",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:15",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:19",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:23",
+"minutos": 0,
+"cpu": 3.20,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:26",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:30",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:34",
+"minutos": 0,
+"cpu": 1.90,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:38",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:42",
+"minutos": 0,
+"cpu": 4.30,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:46",
+"minutos": 0,
+"cpu": 2.70,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:49",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:53",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:57",
+"minutos": 0,
+"cpu": 4.50,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:01",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:05",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:08",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:12",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:16",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:13",
+"minutos": 0,
+"cpu": 5.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:17",
+"minutos": 0,
+"cpu": 4.70,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:20",
+"minutos": 0,
+"cpu": 6.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:24",
+"minutos": 0,
+"cpu": 5.30,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:28",
+"minutos": 0,
+"cpu": 12.10,
+"ram": 84.90,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:32",
+"minutos": 0,
+"cpu": 11.00,
+"ram": 85.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:36",
+"minutos": 0,
+"cpu": 13.90,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:39",
+"minutos": 0,
+"cpu": 11.10,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:43",
+"minutos": 0,
+"cpu": 11.20,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:47",
+"minutos": 0,
+"cpu": 12.40,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:51",
+"minutos": 0,
+"cpu": 11.50,
+"ram": 85.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:54",
+"minutos": 0,
+"cpu": 7.50,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:58",
+"minutos": 0,
+"cpu": 19.60,
+"ram": 87.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:02",
+"minutos": 0,
+"cpu": 14.80,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:06",
+"minutos": 0,
+"cpu": 10.80,
+"ram": 87.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:10",
+"minutos": 0,
+"cpu": 8.00,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:13",
+"minutos": 0,
+"cpu": 8.10,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:17",
+"minutos": 0,
+"cpu": 9.00,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:20",
+"minutos": 0,
+"cpu": 5.90,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:24",
+"minutos": 0,
+"cpu": 6.30,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:51",
+"minutos": 2,
+"cpu": 12.20,
+"ram": 79.50,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:56",
+"minutos": 2,
+"cpu": 11.80,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:00",
+"minutos": 2,
+"cpu": 15.10,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:04",
+"minutos": 2,
+"cpu": 23.00,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:08",
+"minutos": 2,
+"cpu": 21.10,
+"ram": 80.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:13",
+"minutos": 2,
+"cpu": 27.00,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:17",
+"minutos": 2,
+"cpu": 11.10,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:21",
+"minutos": 2,
+"cpu": 7.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:25",
+"minutos": 2,
+"cpu": 8.20,
+"ram": 79.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:29",
+"minutos": 2,
+"cpu": 11.90,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:33",
+"minutos": 2,
+"cpu": 10.30,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:37",
+"minutos": 2,
+"cpu": 11.20,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:41",
+"minutos": 2,
+"cpu": 6.60,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:45",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:49",
+"minutos": 2,
+"cpu": 6.70,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:53",
+"minutos": 2,
+"cpu": 9.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:57",
+"minutos": 2,
+"cpu": 6.50,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:01",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.40,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:05",
+"minutos": 2,
+"cpu": 6.90,
+"ram": 79.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:09",
+"minutos": 2,
+"cpu": 13.20,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:41",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:46",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:49",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:53",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:57",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:01",
+"minutos": 0,
+"cpu": 5.40,
+"ram": 90.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:05",
+"minutos": 0,
+"cpu": 6.60,
+"ram": 89.70,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:09",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:13",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:16",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:20",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:24",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:28",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.30,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:32",
+"minutos": 0,
+"cpu": 7.20,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:36",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:40",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:43",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:47",
+"minutos": 0,
+"cpu": 3.30,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:51",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:55",
+"minutos": 0,
+"cpu": 3.80,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:03",
+"minutos": 0,
+"cpu": 1.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:07",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:11",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:15",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:19",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:23",
+"minutos": 0,
+"cpu": 3.20,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:26",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:30",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:34",
+"minutos": 0,
+"cpu": 1.90,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:38",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:42",
+"minutos": 0,
+"cpu": 4.30,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:46",
+"minutos": 0,
+"cpu": 2.70,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:49",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:53",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:57",
+"minutos": 0,
+"cpu": 4.50,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:01",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:05",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:08",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:12",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:16",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:13",
+"minutos": 0,
+"cpu": 5.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:17",
+"minutos": 0,
+"cpu": 4.70,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:20",
+"minutos": 0,
+"cpu": 6.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:24",
+"minutos": 0,
+"cpu": 5.30,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:28",
+"minutos": 0,
+"cpu": 12.10,
+"ram": 84.90,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:32",
+"minutos": 0,
+"cpu": 11.00,
+"ram": 85.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:36",
+"minutos": 0,
+"cpu": 13.90,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:39",
+"minutos": 0,
+"cpu": 11.10,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:43",
+"minutos": 0,
+"cpu": 11.20,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:47",
+"minutos": 0,
+"cpu": 12.40,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:51",
+"minutos": 0,
+"cpu": 11.50,
+"ram": 85.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:54",
+"minutos": 0,
+"cpu": 7.50,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:58",
+"minutos": 0,
+"cpu": 19.60,
+"ram": 87.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:02",
+"minutos": 0,
+"cpu": 14.80,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:06",
+"minutos": 0,
+"cpu": 10.80,
+"ram": 87.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:10",
+"minutos": 0,
+"cpu": 8.00,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:13",
+"minutos": 0,
+"cpu": 8.10,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:17",
+"minutos": 0,
+"cpu": 9.00,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:20",
+"minutos": 0,
+"cpu": 5.90,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:24",
+"minutos": 0,
+"cpu": 6.30,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:51",
+"minutos": 2,
+"cpu": 12.20,
+"ram": 79.50,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:08:56",
+"minutos": 2,
+"cpu": 11.80,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:00",
+"minutos": 2,
+"cpu": 15.10,
+"ram": 79.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:04",
+"minutos": 2,
+"cpu": 23.00,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:08",
+"minutos": 2,
+"cpu": 21.10,
+"ram": 80.30,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:13",
+"minutos": 2,
+"cpu": 27.00,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:17",
+"minutos": 2,
+"cpu": 11.10,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:21",
+"minutos": 2,
+"cpu": 7.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:25",
+"minutos": 2,
+"cpu": 8.20,
+"ram": 79.90,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:29",
+"minutos": 2,
+"cpu": 11.90,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:33",
+"minutos": 2,
+"cpu": 10.30,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:37",
+"minutos": 2,
+"cpu": 11.20,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:41",
+"minutos": 2,
+"cpu": 6.60,
+"ram": 80.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:45",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:49",
+"minutos": 2,
+"cpu": 6.70,
+"ram": 79.80,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:53",
+"minutos": 2,
+"cpu": 9.40,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:09:57",
+"minutos": 2,
+"cpu": 6.50,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:01",
+"minutos": 2,
+"cpu": 7.80,
+"ram": 79.40,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:05",
+"minutos": 2,
+"cpu": 6.90,
+"ram": 79.10,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 10,
+"apelido": "DESKTOP-886AGFM",
+"timestamp": "26/11/2025 16:10:09",
+"minutos": 2,
+"cpu": 13.20,
+"ram": 79.70,
+"disco": 90.50,
+"classificacao": "OK"
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:41",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:46",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:49",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:53",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 90.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 22:59:57",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:01",
+"minutos": 0,
+"cpu": 5.40,
+"ram": 90.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:05",
+"minutos": 0,
+"cpu": 6.60,
+"ram": 89.70,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:09",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:13",
+"minutos": 0,
+"cpu": 3.90,
+"ram": 89.50,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:16",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:20",
+"minutos": 0,
+"cpu": 3.60,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:24",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 90.40,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:28",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 90.30,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:32",
+"minutos": 0,
+"cpu": 7.20,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:36",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.10,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:40",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:43",
+"minutos": 0,
+"cpu": 3.50,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:47",
+"minutos": 0,
+"cpu": 3.30,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:51",
+"minutos": 0,
+"cpu": 4.10,
+"ram": 91.00,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 11,
+"apelido": "DESKTOP-G2ODTKO",
+"timestamp": "25/11/2025 23:00:55",
+"minutos": 0,
+"cpu": 3.80,
+"ram": 90.90,
+"disco": 17.30,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:03",
+"minutos": 0,
+"cpu": 1.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:07",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:11",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:15",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:19",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:23",
+"minutos": 0,
+"cpu": 3.20,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:26",
+"minutos": 0,
+"cpu": 4.60,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:30",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.30,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:34",
+"minutos": 0,
+"cpu": 1.90,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:38",
+"minutos": 0,
+"cpu": 2.20,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:42",
+"minutos": 0,
+"cpu": 4.30,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:46",
+"minutos": 0,
+"cpu": 2.70,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:49",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:53",
+"minutos": 0,
+"cpu": 3.00,
+"ram": 81.40,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:06:57",
+"minutos": 0,
+"cpu": 4.50,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:01",
+"minutos": 0,
+"cpu": 2.10,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:05",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.60,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:08",
+"minutos": 0,
+"cpu": 2.00,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:12",
+"minutos": 0,
+"cpu": 3.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 12,
+"apelido": "DESKTOP-G2ODPQP",
+"timestamp": "20/11/2025 15:07:16",
+"minutos": 0,
+"cpu": 2.40,
+"ram": 81.50,
+"disco": 17.80,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:13",
+"minutos": 0,
+"cpu": 5.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:17",
+"minutos": 0,
+"cpu": 4.70,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:20",
+"minutos": 0,
+"cpu": 6.70,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:24",
+"minutos": 0,
+"cpu": 5.30,
+"ram": 84.70,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:28",
+"minutos": 0,
+"cpu": 12.10,
+"ram": 84.90,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:32",
+"minutos": 0,
+"cpu": 11.00,
+"ram": 85.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:36",
+"minutos": 0,
+"cpu": 13.90,
+"ram": 84.80,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:39",
+"minutos": 0,
+"cpu": 11.10,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:43",
+"minutos": 0,
+"cpu": 11.20,
+"ram": 84.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:47",
+"minutos": 0,
+"cpu": 12.40,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:51",
+"minutos": 0,
+"cpu": 11.50,
+"ram": 85.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:54",
+"minutos": 0,
+"cpu": 7.50,
+"ram": 85.10,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:21:58",
+"minutos": 0,
+"cpu": 19.60,
+"ram": 87.00,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:02",
+"minutos": 0,
+"cpu": 14.80,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:06",
+"minutos": 0,
+"cpu": 10.80,
+"ram": 87.20,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:10",
+"minutos": 0,
+"cpu": 8.00,
+"ram": 87.40,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:13",
+"minutos": 0,
+"cpu": 8.10,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:17",
+"minutos": 0,
+"cpu": 9.00,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:20",
+"minutos": 0,
+"cpu": 5.90,
+"ram": 87.60,
+"disco": 88.70,
+"classificacao": ""
+},{
+"fk_servidor": 14,
+"apelido": "DESKTOP-HMMLF0T",
+"timestamp": "25/11/2025 19:22:24",
+"minutos": 0,
+"cpu": 6.30,
+"ram": 87.50,
+"disco": 88.70,
+"classificacao": ""
+}]

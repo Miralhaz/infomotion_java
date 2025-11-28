@@ -147,9 +147,13 @@ public class TratamentoClima {
     }
 
 
-    public static void criarPrevisaoDeDados(List<Regiao> lista){
+    public void criarJsonPrevisao16Dias(List<Regiao> lr){
+        for (Regiao r : lr){
+            Integer residuo =
 
 
 
+
+        }
     }
 }

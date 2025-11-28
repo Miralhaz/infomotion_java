@@ -1,0 +1,30 @@
+{
+    "fk_servidor": 10,
+    "timeStamp": "2025-11-26T16:10:09",
+
+    "atual": {
+        "ram": 79.70,
+        "cpu": 13.20,
+        "disco": 90.50,
+        "temperatura_cpu": 49.80,
+        "temperatura_disco": 36.27,
+        "uploadByte": 59.82,
+        "downloadByte": 1459.57
+    },
+
+    "maximo": {
+        "maxRam": 82.00,
+        "maxCpuUso": 95.00,
+        "maxCpuTemp": 94.00,
+        "maxDiscoUso": 75.00,
+        "maxDiscoTemp": 51.00,
+        "maxDownload": 4.77,
+        "maxUpload" : 4.77
+    },
+    "particoes": [
+    { "nome": "C", "uso": 90.50 },
+    { "nome": "D", "uso": 51.60 },
+    { "nome": "E", "uso": 11.20 }
+
+    ]
+}
