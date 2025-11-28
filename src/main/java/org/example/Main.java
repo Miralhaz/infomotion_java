@@ -626,20 +626,11 @@ public class Main {
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
-
-
-        // tratamento willian inicio
-        System.out.println("🚀 Iniciando ETL de Disco (Willian)...");
-
-        AwsConnection aws = new AwsConnection();
-        Connection db = new Connection();
-
-        ProcessadorDiscoWillian processador = new ProcessadorDiscoWillian(aws, db);
-        processador.executarTratamento();
-
-        System.out.println("✅ ETL de Disco concluído!");
-
-        // tratamento willian final
+            // comeco tratamento willian
+        // Na main da equipe, após instanciar aws e db:
+        ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
+        tratamentoDisco.executarTratamento();
+            // final tratamento willian
 
             aws.limparTemporarios();
         }

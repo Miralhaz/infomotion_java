@@ -51,7 +51,7 @@ public class ProcessadorDiscoWillian {
 
                 String nomeArquivoJson = "DiscoTratamentoEmpresa_" + idEmpresa + ".json";
                 gerarJson(registrosDaEmpresa, nomeArquivoJson);
-                awsConnection.uploadBucketClient("TratamentosWillian", nomeArquivoJson);
+                awsConnection.uploadBucketClient("tratamentos_willian", nomeArquivoJson);
                 System.out.println("JSON gerado e enviado: " + nomeArquivoJson);
             }
 
@@ -94,7 +94,14 @@ public class ProcessadorDiscoWillian {
                 r.tempo_escrita = parseDoubleComVirgula(colunas[21].trim());
 
                 registros.add(r);
+                // Dentro do while, após pular o cabeçalho:
+                if (registros.size() < 2) {
+                    System.out.println("Linha lida: " + linha);
+                    System.out.println("Número de colunas: " + colunas.length);
+                    if (colunas.length > 5) System.out.println("Exemplo coluna 5 (disco): '" + colunas[5] + "'");
+                }
             }
+
             return registros;
         } catch (Exception e) {
             System.err.println("Erro ao ler CSV: " + e.getMessage());
@@ -112,10 +119,50 @@ public class ProcessadorDiscoWillian {
     }
 
     public void completarFkEmpresa(List<RegistroDisco> registros) {
+        // 1. Pegar todos os servidores únicos
+        List<Integer> servidoresUnicos = new ArrayList<>();
+        for (int i = 0; i < registros.size(); i++) {
+            Integer servidor = registros.get(i).fk_servidor;
+            if (servidor != null) {
+                boolean jaExiste = false;
+                for (int j = 0; j < servidoresUnicos.size(); j++) {
+                    if (servidoresUnicos.get(j).equals(servidor)) {
+                        jaExiste = true;
+                        break;
+                    }
+                }
+                if (!jaExiste) {
+                    servidoresUnicos.add(servidor);
+                }
+            }
+        }
+
+        // 2. Para cada servidor único, buscar sua empresa e guardar em duas listas paralelas
+        List<Integer> listaServidores = new ArrayList<>();
+        List<Integer> listaEmpresas = new ArrayList<>();
+
+        for (int i = 0; i < servidoresUnicos.size(); i++) {
+            Integer servidor = servidoresUnicos.get(i);
+            Integer empresa = buscarFkEmpresaPorServidor(servidor);
+            listaServidores.add(servidor);
+            listaEmpresas.add(empresa); // pode ser -1 se não encontrar
+        }
+
+        // 3. Preencher fk_empresa em cada registro com base nas listas paralelas
         for (int i = 0; i < registros.size(); i++) {
             RegistroDisco r = registros.get(i);
-            Integer empresa = buscarFkEmpresaPorServidor(r.fk_servidor);
-            r.fk_empresa = empresa;
+            if (r.fk_servidor != null) {
+                Integer empresaEncontrada = -1;
+                for (int j = 0; j < listaServidores.size(); j++) {
+                    if (listaServidores.get(j).equals(r.fk_servidor)) {
+                        empresaEncontrada = listaEmpresas.get(j);
+                        break;
+                    }
+                }
+                r.fk_empresa = empresaEncontrada;
+            } else {
+                r.fk_empresa = -1;
+            }
         }
     }
 
