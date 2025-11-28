@@ -75,7 +75,22 @@ public class Main {
 
         System.out.println("\nIniciando consolidação...");
 
-        aws.downloadTemperaturaBucket(arquivoConsolidadoTrusted + ".csv");
+        aws.downloadBucketTrusted(arquivoConsolidadoTrusted + ".csv");
+
+        List<Logs> logsConsolidadosExistentes = new ArrayList<>();
+        File arquivoLocal = new File(arquivoConsolidadoTrusted + ".csv");
+
+        if (arquivoLocal.exists()) {
+            try {
+                logsConsolidadosExistentes = leImportaArquivoCsv(arquivoConsolidadoTrusted + ".csv");
+                System.out.printf("Arquivo consolidado existente possui %d logs.\n", logsConsolidadosExistentes.size());
+            } catch (Exception e) {
+                System.err.println("Erro ao ler arquivo consolidado existente: " + e.getMessage());
+                e.printStackTrace();
+            }
+        } else {
+            System.out.println("Nenhum arquivo consolidado anterior encontrado. Iniciando novo arquivo.");
+        }
 
         List<String> arquivosRawParaProcessar = aws.listarArquivosRaw();
         List<Logs> logsNovosParaConsolidar = new ArrayList<>();
@@ -94,7 +109,6 @@ public class Main {
 
                 Integer fk_servidor = logsDoArquivo.get(1).getFk_servidor();
                 try {
-
                     TratamentoAlertas.TratamentoAlertas(con, fk_servidor, logsDoArquivo, aws);
                     logsNovosParaConsolidar.addAll(logsDoArquivo);
                 } catch (Exception e) {
@@ -115,9 +129,12 @@ public class Main {
             return;
         }
 
-        gravaArquivoCsv(logsNovosParaConsolidar, arquivoConsolidadoTrusted, true);
-        aws.uploadBucketTrusted(arquivoConsolidadoTrusted + ".csv");
+        logsConsolidadosExistentes.addAll(logsNovosParaConsolidar);
+        System.out.printf("Total de logs após consolidação: %d\n", logsConsolidadosExistentes.size());
 
+        gravaArquivoCsv(logsConsolidadosExistentes, arquivoConsolidadoTrusted, false);
+
+        aws.uploadBucketTrusted(arquivoConsolidadoTrusted + ".csv");
 
         System.out.println("\nConsolidação concluída");
     }
@@ -229,45 +246,53 @@ public class Main {
             // printa os titulos da coluna
              System.out.println("Lendo e Importando CSV de dados do bucket-raw");
 
-            linha = entrada.readLine();
-            // converte de string para integer
-            // caso fosse de string para int usa-se parseint
-            while (linha != null) {
+            String[] header = linha.split(";");
+            int offset = (header[0].isEmpty() || header[0].matches("\\d+")) ? 1 : 0;
 
+            System.out.println("Lendo e Importando CSV de dados (offset detectado: " + offset + ")");
+
+            linha = entrada.readLine();
+
+            while (linha != null) {
                 registro = linha.split(";");
-                Integer fk_servidor = Integer.valueOf(registro[1]);
-                String nomeMaquina = registro[2];
-                String dataHoraString = registro[3];
-                Double cpu = Double.valueOf(registro[4].replace(",", "."));
-                Double ram = Double.valueOf(registro[5].replace(",", "."));
-                Double disco = Double.valueOf(registro[6].replace(",", "."));
-                Double tmp_cpu = Double.valueOf(registro[7].replace(",", "."));
-                Double tmp_disco = Double.valueOf(registro[8].replace(",", "."));
-                Double memoria_swap = Double.valueOf(registro[9].replace(",", "."));
-                Integer qtd_processos = Integer.valueOf(registro[10]);
-                Long download_bytes = Long.valueOf(registro[11]);
-                Long upload_bytes = Long.valueOf(registro[12]);
-                Long pacotes_recebidos = Long.valueOf(registro[13]);
-                Long pacotes_enviados = Long.valueOf(registro[14]);
-                Integer dropin = Integer.valueOf(registro[15]);
-                Integer dropout = Integer.valueOf(registro[16]);
-                Long numero_leituras = Long.valueOf(registro[17]);
-                Long numero_escritas = Long.valueOf(registro[18]);
-                Long bytes_lidos = Long.valueOf(registro[19]);
-                Long bytes_escritos = Long.valueOf(registro[20]);
-                Integer tempo_leitura = Integer.valueOf(registro[21]);
-                Integer tempo_escrita = Integer.valueOf(registro[22]);
-                Logs Log = new Logs(fk_servidor, nomeMaquina, dataHoraString, cpu, ram, disco, tmp_cpu, tmp_disco, memoria_swap, qtd_processos, download_bytes, upload_bytes, pacotes_recebidos, pacotes_enviados, dropin, dropout, numero_leituras, numero_escritas, bytes_lidos, bytes_escritos, tempo_leitura, tempo_escrita);
+
+                // USA O OFFSET DETECTADO
+                Integer fk_servidor = Integer.valueOf(registro[offset + 0]);
+                String nomeMaquina = registro[offset + 1];
+                String dataHoraString = registro[offset + 2];
+                Double cpu = Double.valueOf(registro[offset + 3].replace(",", "."));
+                Double ram = Double.valueOf(registro[offset + 4].replace(",", "."));
+                Double disco = Double.valueOf(registro[offset + 5].replace(",", "."));
+                Double tmp_cpu = Double.valueOf(registro[offset + 6].replace(",", "."));
+                Double tmp_disco = Double.valueOf(registro[offset + 7].replace(",", "."));
+                Double memoria_swap = Double.valueOf(registro[offset + 8].replace(",", "."));
+                Integer qtd_processos = Integer.valueOf(registro[offset + 9]);
+                Long download_bytes = Long.valueOf(registro[offset + 10]);
+                Long upload_bytes = Long.valueOf(registro[offset + 11]);
+                Long pacotes_recebidos = Long.valueOf(registro[offset + 12]);
+                Long pacotes_enviados = Long.valueOf(registro[offset + 13]);
+                Integer dropin = Integer.valueOf(registro[offset + 14]);
+                Integer dropout = Integer.valueOf(registro[offset + 15]);
+                Long numero_leituras = Long.valueOf(registro[offset + 16]);
+                Long numero_escritas = Long.valueOf(registro[offset + 17]);
+                Long bytes_lidos = Long.valueOf(registro[offset + 18]);
+                Long bytes_escritos = Long.valueOf(registro[offset + 19]);
+                Integer tempo_leitura = Integer.valueOf(registro[offset + 20]);
+                Integer tempo_escrita = Integer.valueOf(registro[offset + 21]);
+
+                Logs Log = new Logs(fk_servidor, nomeMaquina, dataHoraString, cpu, ram, disco,
+                        tmp_cpu, tmp_disco, memoria_swap, qtd_processos,
+                        download_bytes, upload_bytes, pacotes_recebidos, pacotes_enviados,
+                        dropin, dropout, numero_leituras, numero_escritas,
+                        bytes_lidos, bytes_escritos, tempo_leitura, tempo_escrita);
                 listaLogs.add(Log);
                 linha = entrada.readLine();
             }
-        }catch (IOException e ){
+        } catch (IOException e) {
             System.out.println("Erro ao ler o arquivo");
             e.printStackTrace();
             System.exit(1);
-
-        }
-        finally {
+        } finally {
             try {
                 System.out.println("Arquivo importado com sucesso!\n");
                 entrada.close();
@@ -276,7 +301,7 @@ public class Main {
                 System.out.println("Erro ao fechar o arquivo");
             }
         }
-      return listaLogs;
+        return listaLogs;
     }
 
     public static void gravaArquivoCsvEspecificacoes(List<LogsEspecificacoes> lista, String nomeArq) {
