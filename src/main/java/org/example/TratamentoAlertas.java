@@ -1,7 +1,4 @@
 package org.example;
-
-import org.example.classesRede.TratamentoRede;
-import org.example.classesWillian.TratamentoWillian;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
@@ -557,35 +554,5 @@ public class TratamentoAlertas {
             gravaArquivoCsv(listaAlertas, "alertas");
             aws.uploadBucketTrusted("alertas.csv");
         }
-
-
-        // tratamento willian inicio
-        System.out.println("Iniciando ETL de Logs Consolidado -> JSON Dashboard...");
-
-
-        Connection dbConnection = new Connection(); // Instancia a conexão com o BD
-
-        // Limpa a área de trabalho local de arquivos antigos (CSV/JSON)
-        aws.limparTemporarios();
-
-        try {
-            // Instancia a sua classe de tratamento, passando as conexões
-            TratamentoWillian tratamentoWillian = new TratamentoWillian(aws, dbConnection);
-
-            // Roda o pipeline completo: Download, Tratamento, Upload
-            tratamentoWillian.executarTratamento();
-
-            System.out.println("\n✅ Processo de ETL concluído com sucesso!");
-            System.out.println("Arquivo dashboard_data.json enviado para s3-client-infomotion-1/tratamentos_willian/");
-
-        } catch (Exception e) {
-            System.err.println("\n🛑 Ocorreu um erro FATAL na execução da ETL.");
-            e.printStackTrace();
-        } finally {
-            // Garante a limpeza final
-            aws.limparTemporarios();
-        }
-        // tratamento willian final
-
     }
 }
