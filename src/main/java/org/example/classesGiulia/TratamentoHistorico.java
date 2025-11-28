@@ -30,23 +30,22 @@ public class TratamentoHistorico {
 
         for (Logs log : logs){
             LocalDateTime timestamp = log.getDataHora();
-            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), timestamp, 0, log.getCpu(), log.getRam(), log.getDisco(), 0, 0, 0, 0);
+            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), timestamp, 0, log.getCpu(), log.getRam(), log.getDisco(), log.getTmp_cpu(), log.getTmp_disco(), 0, 0, 0, 0);
             listaLogs.add(logCriticidade);
         }
         return listaLogs;
     }
 
-    public Integer calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente){
+    public Integer calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Character medida){
 
         Integer contadorAlertas = 0;
         Integer contadorDuracao = 0;
-        LocalDateTime dataInicioCaptura = null;
 
         for (int i = 0; i < logsServidor.size(); i++) {
             LogsGiuliaCriticidade logAtual = logsServidor.get(i);
             Double uso = 0.0;
 
-            if (componente.equalsIgnoreCase("CPU")){
+            if (componente.equalsIgnoreCase("CPU") && medida.equals('%')){
                 uso = logAtual.getUsoCpu();
             }
 
@@ -58,26 +57,29 @@ public class TratamentoHistorico {
                 uso = logAtual.getUsoDisco();
             }
 
+            if (componente.equalsIgnoreCase("CPU") && medida.equals('C')){
+                uso = logAtual.getTempCpu();
+            }
+
+            if (componente.equalsIgnoreCase("DISCO") && medida.equals('C')){
+                uso = logAtual.getTempDisco();
+            }
+
             Boolean acimaLimite = uso > limite;
 
             if (acimaLimite){
                 contadorDuracao++;
-
-                if (contadorDuracao == 1){
-                    dataInicioCaptura = logAtual.getTimestamp();
-                }
             }
 
             else{
-                if (contadorDuracao >= duracao && dataInicioCaptura != null){
+                if (contadorDuracao >= duracao){
                     contadorAlertas++;
                 }
                 contadorDuracao = 0;
-                dataInicioCaptura = null;
             }
         }
 
-        if (contadorDuracao >= duracao && dataInicioCaptura != null){
+        if (contadorDuracao >= duracao){
             contadorAlertas++;
         }
         return contadorAlertas;
@@ -128,34 +130,41 @@ public class TratamentoHistorico {
                 select cast(pa.max as decimal(10,2)) as limite
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = (?);
             """);
 
             String selectDuracao = ("""
                 select cast(pa.duracao_min as unsigned) as duracao
                 from parametro_alerta pa
                 inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = '%';
+                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = (?);
             """);
 
-            List<Double> listaCpu = con.queryForList(selectTipo, Double.class, "CPU", id);
-            List<Double> listaRam = con.queryForList(selectTipo, Double.class, "RAM", id);
-            List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id);
+            List<Double> listaCpu = con.queryForList(selectTipo, Double.class, "CPU", id, "%");
+            List<Double> listaRam = con.queryForList(selectTipo, Double.class, "RAM", id, "%");
+            List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "%");
+            List<Double> listaTempCpu = con.queryForList(selectTipo, Double.class, "CPU", id, "C");
+            List<Double> listaTempDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "C");
 
-            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty()) {
-                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO em '%%'). Pulando.%n", id);
+            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO). Pulando.%n", id);
                 continue;
             }
 
             Double limiteCpu = listaCpu.get(0);
             Double limiteRam = listaRam.get(0);
             Double limiteDisco = listaDisco.get(0);
+            Double limiteTempCpu = listaTempCpu.get(0);
+            Double limiteTempDisco = listaTempDisco.get(0);
 
-            List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id);
-            List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, "RAM", id);
-            List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id);
+            List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "%");
+            List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, "RAM", id, "%");
+            List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "%");
+            List<Integer> listaDuracaoTempCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "C");
+            List<Integer> listaDuracaoTempDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "C");
 
-            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty()) {
+
+            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty()) {
                 System.out.printf("Servidor %d sem duracao_min completo. Pulando.%n", id);
                 continue;
             }
@@ -163,21 +172,33 @@ public class TratamentoHistorico {
             Integer duracaoCpu = listaDuracaoCpu.get(0);
             Integer duracaoRam = listaDuracaoRam.get(0);
             Integer duracaoDisco = listaDuracaoDisco.get(0);
+            Integer duracaoTempCpu = listaDuracaoTempCpu.get(0);
+            Integer duracaoTempDisco = listaDuracaoTempDisco.get(0);
 
             Integer alertasCpu = 0;
             Integer alertasRam = 0;
             Integer alertasDisco = 0;
+            Integer alertasTempCpu = 0;
+            Integer alertasTempDisco = 0;
 
             if (limiteCpu != null && duracaoCpu != null) {
-                alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU");
+                alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU", '%');
             }
             if (limiteRam != null && duracaoRam != null) {
-                alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM");
+                alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM", '%');
             }
             if (limiteDisco != null && duracaoDisco != null) {
-                alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO");
+                alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO", '%');
+            }
+            if (limiteTempCpu != null && duracaoTempCpu != null) {
+                alertasTempCpu = calcularAlertas(logsPeriodo, limiteTempCpu, duracaoTempCpu, "CPU", 'C');
+            }
+            if (limiteTempDisco != null && duracaoTempDisco != null) {
+                alertasTempDisco = calcularAlertas(logsPeriodo, limiteTempDisco, duracaoTempDisco, "DISCO", 'C');
             }
 
+            alertasCpu += alertasTempCpu;
+            alertasDisco += alertasTempDisco;
             Integer totalAlertas = alertasCpu + alertasRam + alertasDisco;
 
             Map<String, Object> row = new LinkedHashMap<>();

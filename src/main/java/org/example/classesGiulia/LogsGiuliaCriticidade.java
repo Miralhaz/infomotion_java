@@ -12,6 +12,8 @@ public class LogsGiuliaCriticidade {
     private Double usoCpu;
     private Double usoRam;
     private Double usoDisco;
+    private Double tempCpu;
+    private Double tempDisco;
     private String classificacao;
     private Double percentual;
 
@@ -21,7 +23,7 @@ public class LogsGiuliaCriticidade {
     private Integer totalAlertas;
 
     // Construtores:
-    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Integer minutos, LocalDateTime timestamp, Double usoCpu, Double usoRam, Double usoDisco, String classificacao) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Integer minutos, LocalDateTime timestamp, Double usoCpu, Double usoRam, Double usoDisco, Double tempCpu, Double tempDisco, String classificacao) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
         this.minutos = minutos;
@@ -29,6 +31,8 @@ public class LogsGiuliaCriticidade {
         this.usoCpu = usoCpu;
         this.usoRam = usoRam;
         this.usoDisco = usoDisco;
+        this.tempCpu = tempCpu;
+        this.tempDisco = tempDisco;
         this.classificacao = classificacao;
     }
 
@@ -40,7 +44,7 @@ public class LogsGiuliaCriticidade {
         this.classificacao = classificacao;
     }
 
-    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, LocalDateTime timestamp, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, Integer alertasCpu, Integer alertasRam, Integer alertasDisco, Integer totalAlertas) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, LocalDateTime timestamp, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, Double tempCpu, Double tempDisco, Integer alertasCpu, Integer alertasRam, Integer alertasDisco, Integer totalAlertas) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
         this.timestamp = timestamp;
@@ -48,6 +52,8 @@ public class LogsGiuliaCriticidade {
         this.usoCpu = usoCpu;
         this.usoRam = usoRam;
         this.usoDisco = usoDisco;
+        this.tempCpu = tempCpu;
+        this.tempDisco = tempDisco;
         this.alertasCpu = alertasCpu;
         this.alertasRam = alertasRam;
         this.alertasDisco = alertasDisco;
@@ -161,6 +167,22 @@ public class LogsGiuliaCriticidade {
         this.totalAlertas = totalAlertas;
     }
 
+    public Double getTempCpu() {
+        return tempCpu;
+    }
+
+    public void setTempCpu(Double tempCpu) {
+        this.tempCpu = tempCpu;
+    }
+
+    public Double getTempDisco() {
+        return tempDisco;
+    }
+
+    public void setTempDisco(Double tempDisco) {
+        this.tempDisco = tempDisco;
+    }
+
     // toString():
     @Override
     public String toString() {
@@ -172,6 +194,8 @@ public class LogsGiuliaCriticidade {
                 " | usoCpu:" + usoCpu +
                 " | usoRam:" + usoRam +
                 " | usoDisco:" + usoDisco +
+                " | tempCpu:" + tempCpu +
+                " | tempDisco:" + tempDisco +
                 " | classificacao:" + classificacao +
                 " | percentual:" + percentual +
                 " | alertasCpu:" + alertasCpu +

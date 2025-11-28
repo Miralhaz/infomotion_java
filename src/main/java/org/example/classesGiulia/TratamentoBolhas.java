@@ -35,6 +35,8 @@ public class TratamentoBolhas {
                     log.getCpu(),
                     log.getRam(),
                     log.getDisco(),
+                    log.getTmp_cpu(),
+                    log.getTmp_disco(),
                     ""
             );
             listaLogs.add(logCriticidade);
