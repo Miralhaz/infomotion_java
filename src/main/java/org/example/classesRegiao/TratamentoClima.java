@@ -26,31 +26,36 @@ public class TratamentoClima {
 
         List<Regiao> listaRegiaoIdRegiao = co.query("SELECT id FROM regiao;",
                 new BeanPropertyRowMapper(Regiao.class));
-        System.out.println(listaRegiaoIdRegiao);
+        System.out.println(listaRegiaoIdRegiao + " lista de regioes");
+
+
 
         for (Regiao r : listaRegiaoIdRegiao){
-            System.out.println(r.getId());
+            System.out.println(r.getId() + "id regiao" +
+                    "");
             List<Integer> listaServidoresRegiao = co.queryForList("SELECT id FROM servidor WHERE fk_regiao = (?)",
                     Integer.class, r.getId());
             System.out.println(listaServidoresRegiao);
             List listaLogClima = new ArrayList<>();
             List listaLogRegiao = new ArrayList<>();
+            List lista = buscarClimaRegiao(r.getId());
+            listaLogClima.addAll(lista);
 
             for (Integer f : listaServidoresRegiao) {
-                List lista =  buscarClimaServidor(f);
-                listaLogClima.addAll(lista);
+
+
+
                 List lista2 = buscarRegiaoServidor(f,listaLogs);
                 listaLogRegiao.addAll(lista2);
             }
 
-            Regiao reg = new Regiao(r.getId());
-            reg.setListaLogClima(listaLogClima);
-            reg.setListaLogRegiao(listaLogRegiao);
 
-
-
-
+            r.setListaLogRegiao(listaLogRegiao);
+            r.setListaLogClima(listaLogClima);
         }
+
+        System.out.println(listaRegiaoIdRegiao);
+        criarPrevisaoDeDados(listaRegiaoIdRegiao);
     }
 
 
@@ -59,9 +64,9 @@ public class TratamentoClima {
 
 
 
-    public static List<LogClima> buscarClimaServidor(Integer idServidor){
+    public static List<LogClima> buscarClimaRegiao(Integer idRegiao){
 
-        String nomeArq = "clima"+ idServidor;
+        String nomeArq = "clima"+ idRegiao;
 
         Reader arq = null;
         BufferedReader entrada = null;
@@ -91,17 +96,20 @@ public class TratamentoClima {
                 registro = linha.split(";");
 
                 if (contador > 0) {
-                    Integer fkServidor = Integer.valueOf(registro[9]);
+                    Integer id = Integer.valueOf(registro[9]);
                     String dataHora = registro[1];
                     Double probabilidadeChuva = Double.valueOf(registro[3]);
                     Double mmChuva = Double.valueOf(registro[2]);
                     Double temperatura = Double.valueOf(registro[5]);
                     Double umidade = Double.valueOf(registro[6]);
 
-                    String dataHoraFormatado = dataHora.replace('T',' ');
-                    LogClima logClima = new LogClima(fkServidor, dataHoraFormatado, probabilidadeChuva, mmChuva, temperatura, umidade);
-                    listaClima.add(logClima);
-                }
+                    if (idRegiao.equals(id)) {
+
+
+                        String dataHoraFormatado = dataHora.replace('T', ' ');
+                        LogClima logClima = new LogClima(dataHoraFormatado, probabilidadeChuva, mmChuva, temperatura, umidade);
+                        listaClima.add(logClima);
+                    }}
 
                 contador++;
 
@@ -135,12 +143,11 @@ public class TratamentoClima {
                 listaLogRegiao.add(lr);
             }
         }
-
         return listaLogRegiao;
     }
 
 
-    public void criarPrevisaoDeDados(){
+    public static void criarPrevisaoDeDados(List<Regiao> lista){
 
 
 
