@@ -85,9 +85,6 @@ public class Regiao {
         }else {
             return    l.get(l.size() / 2 - 2).getQtdRequisicoes();
         }
-
-
-
     }
 
 

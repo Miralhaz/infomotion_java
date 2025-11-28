@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class TratamentoClima {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -38,6 +39,7 @@ public class TratamentoClima {
             System.out.println(listaServidoresRegiao);
             List listaLogClima = new ArrayList<>();
             List listaLogRegiao = new ArrayList<>();
+
             List lista = buscarClimaRegiao(r.getId());
             listaLogClima.addAll(lista);
 
@@ -52,12 +54,27 @@ public class TratamentoClima {
 
             r.setListaLogRegiao(listaLogRegiao);
             r.setListaLogClima(listaLogClima);
+
+
+
+            List <LogPrevisao> logPrevisaos = criarLogPrevisao(r.getListaLogClima(),r.getListaLogRegiao());
+
+            criarJsonPrevisao16Dias(listaRegiaoIdRegiao);
+
         }
 
-        System.out.println(listaRegiaoIdRegiao);
-        criarPrevisaoDeDados(listaRegiaoIdRegiao);
+
+
     }
 
+    public static List<LogPrevisao>criarLogPrevisao(List<LogClima> logClimaList ,List<LogRegiao> logRegiaoList){
+        List <LogPrevisao> logPrevisaos = new ArrayList<>();
+
+
+
+        return null;
+
+    }
 
 
 
@@ -147,12 +164,12 @@ public class TratamentoClima {
     }
 
 
-    public void criarJsonPrevisao16Dias(List<Regiao> lr){
+    public static void criarJsonPrevisao16Dias(List<Regiao> lr){
         for (Regiao r : lr){
-            Integer residuo =
+            Integer residuo = r.retornarResidual().intValue();
+            Integer mediana = r.retornarMediana();
 
-
-
+            Integer variacao = (int)((Math.random() * (3 - (-3) + 1)) - 3) * residuo;
 
         }
     }
