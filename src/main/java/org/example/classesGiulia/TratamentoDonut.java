@@ -36,9 +36,8 @@ public class TratamentoDonut {
     }
 
 
-    public Integer calcularAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Character medida){
+    public Integer calcularAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Character medida) {
 
-        Integer num = 0; // se for 0: ok, se for 1: atenção, se for 2: crítico.
         Integer contadorMinutos = 0;
         Integer contadorDuracao = 0;
         LocalDateTime dataInicioCaptura = null;
@@ -88,40 +87,55 @@ public class TratamentoDonut {
                 contadorMinutos += minutos;
             }
             return contadorMinutos;
-        }
 
-        else{
+        } else {
+
+            Boolean tevePico = false;
+            Integer nivel = 0;
+            LocalDateTime inicioPico = null;
+            Boolean comPico = false;
 
             for (int i = 0; i < logsServidor.size(); i++) {
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                Double temp = 0.0;
+                LocalDateTime t = logAtual.getTimestamp();
+                if (t == null) continue;
 
-                if (componente.equalsIgnoreCase("CPU")) {
+                Double temp = 0.0;
+                if (componente.equalsIgnoreCase("CPU")){
                     temp = logAtual.getTempCpu();
                 }
 
-                if (componente.equalsIgnoreCase("DISCO")) {
+                if (componente.equalsIgnoreCase("DISCO")){
                     temp = logAtual.getTempDisco();
                 }
 
-                Boolean acimaLimite = temp > limite;
-
-                if (acimaLimite) {
-                    contadorDuracao++;
-                    num = 1;
-
-                } else {
-                    if (contadorDuracao >= duracao) {
-                        num = 2;
+                Boolean acima = temp > limite;
+                if (acima) {
+                    tevePico = true;
+                    nivel = 1;
+                    if (!comPico) {
+                        comPico = true;
+                        inicioPico = t;
                     }
-                    contadorDuracao = 0;
+                } else {
+                    if (comPico && inicioPico != null) {
+                        LocalDateTime fimPico = logsServidor.get(i - 1).getTimestamp();
+                        long seg = Duration.between(inicioPico, fimPico).toSeconds();
+                        long minutos = Math.max(1, (seg + 59) / 60);
+                        if (minutos >= duracao) return 2;
+                    }
+                    comPico = false;
+                    inicioPico = null;
                 }
             }
 
-            if (contadorDuracao >= duracao) {
-                num = 2;
+            if (comPico && inicioPico != null) {
+                LocalDateTime fimPico = logsServidor.get(logsServidor.size() - 1).getTimestamp();
+                long seg = Duration.between(inicioPico, fimPico).toSeconds();
+                long minutos = Math.max(1, (seg + 59) / 60);
+                if (minutos >= duracao) return 2;
             }
-            return num;
+            return tevePico ? 1 : 0;
         }
     }
 
@@ -194,7 +208,7 @@ public class TratamentoDonut {
             List<Integer> listaDuracaoTempDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "C");
 
 
-            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoDisco.isEmpty()) {
+            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty()) {
                 System.out.printf("Servidor %d sem duracao_min completo. Pulando.%n", id);
                 continue;
             }
