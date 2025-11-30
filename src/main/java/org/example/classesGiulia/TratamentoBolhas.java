@@ -399,7 +399,7 @@ public class TratamentoBolhas {
                            "minutos": %d,
                            "classificacao": "%s"
                            }""",
-                        log.getFk_servidor(), log.getApelido(), log.getPercentual(), log.getMinutos(), log.getClassificacao() == null ? "" : log.getClassificacao()));
+                        log.getFk_servidor(), log.getApelido(), log.getCaptura(), log.getMinutos(), log.getClassificacao() == null ? "" : log.getClassificacao()));
                 contador ++;
             }
             saida.append("]");

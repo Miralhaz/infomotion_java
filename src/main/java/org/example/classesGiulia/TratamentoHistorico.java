@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -39,10 +40,16 @@ public class TratamentoHistorico {
     public Integer calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Character medida){
 
         Integer contadorAlertas = 0;
-        Integer contadorDuracao = 0;
+        LocalDateTime inicioPico = null;
+        LocalDateTime ultimoAcima = null;
+        Boolean emPico = false;
 
         for (int i = 0; i < logsServidor.size(); i++) {
             LogsGiuliaCriticidade logAtual = logsServidor.get(i);
+            LocalDateTime t = logAtual.getTimestamp();
+            if (t == null){
+                continue;
+            }
             Double uso = 0.0;
 
             if (componente.equalsIgnoreCase("CPU") && medida.equals('%')){
@@ -68,19 +75,47 @@ public class TratamentoHistorico {
             Boolean acimaLimite = uso > limite;
 
             if (acimaLimite){
-                contadorDuracao++;
+                if (!emPico) {
+                    emPico = true;
+                    inicioPico = t;
+                }
+                ultimoAcima = t;
             }
 
             else{
-                if (contadorDuracao >= duracao){
-                    contadorAlertas++;
+                if (emPico && inicioPico != null && ultimoAcima != null) {
+                    long seg = Duration.between(inicioPico, ultimoAcima).toSeconds();
+                    Integer minutos = (int) Math.max(1, (seg + 59) / 60);
+
+                    if (medida.equals('%')) {
+                        if (minutos >= duracao) {
+                            contadorAlertas++;
+                        }
+                    } else{
+                        if (minutos >= duracao) {
+                            contadorAlertas++;
+                        }
+                    }
                 }
-                contadorDuracao = 0;
+                emPico = false;
+                inicioPico = null;
+                ultimoAcima = null;
             }
         }
 
-        if (contadorDuracao >= duracao){
-            contadorAlertas++;
+        if (emPico && inicioPico != null && ultimoAcima != null) {
+            long seg = Duration.between(inicioPico, ultimoAcima).toSeconds();
+            Integer minutos = (int) Math.max(1, (seg + 59) / 60);
+
+            if (medida.equals('%')) {
+                if (minutos >= duracao) {
+                    contadorAlertas++;
+                }
+            } else{
+                if (minutos >= duracao) {
+                    contadorAlertas++;
+                }
+            }
         }
         return contadorAlertas;
     }

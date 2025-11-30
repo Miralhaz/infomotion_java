@@ -15,7 +15,7 @@ public class LogsGiuliaCriticidade {
     private Double tempCpu;
     private Double tempDisco;
     private String classificacao;
-    private Double percentual;
+    private Double captura;
 
     private Integer alertasCpu;
     private Integer alertasRam;
@@ -36,10 +36,10 @@ public class LogsGiuliaCriticidade {
         this.classificacao = classificacao;
     }
 
-    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Double percentual, Integer minutos, String classificacao) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Double captura, Integer minutos, String classificacao) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
-        this.percentual = percentual;
+        this.captura = captura;
         this.minutos = minutos;
         this.classificacao = classificacao;
     }
@@ -127,12 +127,12 @@ public class LogsGiuliaCriticidade {
         this.classificacao = classificacao;
     }
 
-    public Double getPercentual() {
-        return percentual;
+    public Double getCaptura() {
+        return captura;
     }
 
-    public void setPercentual(Double percentual) {
-        this.percentual = percentual;
+    public void setCaptura(Double captura) {
+        this.captura = captura;
     }
 
     public Integer getAlertasCpu() {
@@ -197,7 +197,7 @@ public class LogsGiuliaCriticidade {
                 " | tempCpu:" + tempCpu +
                 " | tempDisco:" + tempDisco +
                 " | classificacao:" + classificacao +
-                " | percentual:" + percentual +
+                " | captura:" + captura +
                 " | alertasCpu:" + alertasCpu +
                 " | alertasRam:" + alertasRam +
                 " | alertasDisco:" + alertasDisco +
