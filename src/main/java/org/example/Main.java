@@ -612,6 +612,8 @@ public class Main {
             tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
             tratamentoBolhas.gerarBolhasRam(logsConsolidados);
             tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
+            tratamentoBolhas.gerarBolhasTempCpu(logsConsolidados);
+            tratamentoBolhas.gerarBolhasTempDisco(logsConsolidados);
 
             TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
             tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
@@ -627,9 +629,9 @@ public class Main {
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
             // comeco tratamento willian
-        // Na main da equipe, após instanciar aws e db:
-        ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
-        tratamentoDisco.executarTratamento();
+            // Na main da equipe, após instanciar aws e db:
+            ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
+            tratamentoDisco.executarTratamento();
             // final tratamento willian
 
             aws.limparTemporarios();
