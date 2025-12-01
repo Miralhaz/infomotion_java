@@ -29,12 +29,10 @@ public class TratamentoTemperaturaDisco {
 
         List<LogsMiralhaDisco> listaApenasDisco = transformarParaLogsReduzidos(logsCompletos);
 
-        System.out.println("Transformando informações em um arquivo disco_temperaturas_uso.csv... ");
+        System.out.println("Iniciando tratamento temperatura Disco...");
         writeCsvTemperaturaDisco(listaApenasDisco, nomeBase);
-        System.out.println("Transformação feita com sucesso! Enviando ao bucket trusted...\n");
         awsConnection.uploadDiscoBucket(arquivoCsvTrusted);
 
-        System.out.println("Separando logs por servidor e gerando JSONs filtrados...");
         gerarJsonsPorServidorEPeriodo(listaApenasDisco);
 
         System.out.println("Tratamento de Disco feito com sucesso!!\n");
@@ -46,31 +44,24 @@ public class TratamentoTemperaturaDisco {
         Map<Integer, List<LogsMiralhaDisco>> logsPorServidor = logs.stream()
                 .collect(Collectors.groupingBy(LogsMiralhaDisco::getFk_servidor));
 
-        System.out.println("Total de servidores encontrados: " + logsPorServidor.size() + "\n");
-
         for (Map.Entry<Integer, List<LogsMiralhaDisco>> entry : logsPorServidor.entrySet()) {
             Integer idServidor = entry.getKey();
             List<LogsMiralhaDisco> logsDoServidor = entry.getValue();
-
-            System.out.println("=== Processando Servidor ID: " + idServidor + " ===");
 
             List<LogsMiralhaDisco> ultimaHora = filtrarPorPeriodo(logsDoServidor, agora.minusHours(1), agora);
             String arquivo1h = "ultima_hora.json";
             writeJsonTemperaturaDisco(ultimaHora, arquivo1h);
             awsConnection.uploadDiscoComPasta(idServidor, arquivo1h);
-            System.out.println("  ✓ Última hora: " + ultimaHora.size() + " registros");
 
             List<LogsMiralhaDisco> ultimas24h = filtrarPorPeriodo(logsDoServidor, agora.minusHours(24), agora);
             String arquivo24h = "24_horas.json";
             writeJsonTemperaturaDisco(ultimas24h, arquivo24h);
             awsConnection.uploadDiscoComPasta(idServidor, arquivo24h);
-            System.out.println("  ✓ Últimas 24h: " + ultimas24h.size() + " registros");
 
             List<LogsMiralhaDisco> ultimos7dias = filtrarPorPeriodo(logsDoServidor, agora.minusDays(7), agora);
             String arquivo7d = "7_dias.json";
             writeJsonTemperaturaDisco(ultimos7dias, arquivo7d);
             awsConnection.uploadDiscoComPasta(idServidor, arquivo7d);
-            System.out.println("  ✓ Últimos 7 dias: " + ultimos7dias.size() + " registros\n");
         }
     }
 
@@ -85,7 +76,6 @@ public class TratamentoTemperaturaDisco {
 
     private List<LogsMiralhaDisco> transformarParaLogsReduzidos(List<Logs> logs) {
         List<LogsMiralhaDisco> reduzidos = new ArrayList<>();
-        System.out.println("\nTransformando para logs de temperatura / uso Disco...");
 
         for (Logs log : logs) {
             String dataHoraStr = log.getDataHora().format(INPUT_FORMATTER);
@@ -98,7 +88,6 @@ public class TratamentoTemperaturaDisco {
             );
             reduzidos.add(logReduzido);
         }
-        System.out.println("Arquivo tratado com sucesso!!\n");
         return reduzidos;
     }
 

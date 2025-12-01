@@ -26,8 +26,8 @@ public class TratamentoProcessos {
         final String arquivoCsvTrusted = nomeBase + ".csv";
         final String arquivoJsonClient = nomeBase + ".json";
 
+        System.out.println("Iniciando tratamento de Processos...");
         awsConnection.deleteCsvLocal(nomeArqConsolidado);
-        System.out.println("Baixando arquivo consolidado do Trusted: " + nomeArqConsolidado);
         awsConnection.downloadBucketProcessosTrusted(nomeArqConsolidado);
 
         List<LogsProcessosMiralha> processosCompletos = leImportaArquivoCsvProcessos(nomeArqConsolidado);
@@ -37,6 +37,7 @@ public class TratamentoProcessos {
         awsConnection.uploadProcessosBucket(arquivoCsvTrusted);
         writeJsonProcessos(listaTop5Processos, nomeBase);
         awsConnection.uploadProcessosBucket(arquivoJsonClient);
+        System.out.println("Tratamento de Processos feito com sucesso!!");
     }
 
     public static List<LogsProcessosMiralha> leImportaArquivoCsvProcessos(String nomeArq) {
@@ -54,7 +55,6 @@ public class TratamentoProcessos {
 
         try {
             String cabecalho = entrada.readLine(); // Lê o cabeçalho
-            System.out.println("Lendo e Importando CSV de processos: " + nomeArq);
             System.out.println("Cabeçalho detectado: " + cabecalho);
 
             String linha = entrada.readLine();
@@ -129,7 +129,6 @@ public class TratamentoProcessos {
             try {
                 if (entrada != null) entrada.close();
                 if (arq != null) arq.close();
-                System.out.println("Arquivo " + nomeArq + " lido com sucesso.");
             } catch (IOException e) {
                 System.out.println("Erro ao fechar o arquivo " + nomeArq);
             }
@@ -143,8 +142,6 @@ public class TratamentoProcessos {
 
         final String arquivoProcessosConsolidadoTrusted = "processos_consolidados_servidores";
 
-        System.out.println("\nIniciando consolidação...");
-
         List<String> arquivosRawParaProcessar = aws.listarArquivosRawProcessos();
         List<LogsProcessosMiralha> logsNovosParaConsolidar = new ArrayList<>();
 
@@ -153,15 +150,12 @@ public class TratamentoProcessos {
             return;
         }
 
-        System.out.printf("Encontrados %d arquivos RAW para processar.\n", arquivosRawParaProcessar.size());
-
         for (String chaveRaw : arquivosRawParaProcessar) {
             try {
                 aws.downloadBucketRaw(chaveRaw);
 
                 List<LogsProcessosMiralha> logsDoArquivo = leImportaArquivoCsvProcessos(chaveRaw);
                 logsNovosParaConsolidar.addAll(logsDoArquivo);
-                System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
 
                 aws.deleteCsvLocal(chaveRaw);
 
@@ -178,7 +172,6 @@ public class TratamentoProcessos {
         gravaArquivoCsvProcessos(logsNovosParaConsolidar, arquivoProcessosConsolidadoTrusted);
         aws.uploadBucketTrusted(arquivoProcessosConsolidadoTrusted + ".csv");
 
-        System.out.println("\nConsolidação concluída");
     }
 
     private List<LogsProcessosMiralha> transformarParaLogsTop5PorServidor(List<LogsProcessosMiralha> logs) {
@@ -187,13 +180,9 @@ public class TratamentoProcessos {
         Map<Integer, List<LogsProcessosMiralha>> logsPorServidor = logs.stream()
                 .collect(Collectors.groupingBy(LogsProcessosMiralha::getFk_servidor));
 
-        System.out.println("Processando Top 5 para " + logsPorServidor.size() + " servidor(es)...\n");
-
         for (Map.Entry<Integer, List<LogsProcessosMiralha>> entry : logsPorServidor.entrySet()) {
             Integer idServidor = entry.getKey();
             List<LogsProcessosMiralha> logsDoServidor = entry.getValue();
-
-            System.out.println("Servidor ID " + idServidor + ": processando " + logsDoServidor.size() + " registros");
 
             List<LogsProcessosMiralha> processosFiltrados = logsDoServidor.stream()
                     .filter(log -> !log.getNomeProcesso().equalsIgnoreCase("System Idle Process"))
@@ -214,13 +203,8 @@ public class TratamentoProcessos {
                     .limit(5)
                     .collect(Collectors.toList());
 
-            System.out.println("  → Top 5 do Servidor " + idServidor + ": " + top5DoServidor.size() + " processos");
-
             todosOsTop5.addAll(top5DoServidor);
         }
-
-        System.out.println("\nTotal de processos no Top 5 (todos os servidores): " + todosOsTop5.size());
-        System.out.println("Filtro Top 5 por servidor aplicado com sucesso!\n");
 
         return todosOsTop5;
     }
