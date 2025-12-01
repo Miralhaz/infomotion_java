@@ -90,103 +90,116 @@ public class TratamentoRede {
 
         List<LogRede> logsRede = new ArrayList<>();
 
+        if (lista == null || lista.isEmpty()) {
+            System.out.println("Lista vazia para servidor " + idServidor);
+            return logsRede;
+        }
+
+
         String selectParametroPorServidor = "SELECT * FROM parametro_alerta where fk_servidor = (?);";
         List<Parametro_alerta> metrica = banco.query(selectParametroPorServidor,
                 new BeanPropertyRowMapper<>(Parametro_alerta.class),
-                1);
+                idServidor);
 
-        Double parametroDown = 0.0;
-        Double parametroUp = 0.0;
-        Double parametroPacotesRecebidos = 0.0;
-        Double parametroPacotesEnviados = 0.0;
-        LocalDateTime ultimoLogData;
+        Double parametroDown = 0.0, parametroUp = 0.0, parametroPacotesRecebidos = 0.0, parametroPacotesEnviados = 0.0;
+
+        for (Parametro_alerta pa : metrica){
+            if ("DOWNLOAD".equalsIgnoreCase(pa.getUnidadeMedida())) parametroDown = pa.getMax();
+            else if ("UPLOAD".equalsIgnoreCase(pa.getUnidadeMedida())) parametroUp = pa.getMax();
+            else if ("PCKT_RCVD".equalsIgnoreCase(pa.getUnidadeMedida())) parametroPacotesRecebidos = pa.getMax();
+            else if ("PCKT_SNT".equalsIgnoreCase(pa.getUnidadeMedida())) parametroPacotesEnviados = pa.getMax();
+        }
+
+
+        int minutosIntervalo;
+        DateTimeFormatter formatadorSaida;
+
+        if (tempoHoras == 1) {
+            minutosIntervalo = 1;
+            formatadorSaida = DateTimeFormatter.ofPattern("HH:mm");
+        } else if (tempoHoras == 24) {
+            minutosIntervalo = 15;
+            formatadorSaida = DateTimeFormatter.ofPattern("dd HH:mm");
+        } else {
+            minutosIntervalo = 60;
+            formatadorSaida = DateTimeFormatter.ofPattern("MM-dd HH");
+        }
+
+        DateTimeFormatter fmtBarra = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        DateTimeFormatter fmtTraco = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+
+        LocalDateTime ultimoLogData = LocalDateTime.MIN;
+
+
         Long ultimoValorPcktRcvd = 0L;
         Long ultimoValorPcktSnt = 0L;
         Long ultimoValorDown = 0L;
         Long ultimoValorUp = 0L;
-        Double valorDiferenca = 1.01;
 
-        for (Parametro_alerta pa : metrica){
-
-            if (pa.getUnidadeMedida().equalsIgnoreCase("DOWNLOAD")){
-                parametroDown = pa.getMax();
-            } else if (pa.getUnidadeMedida().equalsIgnoreCase("UPLOAD")){
-                parametroUp = pa.getMax();
-            } else if (pa.getUnidadeMedida().equalsIgnoreCase("PCKT_RCVD")){
-                parametroPacotesRecebidos = pa.getMax();
-            } else if (pa.getUnidadeMedida().equalsIgnoreCase("PCKT_SNT")){
-                parametroPacotesEnviados = pa.getMax();
-            }
-
-        }
-
-        ultimoLogData = lista.get(0).getDataHora();
-        ultimoValorPcktRcvd = lista.get(0).getPacotes_recebidos();
-        ultimoValorPcktSnt = lista.get(0).getPacotes_enviados();
-        ultimoValorDown = lista.get(0).getDownload_bytes();
-        ultimoValorUp = lista.get(0).getUpload_bytes();
-
-
+        Double margemVariacao = 0.2;
+        LocalDateTime limiteTempo = LocalDateTime.now().minusHours(tempoHoras);
 
         for (Logs log : lista) {
 
-            Boolean vaiPraLista = false;
-            String dataString = log.getDataHoraString();
-            DateTimeFormatter formatador;
-            if (dataString.contains("/")) {
-                formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-            } else {
-                formatador = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+            if (!log.getFk_servidor().equals(idServidor)) {
+                continue;
             }
-            LocalDateTime dataFinal = LocalDateTime.parse(dataString, formatador);
-            LocalDateTime limite = LocalDateTime.now().minusHours(tempoHoras);
 
-            if (dataFinal.isAfter(limite)) {
-                DateTimeFormatter formatadorSaida;
-                if (tempoHoras == 1 ){
-                    if (dataString.contains("/")) {
-                        formatadorSaida = DateTimeFormatter.ofPattern("HH:mm");
-                    } else {
-                        formatadorSaida = DateTimeFormatter.ofPattern("HH:mm");
-                    }
-                    if (dataFinal.isAfter(ultimoLogData.minusMinutes(12)) || log.getPacotes_enviados() > ultimoValorPcktSnt * valorDiferenca || log.getPacotes_recebidos() > ultimoValorPcktRcvd  * valorDiferenca
-                            || log.getDownload_bytes() > ultimoValorDown * valorDiferenca || log.getUpload_bytes() > ultimoValorUp * valorDiferenca) {
-                        vaiPraLista = true;
-                    }
+            try {
 
-                } else if (tempoHoras == 24) {
-                    if (dataString.contains("/")) {
-                        formatadorSaida = DateTimeFormatter.ofPattern("dd HH:mm");
-                    } else {
-                        formatadorSaida = DateTimeFormatter.ofPattern("dd HH:mm");
-                    }
-
-                    if (dataFinal.isAfter(ultimoLogData.minusMinutes(1440)) || log.getPacotes_enviados() > ultimoValorPcktSnt * valorDiferenca || log.getPacotes_recebidos() > ultimoValorPcktRcvd  * valorDiferenca
-                            || log.getDownload_bytes() > ultimoValorDown * valorDiferenca || log.getUpload_bytes() > ultimoValorUp * valorDiferenca) {
-                        vaiPraLista = true;
-                    }
-
+                String dataString = log.getDataHoraString();
+                LocalDateTime dataLog;
+                if (dataString.contains("/")) {
+                    dataLog = LocalDateTime.parse(dataString, fmtBarra);
                 } else {
-                    if (dataString.contains("/")) {
-                        formatadorSaida = DateTimeFormatter.ofPattern("dd/MM HH");
-                    } else {
-                        formatadorSaida = DateTimeFormatter.ofPattern("MM-dd HH");
-                    }
-
-                    if (dataFinal.isAfter(ultimoLogData.minusMinutes(10080)) || log.getPacotes_enviados() > ultimoValorPcktSnt * valorDiferenca || log.getPacotes_recebidos() > ultimoValorPcktRcvd  * valorDiferenca
-                            || log.getDownload_bytes() > ultimoValorDown * valorDiferenca || log.getUpload_bytes() > ultimoValorUp * valorDiferenca) {
-                        vaiPraLista = true;
-                    }
+                    dataLog = LocalDateTime.parse(dataString, fmtTraco);
                 }
 
-                String dataFormatada = dataFinal.format(formatadorSaida);
+
+                if (dataLog.isAfter(limiteTempo)) {
 
 
+                    boolean teveVariacaoBrusca =
+                            Math.abs(log.getDownload_bytes() - ultimoValorDown) > (ultimoValorDown * margemVariacao) ||
+                                    Math.abs(log.getUpload_bytes() - ultimoValorUp) > (ultimoValorUp * margemVariacao) ||
+                                    Math.abs(log.getPacotes_recebidos() - ultimoValorPcktRcvd) > (ultimoValorPcktRcvd * margemVariacao) ||
+                                    Math.abs(log.getPacotes_enviados() - ultimoValorPcktSnt) > (ultimoValorPcktSnt * margemVariacao);
 
-                if (log.getFk_servidor().equals(idServidor) &&  vaiPraLista) {
-                    LogRede logRede = new LogRede(dataFormatada, log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getFk_servidor(), parametroDown, parametroUp, parametroPacotesRecebidos, parametroPacotesEnviados);
-                    logsRede.add(logRede);
+
+                    if (dataLog.isAfter(ultimoLogData.plusMinutes(minutosIntervalo)) || teveVariacaoBrusca) {
+
+                        String dataFormatada = dataLog.format(formatadorSaida);
+
+                        LogRede logRede = new LogRede(
+                                dataFormatada,
+                                log.getUpload_bytes(),
+                                log.getDownload_bytes(),
+                                log.getPacotes_recebidos(),
+                                log.getPacotes_enviados(),
+                                log.getDropin(),
+                                log.getDropout(),
+                                log.getFk_servidor(),
+                                parametroDown,
+                                parametroUp,
+                                parametroPacotesRecebidos,
+                                parametroPacotesEnviados
+                        );
+
+                        logsRede.add(logRede);
+
+
+                        ultimoLogData = dataLog;
+                        ultimoValorDown = log.getDownload_bytes();
+                        ultimoValorUp = log.getUpload_bytes();
+                        ultimoValorPcktRcvd = log.getPacotes_recebidos();
+                        ultimoValorPcktSnt = log.getPacotes_enviados();
+                    }
                 }
+            } catch (Exception e) {
+
+                System.out.println("Erro ao processar log: " + e.getMessage());
             }
         }
         return logsRede;
@@ -215,7 +228,6 @@ public class TratamentoRede {
                 for (LogConexao log : lista) {
                     contador++;
                     if (contador == lista.size()) {
-                        System.out.println("Log que vai virar Json de conexão" + log);
                         saida.write(String.format(Locale.US, """
                                         {
                                         "nome_processo": "%s",
