@@ -7,7 +7,6 @@ import org.example.AwsConnection;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -100,6 +99,12 @@ public class TratamentoRede {
         Double parametroUp = 0.0;
         Double parametroPacotesRecebidos = 0.0;
         Double parametroPacotesEnviados = 0.0;
+        LocalDateTime ultimoLogData;
+        Long ultimoValorPcktRcvd = 0L;
+        Long ultimoValorPcktSnt = 0L;
+        Long ultimoValorDown = 0L;
+        Long ultimoValorUp = 0L;
+        Double valorDiferenca = 1.01;
 
         for (Parametro_alerta pa : metrica){
 
@@ -115,9 +120,17 @@ public class TratamentoRede {
 
         }
 
+        ultimoLogData = lista.get(0).getDataHora();
+        ultimoValorPcktRcvd = lista.get(0).getPacotes_recebidos();
+        ultimoValorPcktSnt = lista.get(0).getPacotes_enviados();
+        ultimoValorDown = lista.get(0).getDownload_bytes();
+        ultimoValorUp = lista.get(0).getUpload_bytes();
+
+
 
         for (Logs log : lista) {
 
+            Boolean vaiPraLista = false;
             String dataString = log.getDataHoraString();
             DateTimeFormatter formatador;
             if (dataString.contains("/")) {
@@ -128,11 +141,50 @@ public class TratamentoRede {
             LocalDateTime dataFinal = LocalDateTime.parse(dataString, formatador);
             LocalDateTime limite = LocalDateTime.now().minusHours(tempoHoras);
 
-
             if (dataFinal.isAfter(limite)) {
+                DateTimeFormatter formatadorSaida;
+                if (tempoHoras == 1 ){
+                    if (dataString.contains("/")) {
+                        formatadorSaida = DateTimeFormatter.ofPattern("HH:mm");
+                    } else {
+                        formatadorSaida = DateTimeFormatter.ofPattern("HH:mm");
+                    }
+                    if (dataFinal.isAfter(ultimoLogData.minusMinutes(12)) || log.getPacotes_enviados() > ultimoValorPcktSnt * valorDiferenca || log.getPacotes_recebidos() > ultimoValorPcktRcvd  * valorDiferenca
+                            || log.getDownload_bytes() > ultimoValorDown * valorDiferenca || log.getUpload_bytes() > ultimoValorUp * valorDiferenca) {
+                        vaiPraLista = true;
+                    }
 
-                if (log.getFk_servidor().equals(idServidor)) {
-                    LogRede logRede = new LogRede(log.getDataHoraString(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getFk_servidor(), parametroDown, parametroUp, parametroPacotesRecebidos, parametroPacotesEnviados);
+                } else if (tempoHoras == 24) {
+                    if (dataString.contains("/")) {
+                        formatadorSaida = DateTimeFormatter.ofPattern("dd HH:mm");
+                    } else {
+                        formatadorSaida = DateTimeFormatter.ofPattern("dd HH:mm");
+                    }
+
+                    if (dataFinal.isAfter(ultimoLogData.minusMinutes(1440)) || log.getPacotes_enviados() > ultimoValorPcktSnt * valorDiferenca || log.getPacotes_recebidos() > ultimoValorPcktRcvd  * valorDiferenca
+                            || log.getDownload_bytes() > ultimoValorDown * valorDiferenca || log.getUpload_bytes() > ultimoValorUp * valorDiferenca) {
+                        vaiPraLista = true;
+                    }
+
+                } else {
+                    if (dataString.contains("/")) {
+                        formatadorSaida = DateTimeFormatter.ofPattern("dd/MM HH");
+                    } else {
+                        formatadorSaida = DateTimeFormatter.ofPattern("MM-dd HH");
+                    }
+
+                    if (dataFinal.isAfter(ultimoLogData.minusMinutes(10080)) || log.getPacotes_enviados() > ultimoValorPcktSnt * valorDiferenca || log.getPacotes_recebidos() > ultimoValorPcktRcvd  * valorDiferenca
+                            || log.getDownload_bytes() > ultimoValorDown * valorDiferenca || log.getUpload_bytes() > ultimoValorUp * valorDiferenca) {
+                        vaiPraLista = true;
+                    }
+                }
+
+                String dataFormatada = dataFinal.format(formatadorSaida);
+
+
+
+                if (log.getFk_servidor().equals(idServidor) &&  vaiPraLista) {
+                    LogRede logRede = new LogRede(dataFormatada, log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), log.getDropin(), log.getDropout(), log.getFk_servidor(), parametroDown, parametroUp, parametroPacotesRecebidos, parametroPacotesEnviados);
                     logsRede.add(logRede);
                 }
             }
