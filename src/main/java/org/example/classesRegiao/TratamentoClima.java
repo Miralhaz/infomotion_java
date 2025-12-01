@@ -7,8 +7,11 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -27,63 +30,127 @@ public class TratamentoClima {
 
         List<Regiao> listaRegiaoIdRegiao = co.query("SELECT id FROM regiao;",
                 new BeanPropertyRowMapper(Regiao.class));
-        System.out.println(listaRegiaoIdRegiao + " lista de regioes");
-
-
 
         for (Regiao r : listaRegiaoIdRegiao){
-            System.out.println(r.getId() + "id regiao" +
-                    "");
             List<Integer> listaServidoresRegiao = co.queryForList("SELECT id FROM servidor WHERE fk_regiao = (?)",
                     Integer.class, r.getId());
-            System.out.println(listaServidoresRegiao);
-            List listaLogClima = new ArrayList<>();
+
             List listaLogRegiao = new ArrayList<>();
 
-            List lista = buscarClimaRegiao(r.getId());
-            listaLogClima.addAll(lista);
 
+            int idServer = 0;
             for (Integer f : listaServidoresRegiao) {
+                idServer = f;
+                if (idServer > 0) {
+                    List lista2 = buscarRegiaoServidor(f, listaLogs);
 
-
-
-                List lista2 = buscarRegiaoServidor(f,listaLogs);
-                listaLogRegiao.addAll(lista2);
+                    for (int i = 0; i < lista2.size(); i++) {
+                        listaLogRegiao.add(lista2.get(i));
+                    }
+                }
             }
 
-
-            r.setListaLogRegiao(listaLogRegiao);
-            r.setListaLogClima(listaLogClima);
+            if (idServer > 0) {
 
 
+                List lista = buscarClimaRegiao(r.getId(), idServer);
 
-            List <LogPrevisao> logPrevisaos = criarLogPrevisao(r.getListaLogClima(),r.getListaLogRegiao());
+                r.setListaLogRegiao(listaLogRegiao);
+                r.setListaLogClima(lista);
 
-            criarJsonPrevisao16Dias(listaRegiaoIdRegiao);
 
+                if (r.getListaLogClima() != null || r.getListaLogRegiao() != null || !r.getListaLogClima().isEmpty() || !r.getListaLogRegiao().isEmpty()){
+                    criarLogPrevisao(r.getListaLogClima(), r.getListaLogRegiao());
+                }
+
+
+
+            }
         }
 
 
 
     }
 
-    public static List<LogPrevisao>criarLogPrevisao(List<LogClima> logClimaList ,List<LogRegiao> logRegiaoList){
+    public static void criarLogPrevisao(List<LogClima> logClimaList ,List<LogRegiao> logRegiaoList){
         List <LogPrevisao> logPrevisaos = new ArrayList<>();
+        LocalDate Datainicio = logClimaList.get(0).getDataHora().toLocalDate();
+        LocalDate Datafinal = logClimaList.get(logClimaList.size() - 1).getDataHora().toLocalDate();
+        List<LocalDate> datas = new ArrayList<>();
+
+        for (LocalDate i = Datainicio ; i.equals(Datafinal) ; i.plusDays(1)) {
+                datas.add(i);
+        }
+
+        for (int i = 0; i < datas.size(); i++) {
+             LocalDate data = datas.get(i);
+             Integer qtdRequisicao = 1;
+             Double chanceDeChuva = 0.0;
+             Double chuvaEmMM = 1.0;
+            Double temperatura = 1.0;
+            Double umidade = 1.0;
+
+
+        for (LogClima l : logClimaList){
+            if (l.getDataHora().toLocalDate().equals(data)){
+                if (chanceDeChuva < l .getProbabilidadeChuva()){
+                    chanceDeChuva =  l .getProbabilidadeChuva();
+                }
+                if (chuvaEmMM < l.getMmChuva()){
+                    chuvaEmMM = l.getMmChuva();
+                }
+                if (temperatura < l.getTemperatura()){
+                    temperatura = l.getTemperatura();
+                }
+                if (umidade < l.getUmidade()){
+                    umidade = l.getUmidade();
+                }
+            }
+
+            for (LogRegiao lr : logRegiaoList) {
+                if (qtdRequisicao < lr.getQtdRequisicoes()){
+                    qtdRequisicao =  lr.getQtdRequisicoes();
+                }
+            }
+
+            LogPrevisao log = new LogPrevisao(chanceDeChuva,chuvaEmMM,data,qtdRequisicao,temperatura,umidade);
+            logPrevisaos.add(log);
+        }
+        List<LogPrevisao> listaNoPassado = new ArrayList<>();
+
+        for (LogPrevisao lp : logPrevisaos){
+            if (lp.getData().isBefore(LocalDate.now())){
+             listaNoPassado.add(lp);
+            }
+        }
+            Double residual = retornarResidual(listaNoPassado);
+            Integer mediana = retornarMediana(listaNoPassado);
+            Random random = new Random();
+
+
+        for (LogPrevisao lp : logPrevisaos){
+            if (lp.getData().isAfter(LocalDate.now())){
+                lp.setQtdRequisicao(mediana * random.nextInt(3) * residual.intValue());
+            }
+        }
 
 
 
-        return null;
+
+
+
+
+
+
+
+
+        }
 
     }
 
+    public static List<LogClima> buscarClimaRegiao(Integer idRegiao , Integer argumentoArquivo){
 
-
-
-
-
-    public static List<LogClima> buscarClimaRegiao(Integer idRegiao){
-
-        String nomeArq = "clima"+ idRegiao;
+        String nomeArq = "clima"+ argumentoArquivo;
 
         Reader arq = null;
         BufferedReader entrada = null;
@@ -108,11 +175,13 @@ public class TratamentoClima {
 
             linha = entrada.readLine();
             int contador = 0;
+
             while (linha != null) {
 
                 registro = linha.split(";");
 
                 if (contador > 0) {
+
                     Integer id = Integer.valueOf(registro[9]);
                     String dataHora = registro[1];
                     Double probabilidadeChuva = Double.valueOf(registro[3]);
@@ -120,9 +189,8 @@ public class TratamentoClima {
                     Double temperatura = Double.valueOf(registro[5]);
                     Double umidade = Double.valueOf(registro[6]);
 
+
                     if (idRegiao.equals(id)) {
-
-
                         String dataHoraFormatado = dataHora.replace('T', ' ');
                         LogClima logClima = new LogClima(dataHoraFormatado, probabilidadeChuva, mmChuva, temperatura, umidade);
                         listaClima.add(logClima);
@@ -149,8 +217,6 @@ public class TratamentoClima {
         return listaClima;
     }
 
-
-
     public static List<LogRegiao> buscarRegiaoServidor(Integer idServidor, List<Logs> listaLogs){
         List<LogRegiao> listaLogRegiao = new ArrayList<>();
 
@@ -163,14 +229,48 @@ public class TratamentoClima {
         return listaLogRegiao;
     }
 
+    public static Double retornarResidual(List<LogPrevisao> listaLogRegiao){
+        Integer media = 0;
 
-    public static void criarJsonPrevisao16Dias(List<Regiao> lr){
-        for (Regiao r : lr){
-            Integer residuo = r.retornarResidual().intValue();
-            Integer mediana = r.retornarMediana();
+        for (int i = 0; i < listaLogRegiao.size(); i++) {
+            media +=  listaLogRegiao.get(i).getQtdRequisicao();
+        }
+        media = media / listaLogRegiao.size();
 
-            Integer variacao = (int)((Math.random() * (3 - (-3) + 1)) - 3) * residuo;
+        Double totalResiduo = 0.0;
+        for (int i = 0; i < listaLogRegiao.size(); i++) {
+            Integer qtdReq = listaLogRegiao.get(i).getQtdRequisicao();
+            Integer residuo = 0;
+            if (media > qtdReq){
+                residuo = media - qtdReq;
+            }else {
+                residuo = qtdReq - media;
+            }
+            totalResiduo += Math.pow(residuo,2.0);
+        }
+        return totalResiduo / listaLogRegiao.size();
+    }
 
+    public static Integer retornarMediana(List<LogPrevisao> listaLogRegiao){
+        List<LogPrevisao> l = listaLogRegiao;
+
+        for (int i = 0; i < l.size(); i++) {
+            for (int j = 1; j < l.size(); j++) {
+                if (l.get(j - 1).getQtdRequisicao() > l.get(j).getQtdRequisicao()) {
+                    LogPrevisao aux = l.get(j);
+                    l.set(j, l.get(j - 1));
+                    l.set(j - 1, aux);
+                }
+            }
+        }
+
+        if (l.size() % 2 == 0 ){
+            return    l.get(l.size() / 2 - 1).getQtdRequisicao();
+        }else {
+            return    l.get(l.size() / 2 - 2).getQtdRequisicao();
         }
     }
+
+
+
 }

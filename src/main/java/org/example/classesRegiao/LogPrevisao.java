@@ -7,10 +7,10 @@ public class LogPrevisao {
     private Integer qtdRequisicao;
     private Double chanceDeChuva;
     private Double chuvaEmMM;
-    private Integer temperatura;
-    private Integer umidade;
+    private Double temperatura;
+    private Double umidade;
 
-    public LogPrevisao(Double chanceDeChuva, Double chuvaEmMM, LocalDate data, Integer qtdRequisicao, Integer temperatura, Integer umidade) {
+    public LogPrevisao(Double chanceDeChuva, Double chuvaEmMM, LocalDate data, Integer qtdRequisicao, Double temperatura, Double umidade) {
         this.chanceDeChuva = chanceDeChuva;
         this.chuvaEmMM = chuvaEmMM;
         this.data = data;
@@ -51,21 +51,45 @@ public class LogPrevisao {
         this.qtdRequisicao = qtdRequisicao;
     }
 
-    public Integer getTemperatura() {
+    public Double getTemperatura() {
         return temperatura;
     }
 
-    public void setTemperatura(Integer temperatura) {
+    public void setTemperatura(Double temperatura) {
         this.temperatura = temperatura;
     }
 
-    public Integer getUmidade() {
+    public Double getUmidade() {
         return umidade;
     }
 
-    public void setUmidade(Integer umidade) {
+    public void setUmidade(Double umidade) {
         this.umidade = umidade;
     }
+
+    public Double qtdReqPrevistas(){
+        return qtdRequisicao * chuvaEmMM * 0.25 + temperatura * 0.5;
+    }
+
+    public Double chanceDeAlteracao(){
+        Double chance = chanceDeChuva;
+
+        if (temperatura > 30 || temperatura < 5 ){
+            chance += 5.0;
+        } else if (temperatura > 20 || temperatura < 10) {
+            chance += 2.0;
+        }
+
+        if (chance > 100.00){
+            chance = 100.00;
+        }
+        return chance;
+    }
+
+    public Double usoRAM(Double req){
+        return req * 0.003;
+    }
+
 
     @Override
     public String toString() {
