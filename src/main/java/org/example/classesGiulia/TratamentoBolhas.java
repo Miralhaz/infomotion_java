@@ -441,6 +441,7 @@ public class TratamentoBolhas {
                 }
 
                 Double temp = logAtual.getTempCpu();
+                System.out.println("------------ Temperatura de CPU: " + temp + " ------------");
                 maxTemp = Math.max(maxTemp, temp);
                 Boolean acimaLimite = temp > limiteCpu;
 
@@ -481,6 +482,13 @@ public class TratamentoBolhas {
             if (totalMinutosAcima > 0){
                 String apelidoServidor = logsServidor.get(0).getApelido();
                 String classificacao = critico ? "CRITICO" : "ATENCAO";
+                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxTemp, totalMinutosAcima, classificacao);
+
+                listaBolhasTempCpu.add(bolha);
+            }
+            else {
+                String apelidoServidor = logsServidor.get(0).getApelido();
+                String classificacao = "OK";
                 LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxTemp, totalMinutosAcima, classificacao);
 
                 listaBolhasTempCpu.add(bolha);
@@ -595,6 +603,12 @@ public class TratamentoBolhas {
             if (totalMinutosAcima > 0){
                 String apelidoServidor = logsServidor.get(0).getApelido();
                 String classificacao = critico ? "CRITICO" : "ATENCAO";
+                LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxTemp, totalMinutosAcima, classificacao);
+
+                listaBolhasTempDisco.add(bolha);
+            } else {
+                String apelidoServidor = logsServidor.get(0).getApelido();
+                String classificacao = "OK";
                 LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, maxTemp, totalMinutosAcima, classificacao);
 
                 listaBolhasTempDisco.add(bolha);

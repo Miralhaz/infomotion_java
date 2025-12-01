@@ -628,11 +628,11 @@ public class Main {
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
-            // comeco tratamento willian
+            // começo tratamento Willian
             // Na main da equipe, após instanciar aws e db:
             ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
             tratamentoDisco.executarTratamento();
-            // final tratamento willian
+            // final tratamento Willian
 
             aws.limparTemporarios();
         }
