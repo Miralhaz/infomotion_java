@@ -31,13 +31,13 @@ public class TratamentoHistorico {
 
         for (Logs log : logs){
             LocalDateTime timestamp = log.getDataHora();
-            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), timestamp, 0, log.getCpu(), log.getRam(), log.getDisco(), log.getTmp_cpu(), log.getTmp_disco(), 0, 0, 0, 0);
+            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), timestamp, 0, log.getCpu(), log.getRam(), log.getDisco(), log.getTmp_cpu(), log.getTmp_disco(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), 0, 0, 0, 0, 0);
             listaLogs.add(logCriticidade);
         }
         return listaLogs;
     }
 
-    public Integer calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Character medida){
+    public Integer calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, String medida){
 
         Integer contadorAlertas = 0;
         LocalDateTime inicioPico = null;
@@ -52,7 +52,7 @@ public class TratamentoHistorico {
             }
             Double uso = 0.0;
 
-            if (componente.equalsIgnoreCase("CPU") && medida.equals('%')){
+            if (componente.equalsIgnoreCase("CPU") && medida.equals("%")){
                 uso = logAtual.getUsoCpu();
             }
 
@@ -60,15 +60,15 @@ public class TratamentoHistorico {
                 uso = logAtual.getUsoRam();
             }
 
-            if(componente.equalsIgnoreCase("DISCO")){
+            if(componente.equalsIgnoreCase("DISCO") && medida.equals("%")){
                 uso = logAtual.getUsoDisco();
             }
 
-            if (componente.equalsIgnoreCase("CPU") && medida.equals('C')){
+            if (componente.equalsIgnoreCase("CPU") && medida.equals("C")){
                 uso = logAtual.getTempCpu();
             }
 
-            if (componente.equalsIgnoreCase("DISCO") && medida.equals('C')){
+            if (componente.equalsIgnoreCase("DISCO") && medida.equals("C")){
                 uso = logAtual.getTempDisco();
             }
 
@@ -87,11 +87,11 @@ public class TratamentoHistorico {
                     long seg = Duration.between(inicioPico, ultimoAcima).toSeconds();
                     Integer minutos = (int) Math.max(1, (seg + 59) / 60);
 
-                    if (medida.equals('%')) {
+                    if (medida.equals("%")) {
                         if (minutos >= duracao) {
                             contadorAlertas++;
                         }
-                    } else{
+                    } else if(medida.equals("C")){
                         if (minutos >= duracao) {
                             contadorAlertas++;
                         }
@@ -107,11 +107,11 @@ public class TratamentoHistorico {
             long seg = Duration.between(inicioPico, ultimoAcima).toSeconds();
             Integer minutos = (int) Math.max(1, (seg + 59) / 60);
 
-            if (medida.equals('%')) {
+            if (medida.equals("%")) {
                 if (minutos >= duracao) {
                     contadorAlertas++;
                 }
-            } else{
+            } else if(medida.equals("C")){
                 if (minutos >= duracao) {
                     contadorAlertas++;
                 }
@@ -119,6 +119,78 @@ public class TratamentoHistorico {
         }
         return contadorAlertas;
     }
+
+    private long getValorRede(LogsGiuliaCriticidade log, String unidade) {
+        return switch (unidade.toUpperCase()) {
+            case "UPLOAD" -> log.getUploadByte();
+            case "DOWNLOAD" -> log.getDownloadByte();
+            case "PCKT_RCVD" -> log.getPacketReceived();
+            case "PCKT_SNT" -> log.getPacketSent();
+            default -> 0L;
+        };
+    }
+
+    public Integer calcularAlertasRede(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String unidadeMedida) {
+
+        Integer contadorAlertas = 0;
+        Boolean emFaixa = false;
+        Integer faixaAtual = 0;
+        LocalDateTime inicio = null;
+        LocalDateTime fim = null;
+
+        for (LogsGiuliaCriticidade log : logsServidor) {
+            LocalDateTime t = log.getTimestamp();
+            if (t == null) {
+                continue;
+            }
+
+            Double uso = (double) getValorRede(log, unidadeMedida);
+            Integer faixa;
+
+            if (uso < limite) {
+                faixa = 2;
+            }
+            else if (uso <= 2 * limite) {
+                faixa = 1;
+            }
+            else {
+                faixa = 0;
+            }
+
+            if (emFaixa && inicio != null && fim != null && (faixa == 0 || faixa != faixaAtual)) {
+                long seg = Duration.between(inicio, fim).toSeconds();
+                Integer minutos = (int) Math.max(1, (seg + 59) / 60);
+                if (minutos >= duracao) {
+                    contadorAlertas++;
+                }
+
+                emFaixa = false;
+                faixaAtual = 0;
+                inicio = null;
+                fim = null;
+            }
+
+            if (faixa > 0) {
+                if (!emFaixa) {
+                    emFaixa = true;
+                    faixaAtual = faixa;
+                    inicio = t;
+                }
+                fim = t;
+            }
+        }
+
+        if (emFaixa && inicio != null && fim != null) {
+            long seg = Duration.between(inicio, fim).toSeconds();
+            Integer minutos = (int) Math.max(1, (seg + 59) / 60);
+            if (minutos >= duracao) {
+                contadorAlertas++;
+            }
+        }
+
+        return contadorAlertas;
+    }
+
 
     public void classificarAlertas(List<Logs> logsConsolidados, Integer dias) {
         System.out.println("\n⚠\uFE0F Classificando alertas...");
@@ -180,9 +252,14 @@ public class TratamentoHistorico {
             List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "%");
             List<Double> listaTempCpu = con.queryForList(selectTipo, Double.class, "CPU", id, "C");
             List<Double> listaTempDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "C");
+            List<Double> listaUp = con.queryForList(selectTipo, Double.class, "REDE", id, "UPLOAD");
+            List<Double> listaDown = con.queryForList(selectTipo, Double.class, "REDE", id, "DOWNLOAD");
+            List<Double> listaRcvd = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_RCVD");
+            List<Double> listaSnt = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_SNT");
 
-            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty()) {
-                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO). Pulando.%n", id);
+
+            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty() || listaUp.isEmpty() || listaDown.isEmpty() || listaRcvd.isEmpty() || listaSnt.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO/UP/DOWN/RCVD/SNT). Pulando.%n", id);
                 continue;
             }
 
@@ -191,15 +268,23 @@ public class TratamentoHistorico {
             Double limiteDisco = listaDisco.get(0);
             Double limiteTempCpu = listaTempCpu.get(0);
             Double limiteTempDisco = listaTempDisco.get(0);
+            Double limiteUp = listaUp.get(0);
+            Double limiteDown = listaDown.get(0);
+            Double limiteRcvd = listaRcvd.get(0);
+            Double limiteSnt = listaSnt.get(0);
 
             List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "%");
             List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, "RAM", id, "%");
             List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "%");
             List<Integer> listaDuracaoTempCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "C");
             List<Integer> listaDuracaoTempDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "C");
+            List<Integer> listaDuracaoUp = con.queryForList(selectDuracao, Integer.class, "REDE", id, "UPLOAD");
+            List<Integer> listaDuracaoDown = con.queryForList(selectDuracao, Integer.class, "REDE", id, "DOWNLOAD");
+            List<Integer> listaDuracaoRcvd = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_RCVD");
+            List<Integer> listaDuracaoSnt = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_SNT");
 
 
-            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty()) {
+            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty() || listaDuracaoUp.isEmpty() || listaDuracaoDown.isEmpty() || listaDuracaoRcvd.isEmpty() || listaDuracaoSnt.isEmpty()) {
                 System.out.printf("Servidor %d sem duracao_min completo. Pulando.%n", id);
                 continue;
             }
@@ -209,32 +294,54 @@ public class TratamentoHistorico {
             Integer duracaoDisco = listaDuracaoDisco.get(0);
             Integer duracaoTempCpu = listaDuracaoTempCpu.get(0);
             Integer duracaoTempDisco = listaDuracaoTempDisco.get(0);
+            Integer duracaoUp = listaDuracaoUp.get(0);
+            Integer duracaoDown = listaDuracaoDown.get(0);
+            Integer duracaoRcvd = listaDuracaoRcvd.get(0);
+            Integer duracaoSnt = listaDuracaoSnt.get(0);
 
             Integer alertasCpu = 0;
             Integer alertasRam = 0;
             Integer alertasDisco = 0;
             Integer alertasTempCpu = 0;
             Integer alertasTempDisco = 0;
+            Integer alertasUp = 0;
+            Integer alertasDown = 0;
+            Integer alertasRcvd = 0;
+            Integer alertasSnt = 0;
 
             if (limiteCpu != null && duracaoCpu != null) {
-                alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU", '%');
+                alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU", "%");
             }
             if (limiteRam != null && duracaoRam != null) {
-                alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM", '%');
+                alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM", "%");
             }
             if (limiteDisco != null && duracaoDisco != null) {
-                alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO", '%');
+                alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO", "%");
             }
             if (limiteTempCpu != null && duracaoTempCpu != null) {
-                alertasTempCpu = calcularAlertas(logsPeriodo, limiteTempCpu, duracaoTempCpu, "CPU", 'C');
+                alertasTempCpu = calcularAlertas(logsPeriodo, limiteTempCpu, duracaoTempCpu, "CPU", "C");
             }
             if (limiteTempDisco != null && duracaoTempDisco != null) {
-                alertasTempDisco = calcularAlertas(logsPeriodo, limiteTempDisco, duracaoTempDisco, "DISCO", 'C');
+                alertasTempDisco = calcularAlertas(logsPeriodo, limiteTempDisco, duracaoTempDisco, "DISCO", "C");
+            }
+            if (limiteUp != null && duracaoUp != null) {
+                alertasUp = calcularAlertasRede(logsPeriodo, limiteUp, duracaoUp, "UPLOAD");
+            }
+            if (limiteDown != null && duracaoDown != null) {
+                alertasDown = calcularAlertasRede(logsPeriodo, limiteDown, duracaoDown, "DOWNLOAD");
+            }
+            if (limiteRcvd != null && duracaoRcvd != null) {
+                alertasRcvd = calcularAlertasRede(logsPeriodo, limiteRcvd, duracaoRcvd, "PCKT_RCVD");
+            }
+            if (limiteSnt != null && duracaoSnt != null) {
+                alertasSnt = calcularAlertasRede(logsPeriodo, limiteSnt, duracaoSnt, "PCKT_SNT");
             }
 
             alertasCpu += alertasTempCpu;
             alertasDisco += alertasTempDisco;
-            Integer totalAlertas = alertasCpu + alertasRam + alertasDisco;
+
+            Integer alertasRede = (alertasUp + alertasDown + alertasRcvd + alertasSnt);
+            Integer totalAlertas = (alertasCpu + alertasRam + alertasDisco + alertasRede);
 
             Map<String, Object> row = new LinkedHashMap<>();
             row.put("fk_servidor", id);
@@ -243,6 +350,7 @@ public class TratamentoHistorico {
             row.put("alertasCpu", alertasCpu);
             row.put("alertasRam", alertasRam);
             row.put("alertasDisco", alertasDisco);
+            row.put("alertasRede", alertasRede);
             row.put("totalAlertas", totalAlertas);
 
             lista.add(row);
@@ -277,6 +385,7 @@ public class TratamentoHistorico {
                            "alertasCpu": %d,
                            "alertasRam": %d,
                            "alertasDisco": %d,
+                           "alertasRede": %d,
                            "totalAlertas": %d
                            }""",
                         (Integer) map.get("fk_servidor"),
@@ -285,6 +394,7 @@ public class TratamentoHistorico {
                         (Integer) map.get("alertasCpu"),
                         (Integer) map.get("alertasRam"),
                         (Integer) map.get("alertasDisco"),
+                        (Integer) map.get("alertasRede"),
                         (Integer) map.get("totalAlertas")
                 ));
             }

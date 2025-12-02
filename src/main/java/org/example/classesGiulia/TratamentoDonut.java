@@ -29,20 +29,20 @@ public class TratamentoDonut {
 
         for (Logs log : logs){
             LocalDateTime timestamp = log.getDataHora();
-            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), 0, timestamp, log.getCpu(), log.getRam(), log.getDisco(), log.getTmp_cpu(), log.getTmp_disco(), "");
+            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), 0, timestamp, log.getCpu(), log.getRam(), log.getDisco(), log.getTmp_cpu(), log.getTmp_disco(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), "");
             listaLogs.add(logCriticidade);
         }
         return listaLogs;
     }
 
 
-    public Integer calcularAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Character medida) {
+    public Integer calcularAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, String medida) {
 
         Integer contadorMinutos = 0;
         Integer contadorDuracao = 0;
         LocalDateTime dataInicioCaptura = null;
 
-        if (medida.equals('%')) {
+        if (medida.equals("%")) {
 
             for (int i = 0; i < logsServidor.size(); i++) {
                 LogsGiuliaCriticidade logAtual = logsServidor.get(i);
@@ -88,7 +88,7 @@ public class TratamentoDonut {
             }
             return contadorMinutos;
 
-        } else {
+        } else if (medida.equals("C")) {
 
             Boolean tevePico = false;
             Integer nivel = 0;
@@ -136,6 +136,83 @@ public class TratamentoDonut {
                 if (minutos >= duracao) return 2;
             }
             return tevePico ? 1 : 0;
+        }
+
+        else {
+
+            Integer piorNivel = 0;
+            Boolean teveProblema = false;
+            Integer nivelFaixa = 0;
+            LocalDateTime inicioProblema = null;
+            LocalDateTime fimProblema = null;
+
+            for (int i = 0; i < logsServidor.size(); i++) {
+                LogsGiuliaCriticidade logAtual = logsServidor.get(i);
+                LocalDateTime t = logAtual.getTimestamp();
+                if (t == null) {
+                    continue;
+                }
+                long uso = 0;
+
+                if (medida.equalsIgnoreCase("UPLOAD")) {
+                    uso = logAtual.getUploadByte();
+                }
+
+                if (medida.equalsIgnoreCase("DOWNLOAD")) {
+                    uso = logAtual.getDownloadByte();
+                }
+
+                if (medida.equalsIgnoreCase("PCKT_RCVD")) {
+                    uso = logAtual.getPacketReceived();
+                }
+
+                if (medida.equalsIgnoreCase("PCKT_SNT")) {
+                    uso = logAtual.getPacketSent();
+                }
+
+                Integer nivelAtual;
+
+                if (uso < limite) {
+                    nivelAtual = 2; // CRITICO
+                } else if (uso <= (2 * limite)) {
+                    nivelAtual = 1; // ATENCAO
+                } else {
+                    nivelAtual = 0; // OK
+                }
+
+                if (teveProblema && nivelAtual != nivelFaixa) {
+                    long seg = Duration.between(inicioProblema, fimProblema).toSeconds();
+                    long minutos = Math.max(1, (seg + 59) / 60);
+
+                    if (minutos >= duracao) {
+                        piorNivel = Math.max(piorNivel, nivelFaixa);
+                        if (piorNivel == 2) {
+                            return 2;
+                        }
+                    }
+                    teveProblema = false;
+                    inicioProblema = null;
+                    fimProblema = null;
+                }
+                if (nivelAtual > 0) {
+                    if (!teveProblema) {
+                        teveProblema = true;
+                        nivelFaixa = nivelAtual;
+                        inicioProblema = t;
+                    }
+                    fimProblema = t;
+                }
+            }
+
+                if (teveProblema && (inicioProblema != null && fimProblema != null)){
+                    long seg =  Duration.between(inicioProblema, fimProblema).toSeconds();
+                    long minutos = Math.max(1, (seg + 59)/60);
+
+                    if (minutos >= duracao){
+                        piorNivel = Math.max(piorNivel, nivelFaixa);
+                    }
+                }
+                return piorNivel;
         }
     }
 
@@ -189,9 +266,13 @@ public class TratamentoDonut {
             List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "%");
             List<Double> listaTempCpu = con.queryForList(selectTipo, Double.class, "CPU", id, "C");
             List<Double> listaTempDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "C");
+            List<Double> listaUp = con.queryForList(selectTipo, Double.class, "REDE", id, "UPLOAD");
+            List<Double> listaDown = con.queryForList(selectTipo, Double.class, "REDE", id, "DOWNLOAD");
+            List<Double> listaRcvd = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_RCVD");
+            List<Double> listaSnt = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_SNT");
 
-            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty()) {
-                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO). Pulando.%n", id);
+            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty() || listaUp.isEmpty() || listaDown.isEmpty() || listaRcvd.isEmpty() || listaSnt.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO/UPLOAD/DOWNLOAD/PACKT_RCVD/PCKT_SNT). Pulando.%n", id);
                 continue;
             }
 
@@ -200,15 +281,22 @@ public class TratamentoDonut {
             Double limiteDisco = listaDisco.get(0);
             Double limiteTempCpu = listaTempCpu.get(0);
             Double limiteTempDisco = listaTempDisco.get(0);
+            Double limiteUp = listaUp.get(0);
+            Double limiteDown = listaDown.get(0);
+            Double limiteRcvd = listaRcvd.get(0);
+            Double limiteSnt = listaSnt.get(0);
 
             List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "%");
             List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, "RAM", id, "%");
             List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "%");
             List<Integer> listaDuracaoTempCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "C");
             List<Integer> listaDuracaoTempDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "C");
+            List<Integer> listaDuracaoUp = con.queryForList(selectDuracao, Integer.class, "REDE", id, "UPLOAD");
+            List<Integer> listaDuracaoDown = con.queryForList(selectDuracao, Integer.class, "REDE", id, "DOWNLOAD");
+            List<Integer> listaDuracaoRcvd = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_RCVD");
+            List<Integer> listaDuracaoSnt = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_SNT");
 
-
-            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty()) {
+            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty() || listaDuracaoUp.isEmpty() || listaDuracaoDown.isEmpty() || listaDuracaoRcvd.isEmpty() || listaDuracaoSnt.isEmpty()) {
                 System.out.printf("Servidor %d sem duracao_min completo. Pulando.%n", id);
                 continue;
             }
@@ -216,40 +304,60 @@ public class TratamentoDonut {
             Integer duracaoCpu = listaDuracaoCpu.get(0);
             Integer duracaoRam = listaDuracaoRam.get(0);
             Integer duracaoDisco = listaDuracaoDisco.get(0);
-            Integer duaracoTempCpu = listaDuracaoTempCpu.get(0);
-            Integer duaracoTempDisco = listaDuracaoTempDisco.get(0);
+            Integer duracaoTempCpu = listaDuracaoTempCpu.get(0);
+            Integer duracaoTempDisco = listaDuracaoTempDisco.get(0);
+            Integer duracaoUp = listaDuracaoUp.get(0);
+            Integer duracaoDown = listaDuracaoDown.get(0);
+            Integer duracaoRcvd = listaDuracaoRcvd.get(0);
+            Integer duracaoSnt = listaDuracaoSnt.get(0);
 
             Integer minCpu = 0;
             Integer minRam = 0;
             Integer minDisco = 0;
             Integer numTempCpu = 0;
             Integer numTempDisco = 0;
+            Integer numUp = 0;
+            Integer numDown = 0;
+            Integer numRcvd = 0;
+            Integer numSnt = 0;
 
             if (limiteCpu != null && duracaoCpu != null) {
-                minCpu = calcularAcimaComponente(logsServidor, limiteCpu, duracaoCpu, "CPU", '%');
+                minCpu = calcularAcimaComponente(logsServidor, limiteCpu, duracaoCpu, "CPU", "%");
             }
             if (limiteRam != null && duracaoRam != null) {
-                minRam = calcularAcimaComponente(logsServidor, limiteRam, duracaoRam, "RAM", '%');
+                minRam = calcularAcimaComponente(logsServidor, limiteRam, duracaoRam, "RAM", "%");
             }
             if (limiteDisco != null && duracaoDisco != null) {
-                minDisco = calcularAcimaComponente(logsServidor, limiteDisco, duracaoDisco, "DISCO", '%');
+                minDisco = calcularAcimaComponente(logsServidor, limiteDisco, duracaoDisco, "DISCO", "%");
             }
-            if (limiteTempCpu != null && duaracoTempCpu != null){
-                numTempCpu = calcularAcimaComponente(logsServidor, limiteTempCpu, duaracoTempCpu, "CPU", 'C');
+            if (limiteTempCpu != null && duracaoTempCpu != null){
+                numTempCpu = calcularAcimaComponente(logsServidor, limiteTempCpu, duracaoTempCpu, "CPU", "C");
             }
-            if (limiteTempDisco != null && duaracoTempDisco != null){
-                numTempDisco = calcularAcimaComponente(logsServidor, limiteTempDisco, duaracoTempDisco, "DISCO", 'C');
+            if (limiteTempDisco != null && duracaoTempDisco != null){
+                numTempDisco = calcularAcimaComponente(logsServidor, limiteTempDisco, duracaoTempDisco, "DISCO", "C");
+            }
+            if (limiteUp != null && duracaoUp != null){
+                numUp = calcularAcimaComponente(logsServidor, limiteUp, duracaoUp, "REDE", "UPLOAD");
+            }
+            if (limiteDown != null && duracaoDown != null){
+                numDown = calcularAcimaComponente(logsServidor, limiteDown, duracaoDown, "REDE", "DOWNLOAD");
+            }
+            if (limiteRcvd != null && duracaoRcvd != null){
+                numRcvd = calcularAcimaComponente(logsServidor, limiteRcvd, duracaoRcvd, "REDE", "PCKT_RCVD");
+            }
+            if (limiteSnt != null && duracaoSnt != null){
+                numSnt= calcularAcimaComponente(logsServidor, limiteSnt, duracaoSnt, "REDE", "PCKT_SNT");
             }
 
             String classificacao;
             Integer maiorMinuto = Math.max(minCpu, Math.max(minRam, minDisco));
 
-            if (maiorMinuto >= 30 || (numTempCpu == 2 || numTempDisco == 2)){
+            if (maiorMinuto >= 30 || (numTempCpu == 2 || numTempDisco == 2) || (numUp == 2 || numDown == 2 || numRcvd == 2 || numSnt == 2)){
                 classificacao = "CRITICO";
                 contadorCritico++;
             }
 
-            else if(maiorMinuto >= 5 || (numTempCpu == 1 || numTempDisco == 1)){
+            else if(maiorMinuto >= 5 || (numTempCpu == 1 || numTempDisco == 1) || (numUp == 1 || numDown == 1 || numRcvd == 1 || numSnt == 1)){
                 classificacao = "ATENCAO";
                 contadorAtencao++;
             }
@@ -301,9 +409,13 @@ public class TratamentoDonut {
                            "disco": %.2f,
                            "tempCpu": %.2f,
                            "tempDisco": %.2f,
+                           "uploadByte": %d,
+                           "downloadByte": %d,
+                           "packetReceived": %d,
+                           "packetSent": %d,
                            "classificacao": "%s"
                            }""",
-                        log.getFk_servidor(), log.getApelido(), timestamp, log.getMinutos() == null ? 0 : log.getMinutos(), log.getUsoCpu(), log.getUsoRam(), log.getUsoDisco(), log.getTempCpu(), log.getTempDisco(), log.getClassificacao() == null ? "" : log.getClassificacao()));
+                        log.getFk_servidor(), log.getApelido(), timestamp, log.getMinutos() == null ? 0 : log.getMinutos(), log.getUsoCpu(), log.getUsoRam(), log.getUsoDisco(), log.getTempCpu(), log.getTempDisco(), log.getUploadByte(), log.getDownloadByte(), log.getPacketReceived(), log.getPacketSent(), log.getClassificacao() == null ? "" : log.getClassificacao()));
 
                 contador ++;
             }

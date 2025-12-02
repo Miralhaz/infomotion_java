@@ -37,6 +37,10 @@ public class TratamentoBolhas {
                     log.getDisco(),
                     log.getTmp_cpu(),
                     log.getTmp_disco(),
+                    log.getUpload_bytes(),
+                    log.getDownload_bytes(),
+                    log.getPacotes_recebidos(),
+                    log.getPacotes_enviados(),
                     ""
             );
             listaLogs.add(logCriticidade);
@@ -441,7 +445,6 @@ public class TratamentoBolhas {
                 }
 
                 Double temp = logAtual.getTempCpu();
-                System.out.println("------------ Temperatura de CPU: " + temp + " ------------");
                 maxTemp = Math.max(maxTemp, temp);
                 Boolean acimaLimite = temp > limiteCpu;
 
@@ -617,6 +620,162 @@ public class TratamentoBolhas {
         gravaArquivoJson(listaBolhasTempDisco, "criticidadeTempDisco");
         awsCon.uploadBucketClient(PASTA_CLIENT, "criticidadeTempDisco.json");
     }
+
+    private long getValorRede(LogsGiuliaCriticidade log, String unidade) {
+        return switch (unidade.toUpperCase()) {
+            case "UPLOAD" -> log.getUploadByte();
+            case "DOWNLOAD" -> log.getDownloadByte();
+            case "PCKT_RCVD" -> log.getPacketReceived();
+            case "PCKT_SNT" -> log.getPacketSent();
+            default -> 0L;
+        };
+    }
+
+    public void gerarBolhasRede(List<Logs> logsConsolidados, String unidadeMedida) {
+        System.out.printf("\n\uD83E\uDEE7 Gerando bolhas de REDE (%s)...", unidadeMedida);
+
+        List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
+        Set<Integer> idsServidores = new LinkedHashSet<>();
+        for (LogsGiuliaCriticidade log : listaLogs) {
+            idsServidores.add(log.getFk_servidor());
+        }
+
+        List<LogsGiuliaCriticidade> listaBolhas = new ArrayList<>();
+
+        String selectLimite = ("""
+        select cast(pa.max as decimal(18,2)) as limite
+        from parametro_alerta pa
+        inner join componentes c on c.id = pa.fk_componente
+        where c.tipo = 'REDE' and pa.fk_servidor = (?) and pa.unidade_medida = (?);
+    """);
+
+        String selectDuracao = ("""
+        select cast(pa.duracao_min as unsigned) as duracao
+        from parametro_alerta pa
+        inner join componentes c on c.id = pa.fk_componente
+        where c.tipo = 'REDE' and pa.fk_servidor = (?) and pa.unidade_medida = (?);
+    """);
+
+        for (Integer id : idsServidores) {
+            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
+            for (LogsGiuliaCriticidade log : listaLogs) {
+                if (log.getFk_servidor().equals(id)) logsServidor.add(log);
+            }
+            if (logsServidor.isEmpty()) {
+                continue;
+            }
+            logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
+
+            List<Double> limites = con.queryForList(selectLimite, Double.class, id, unidadeMedida);
+            List<Integer> duracoes = con.queryForList(selectDuracao, Integer.class, id, unidadeMedida);
+
+            if (limites.isEmpty() || duracoes.isEmpty()) {
+                System.out.printf("Servidor %d sem parametro REDE (%s) - pulando.%n", id, unidadeMedida);
+                continue;
+            }
+
+            Double limite = limites.get(0);
+            Integer duracaoMin = duracoes.get(0);
+
+            Boolean emFaixa = false;
+            Integer faixaAtual = 0;
+            LocalDateTime inicio = null;
+            LocalDateTime fim = null;
+
+            Integer minutosCritico = 0;
+            Integer minutosAtencao = 0;
+
+            Double piorValorObservado = Double.POSITIVE_INFINITY;
+
+            for (LogsGiuliaCriticidade log : logsServidor) {
+                LocalDateTime t = log.getTimestamp();
+                if (t == null) {
+                    continue;
+                }
+
+                long usoLong = getValorRede(log, unidadeMedida);
+                Double uso = (double) usoLong;
+                piorValorObservado = Math.min(piorValorObservado, uso);
+
+                Integer faixa;
+                if (uso < limite) {
+                    faixa = 2;
+                }
+                else if (uso <= 2 * limite) {
+                    faixa = 1;
+                }
+                else {
+                    faixa = 0;
+                }
+
+                if (emFaixa && (faixa == 0 || faixa != faixaAtual)) {
+                    long seg = Duration.between(inicio, fim).toSeconds();
+                    Integer minutos = (int) Math.max(1, (seg + 59)/60);
+
+                    if (minutos >= duracaoMin) {
+                        if (faixaAtual == 2) minutosCritico += minutos;
+                        else if (faixaAtual == 1) minutosAtencao += minutos;
+                    }
+
+                    emFaixa = false;
+                    faixaAtual = 0;
+                    inicio = null;
+                    fim = null;
+                }
+
+                if (faixa > 0) {
+                    if (!emFaixa) {
+                        emFaixa = true;
+                        faixaAtual = faixa;
+                        inicio = t;
+                    }
+                    fim = t;
+                }
+            }
+
+            if (emFaixa && inicio != null && fim != null) {
+                long seg = Duration.between(inicio, fim).toSeconds();
+                Integer minutos = (int) Math.max(1, (seg + 59) / 60);
+
+                if (minutos >= duracaoMin) {
+                    if (faixaAtual == 2) {
+                        minutosCritico += minutos;
+                    }
+                    else if (faixaAtual == 1) {
+                        minutosAtencao += minutos;
+                    }
+                }
+            }
+
+            String apelidoServidor = logsServidor.get(0).getApelido();
+
+            String classificacao;
+            int minutos;
+            if (minutosCritico > 0) {
+                classificacao = "CRITICO";
+                minutos = minutosCritico;
+            } else if (minutosAtencao > 0) {
+                classificacao = "ATENCAO";
+                minutos = minutosAtencao;
+            } else {
+                classificacao = "OK";
+                minutos = 0;
+            }
+
+            if (piorValorObservado == Double.POSITIVE_INFINITY) {
+                piorValorObservado = 0.0;
+            }
+
+            LogsGiuliaCriticidade bolha = new LogsGiuliaCriticidade(id, apelidoServidor, piorValorObservado, minutos, classificacao);
+            listaBolhas.add(bolha);
+        }
+
+        String nomeArq = "criticidade" + unidadeMedida;
+        gravaArquivoJson(listaBolhas, nomeArq);
+        awsCon.uploadBucketClient(PASTA_CLIENT, nomeArq + ".json");
+    }
+
+
 
     public static void gravaArquivoJson(List<LogsGiuliaCriticidade> lista, String nomeArq) {
 

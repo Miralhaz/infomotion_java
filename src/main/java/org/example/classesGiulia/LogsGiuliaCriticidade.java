@@ -20,10 +20,16 @@ public class LogsGiuliaCriticidade {
     private Integer alertasCpu;
     private Integer alertasRam;
     private Integer alertasDisco;
+    private Integer alertasRede;
     private Integer totalAlertas;
 
+    private Long uploadByte;
+    private Long downloadByte;
+    private Long packetReceived;
+    private Long packetSent;
+
     // Construtores:
-    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Integer minutos, LocalDateTime timestamp, Double usoCpu, Double usoRam, Double usoDisco, Double tempCpu, Double tempDisco, String classificacao) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, Integer minutos, LocalDateTime timestamp, Double usoCpu, Double usoRam, Double usoDisco, Double tempCpu, Double tempDisco, Long uploadByte, Long downloadByte, Long packetSent, Long packetReceived, String classificacao) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
         this.minutos = minutos;
@@ -33,6 +39,10 @@ public class LogsGiuliaCriticidade {
         this.usoDisco = usoDisco;
         this.tempCpu = tempCpu;
         this.tempDisco = tempDisco;
+        this.uploadByte = uploadByte;
+        this.downloadByte = downloadByte;
+        this.packetReceived = packetReceived;
+        this.packetSent = packetSent;
         this.classificacao = classificacao;
     }
 
@@ -44,7 +54,7 @@ public class LogsGiuliaCriticidade {
         this.classificacao = classificacao;
     }
 
-    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, LocalDateTime timestamp, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, Double tempCpu, Double tempDisco, Integer alertasCpu, Integer alertasRam, Integer alertasDisco, Integer totalAlertas) {
+    public LogsGiuliaCriticidade(Integer fk_servidor, String apelido, LocalDateTime timestamp, Integer minutos, Double usoCpu, Double usoRam, Double usoDisco, Double tempCpu, Double tempDisco, Long uploadByte, Long downloadByte, Long packetSent, Long packetReceived, Integer alertasCpu, Integer alertasRam, Integer alertasDisco, Integer alertasRede, Integer totalAlertas) {
         this.fk_servidor = fk_servidor;
         this.apelido = apelido;
         this.timestamp = timestamp;
@@ -54,9 +64,14 @@ public class LogsGiuliaCriticidade {
         this.usoDisco = usoDisco;
         this.tempCpu = tempCpu;
         this.tempDisco = tempDisco;
+        this.uploadByte = uploadByte;
+        this.downloadByte = downloadByte;
+        this.packetReceived = packetReceived;
+        this.packetSent = packetSent;
         this.alertasCpu = alertasCpu;
         this.alertasRam = alertasRam;
         this.alertasDisco = alertasDisco;
+        this.alertasRede = alertasRede;
         this.totalAlertas = totalAlertas;
     }
 
@@ -183,6 +198,46 @@ public class LogsGiuliaCriticidade {
         this.tempDisco = tempDisco;
     }
 
+    public Long getUploadByte() {
+        return uploadByte;
+    }
+
+    public void setUploadByte(Long uploadByte) {
+        this.uploadByte = uploadByte;
+    }
+
+    public Long getDownloadByte() {
+        return downloadByte;
+    }
+
+    public void setDownloadByte(Long downloadByte) {
+        this.downloadByte = downloadByte;
+    }
+
+    public Long getPacketReceived() {
+        return packetReceived;
+    }
+
+    public void setPacketReceived(Long packetReceived) {
+        this.packetReceived = packetReceived;
+    }
+
+    public Long getPacketSent() {
+        return packetSent;
+    }
+
+    public void setPacketSent(Long packetSent) {
+        this.packetSent = packetSent;
+    }
+
+    public Integer getAlertasRede() {
+        return alertasRede;
+    }
+
+    public void setAlertasRede(Integer alertasRede) {
+        this.alertasRede = alertasRede;
+    }
+
     // toString():
     @Override
     public String toString() {
@@ -201,7 +256,12 @@ public class LogsGiuliaCriticidade {
                 " | alertasCpu:" + alertasCpu +
                 " | alertasRam:" + alertasRam +
                 " | alertasDisco:" + alertasDisco +
+                " | alertasRede:" + alertasRede +
                 " | totalAlertas:" + totalAlertas +
+                " | uploadByte:" + uploadByte +
+                " | downloadByte:" + downloadByte +
+                " | packetReceived:" + packetReceived +
+                " | packetSent:" + packetSent +
                 '}';
     }
 }

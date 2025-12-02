@@ -33,7 +33,7 @@ public class TratamentoHistoricoServidor {
 
         for (Logs log : logs){
             LocalDateTime timestamp = log.getDataHora();
-            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), timestamp, 0, log.getCpu(), log.getRam(), log.getDisco(), log.getTmp_cpu(), log.getTmp_disco(), 0, 0, 0, 0);
+            LogsGiuliaCriticidade logCriticidade = new LogsGiuliaCriticidade(log.getFk_servidor(), log.getNomeMaquina(), timestamp, 0, log.getCpu(), log.getRam(), log.getDisco(), log.getTmp_cpu(), log.getTmp_disco(), log.getUpload_bytes(), log.getDownload_bytes(), log.getPacotes_recebidos(), log.getPacotes_enviados(), 0, 0, 0, 0, 0);
             listaLogs.add(logCriticidade);
         }
         return listaLogs;
@@ -47,7 +47,7 @@ public class TratamentoHistoricoServidor {
         return t.toLocalDate().atStartOfDay();
     }
 
-    public Map<LocalDateTime, Integer> calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Integer dias, Character medida, Boolean precisaDuracao){
+    public Map<LocalDateTime, Integer> calcularAlertas(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, Integer dias, String medida, Boolean precisaDuracao){
 
         Map<LocalDateTime, Integer> contadorAlertas = new TreeMap<>();
         Boolean emPico = false;
@@ -62,7 +62,7 @@ public class TratamentoHistoricoServidor {
             }
             Double valor = 0.0;
 
-            if (componente.equalsIgnoreCase("CPU") && medida.equals('%')){
+            if (componente.equalsIgnoreCase("CPU") && medida.equals("%")){
                 valor = logAtual.getUsoCpu();
             }
 
@@ -70,15 +70,15 @@ public class TratamentoHistoricoServidor {
                 valor = logAtual.getUsoRam();
             }
 
-            if(componente.equalsIgnoreCase("DISCO") && medida.equals('%')){
+            if(componente.equalsIgnoreCase("DISCO") && medida.equals("%")){
                 valor = logAtual.getUsoDisco();
             }
 
-            if (componente.equalsIgnoreCase("CPU") && medida.equals('C')){
+            if (componente.equalsIgnoreCase("CPU") && medida.equals("C")){
                 valor = logAtual.getTempCpu();
             }
 
-            if (componente.equalsIgnoreCase("DISCO") && medida.equals('C')){
+            if (componente.equalsIgnoreCase("DISCO") && medida.equals("C")){
                 valor = logAtual.getTempDisco();
             }
 
@@ -127,6 +127,81 @@ public class TratamentoHistoricoServidor {
         }
         return contadorAlertas;
     }
+
+    private long getValorRede(LogsGiuliaCriticidade log, String unidade) {
+        return switch (unidade.toUpperCase()) {
+            case "UPLOAD" -> log.getUploadByte();
+            case "DOWNLOAD" -> log.getDownloadByte();
+            case "PCKT_RCVD" -> log.getPacketReceived();
+            case "PCKT_SNT" -> log.getPacketSent();
+            default -> 0L;
+        };
+    }
+
+    public Map<LocalDateTime, Integer> calcularAlertasRede(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, Integer dias, String unidadeMedida) {
+        Map<LocalDateTime, Integer> contador = new TreeMap<>();
+
+        Boolean emFaixa = false;
+        Integer faixaAtual = 0;
+        LocalDateTime inicio = null;
+        LocalDateTime fim = null;
+
+        for (LogsGiuliaCriticidade log : logsServidor) {
+            LocalDateTime t = log.getTimestamp();
+            if (t == null) {
+                continue;
+            }
+
+            Double uso = (double) getValorRede(log, unidadeMedida);
+
+            Integer faixa;
+            if (uso < limite) {
+                faixa = 2;
+            }
+            else if (uso <= 2 * limite) {
+                faixa = 1;
+            }
+            else {
+                faixa = 0;
+            }
+
+            if (emFaixa && inicio != null && fim != null && (faixa == 0 || faixa != faixaAtual)) {
+                long seg = Duration.between(inicio, fim).toSeconds();
+                Integer minutos = (int) Math.max(1, (seg + 59) / 60);
+
+                if (minutos >= duracao) {
+                    LocalDateTime ts = validarDias(fim, dias);
+                    contador.merge(ts, 1, Integer::sum);
+                }
+
+                emFaixa = false;
+                faixaAtual = 0;
+                inicio = null;
+                fim = null;
+            }
+
+            if (faixa > 0) {
+                if (!emFaixa) {
+                    emFaixa = true;
+                    faixaAtual = faixa;
+                    inicio = t;
+                }
+                fim = t;
+            }
+        }
+
+        if (emFaixa && inicio != null && fim != null) {
+            long seg = Duration.between(inicio, fim).toSeconds();
+            int minutos = (int) Math.max(1, (seg + 59) / 60);
+
+            if (minutos >= duracao) {
+                LocalDateTime ts = validarDias(fim, dias);
+                contador.merge(ts, 1, Integer::sum);
+            }
+        }
+        return contador;
+    }
+
 
     public void classificarAlertas(List<Logs> logsConsolidados, Integer dias) {
         out.println("\n⚠\uFE0F Classificando alertas de um servidor...");
@@ -188,9 +263,13 @@ public class TratamentoHistoricoServidor {
             List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "%");
             List<Double> listaTempCpu = con.queryForList(selectTipo, Double.class, "CPU", id, "C");
             List<Double> listaTempDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "C");
+            List<Double> listaUp = con.queryForList(selectTipo, Double.class, "REDE", id, "UPLOAD");
+            List<Double> listaDown = con.queryForList(selectTipo, Double.class, "REDE", id, "DOWNLOAD");
+            List<Double> listaRcvd = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_RCVD");
+            List<Double> listaSnt = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_SNT");
 
-            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty()) {
-                out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO). Pulando.%n", id);
+            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty() || listaUp.isEmpty() || listaDown.isEmpty() || listaRcvd.isEmpty() || listaSnt.isEmpty()) {
+                out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO/UP/DOWN/RCVD/SNT). Pulando.%n", id);
                 continue;
             }
 
@@ -199,14 +278,22 @@ public class TratamentoHistoricoServidor {
             Double limiteDisco = listaDisco.get(0);
             Double limiteTempCpu = listaTempCpu.get(0);
             Double limiteTempDisco = listaTempDisco.get(0);
+            Double limiteUp = listaUp.get(0);
+            Double limiteDown = listaDown.get(0);
+            Double limiteRcvd = listaRcvd.get(0);
+            Double limiteSnt = listaSnt.get(0);
 
             List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "%");
             List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, "RAM", id, "%");
             List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "%");
             List<Integer> listaDuracaoTempCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "C");
             List<Integer> listaDuracaoTempDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "C");
+            List<Integer> listaDuracaoUp = con.queryForList(selectDuracao, Integer.class, "REDE", id, "UPLOAD");
+            List<Integer> listaDuracaoDown = con.queryForList(selectDuracao, Integer.class, "REDE", id, "DOWNLOAD");
+            List<Integer> listaDuracaoRcvd = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_RCVD");
+            List<Integer> listaDuracaoSnt = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_SNT");
 
-            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty()) {
+            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty() || listaDuracaoUp.isEmpty() || listaDuracaoDown.isEmpty() || listaDuracaoRcvd.isEmpty() || listaDuracaoSnt.isEmpty()) {
                 out.printf("Servidor %d sem duracao_min completo. Pulando.%n", id);
                 continue;
             }
@@ -216,12 +303,20 @@ public class TratamentoHistoricoServidor {
             Integer duracaoDisco = listaDuracaoDisco.get(0);
             Integer duracaoTempCpu = listaDuracaoTempCpu.get(0);
             Integer duracaoTempDisco = listaDuracaoTempDisco.get(0);
+            Integer duracaoUp = listaDuracaoUp.get(0);
+            Integer duracaoDown = listaDuracaoDown.get(0);
+            Integer duracaoRcvd = listaDuracaoRcvd.get(0);
+            Integer duracaoSnt = listaDuracaoSnt.get(0);
 
-            Map<LocalDateTime, Integer> alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU", dias, '%', true);
-            Map<LocalDateTime, Integer> alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM", dias, '%', true);
-            Map<LocalDateTime, Integer> alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO", dias, '%', true);
-            Map<LocalDateTime, Integer> alertasTempCpu = calcularAlertas(logsPeriodo, limiteTempCpu, duracaoTempCpu, "CPU", dias, 'C', false);
-            Map<LocalDateTime, Integer> alertasTempDisco = calcularAlertas(logsPeriodo, limiteTempDisco, duracaoTempDisco, "DISCO", dias, 'C', false);
+            Map<LocalDateTime, Integer> alertasCpu = calcularAlertas(logsPeriodo, limiteCpu, duracaoCpu, "CPU", dias, "%", true);
+            Map<LocalDateTime, Integer> alertasRam = calcularAlertas(logsPeriodo, limiteRam, duracaoRam, "RAM", dias, "%", true);
+            Map<LocalDateTime, Integer> alertasDisco = calcularAlertas(logsPeriodo, limiteDisco, duracaoDisco, "DISCO", dias, "%", true);
+            Map<LocalDateTime, Integer> alertasTempCpu = calcularAlertas(logsPeriodo, limiteTempCpu, duracaoTempCpu, "CPU", dias, "C", false);
+            Map<LocalDateTime, Integer> alertasTempDisco = calcularAlertas(logsPeriodo, limiteTempDisco, duracaoTempDisco, "DISCO", dias, "C", false);
+            Map<LocalDateTime, Integer> alertasUp = calcularAlertasRede(logsPeriodo, limiteUp, duracaoUp, dias, "UPLOAD");
+            Map<LocalDateTime, Integer> alertasDown = calcularAlertasRede(logsPeriodo, limiteDown, duracaoDown, dias, "DOWNLOAD");
+            Map<LocalDateTime, Integer> alertasRcvd = calcularAlertasRede(logsPeriodo, limiteRcvd, duracaoRcvd, dias, "PCKT_RCVD");
+            Map<LocalDateTime, Integer> alertasSnt = calcularAlertasRede(logsPeriodo, limiteSnt, duracaoSnt, dias, "PCKT_SNT");
 
             Map<LocalDateTime, Integer> alertasCpuFinal = new TreeMap<>();
             alertasCpuFinal.putAll(alertasCpu);
@@ -235,10 +330,28 @@ public class TratamentoHistoricoServidor {
                 alertasDiscoFinal.merge(e.getKey(), e.getValue(), Integer::sum);
             }
 
+            Map<LocalDateTime, Integer> alertasRede = new TreeMap<>();
+            for (var e : alertasUp.entrySet()) {
+                alertasRede.merge(e.getKey(), e.getValue(), Integer::sum);
+            }
+
+            for (var e : alertasDown.entrySet()) {
+                alertasRede.merge(e.getKey(), e.getValue(), Integer::sum);
+            }
+
+            for (var e : alertasRcvd.entrySet()) {
+                alertasRede.merge(e.getKey(), e.getValue(), Integer::sum);
+            }
+
+            for (var e : alertasSnt.entrySet()) {
+                alertasRede.merge(e.getKey(), e.getValue(), Integer::sum);
+            }
+
             Set<LocalDateTime> alertas = new TreeSet<>();
             alertas.addAll(alertasCpuFinal.keySet());
             alertas.addAll(alertasRam.keySet());
             alertas.addAll(alertasDiscoFinal.keySet());
+            alertas.addAll(alertasRede.keySet());
 
             String apelido = logsServidor.isEmpty() ? "" : logsServidor.get(0).getApelido();
 
@@ -254,6 +367,9 @@ public class TratamentoHistoricoServidor {
                 Integer tmpDisco = alertasDiscoFinal.get(k);
                 Integer aDisco = (tmpDisco == null ? 0 : tmpDisco);
 
+                Integer tmpRede = alertasRede.get(k);
+                Integer aRede = (tmpRede == null ? 0 : tmpRede);
+
                 Map<String, Object> row = new LinkedHashMap<>();
                 row.put("fk_servidor", id);
                 row.put("apelido", logsServidor.isEmpty() ? "" : logsServidor.get(0).getApelido());
@@ -261,7 +377,8 @@ public class TratamentoHistoricoServidor {
                 row.put("alertasCpu", aCpu);
                 row.put("alertasRam", aRam);
                 row.put("alertasDisco", aDisco);
-                row.put("totalAlertas", aCpu + aRam + aDisco);
+                row.put("alertasRede", aRede);
+                row.put("totalAlertas", aCpu + aRam + aDisco + aRede);
 
                 lista.add(row);
             }
@@ -296,6 +413,7 @@ public class TratamentoHistoricoServidor {
                            "alertasCpu": %d,
                            "alertasRam": %d,
                            "alertasDisco": %d,
+                           "alertasRede": %d,
                            "totalAlertas": %d
                            }""",
                         (Integer) obj.get("fk_servidor"),
@@ -304,6 +422,7 @@ public class TratamentoHistoricoServidor {
                         (Integer) obj.get("alertasCpu"),
                         (Integer) obj.get("alertasRam"),
                         (Integer) obj.get("alertasDisco"),
+                        (Integer) obj.get("alertasRede"),
                         (Integer) obj.get("totalAlertas")
                 ));
             }
