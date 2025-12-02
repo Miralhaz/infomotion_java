@@ -459,7 +459,7 @@ public class Main {
     }
 
     public static  List<Logs> leImportaArquivoCsvTrusted(String nomeArq){
-        Reader arq = null; // objeto aquivo
+        Reader arq = null; // objeto arquivo
         BufferedReader entrada = null; // objeto leitor de arquivo
         List<Logs> listaLogs = new ArrayList<>();
 
@@ -577,13 +577,6 @@ public class Main {
         tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
         // FIM DA ÁREA TRATAMENTO MIRALHA
 
-        aws.limparTemporarios();
-        // comeco tratamento willian
-        // Na main da equipe, apó  s instanciar aws e db:
-        ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
-        tratamentoDisco.executarTratamento();
-        // final tratamento willian
-
             for (Logs log : logsConsolidados) {
                 Boolean idJaAdicionado = false;
                 Integer idDaVez = log.getFk_servidor();
@@ -611,29 +604,39 @@ public class Main {
             // Criando json de conexao
             TratamentoRede.gravaArquivoJson(listaIdServidores, aws);
 
-            // TRATAMENTO - GIULIA
-            TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
-            tratamentoDonut.classificarCriticidade(logsConsolidados);
+        // TRATAMENTO - GIULIA
+        TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
+        tratamentoDonut.classificarCriticidade(logsConsolidados);
 
-            TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
-            tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
-            tratamentoBolhas.gerarBolhasRam(logsConsolidados);
-            tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
-            tratamentoBolhas.gerarBolhasTempCpu(logsConsolidados);
-            tratamentoBolhas.gerarBolhasTempDisco(logsConsolidados);
+        TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
+        tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
+        tratamentoBolhas.gerarBolhasRam(logsConsolidados);
+        tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
+        tratamentoBolhas.gerarBolhasTempCpu(logsConsolidados);
+        tratamentoBolhas.gerarBolhasTempDisco(logsConsolidados);
+        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "UPLOAD");
+        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "DOWNLOAD");
+        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "PCKT_RCVD");
+        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "PCKT_SNT");
 
-            TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
-            tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
-            tratamentoHistorico.classificarAlertas(logsConsolidados, 7);
-            tratamentoHistorico.classificarAlertas(logsConsolidados, 30);
+        TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
+        tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
+        tratamentoHistorico.classificarAlertas(logsConsolidados, 7);
+        tratamentoHistorico.classificarAlertas(logsConsolidados, 30);
 
-            TratamentoHistoricoServidor tratamentoHistoricoServidor = new TratamentoHistoricoServidor(aws, con);
-            tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 1);
-            tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 7);
-            tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 30);
+        TratamentoHistoricoServidor tratamentoHistoricoServidor = new TratamentoHistoricoServidor(aws, con);
+        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 1);
+        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 7);
+        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 30);
 
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
+
+            // começo tratamento Willian
+            // Na main da equipe, após instanciar aws e db:
+            ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
+            tratamentoDisco.executarTratamento();
+            // final tratamento Willian
 
             aws.limparTemporarios();
         }
