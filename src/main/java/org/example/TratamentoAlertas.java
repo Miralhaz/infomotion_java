@@ -62,6 +62,7 @@ public class TratamentoAlertas {
 
         boolean existeAlertaDisco = false;
         boolean jaFoiAlertaDisco = false;
+        Boolean existeAlertaPcktLoss = false;
 
         for (int i = 0; i < metrica.size(); i++) {
             System.out.printf("ETL em processamento: %d/%d\n", i + 1, metrica.size());
@@ -92,6 +93,7 @@ public class TratamentoAlertas {
            Long maxUp = zero, minUp = valorMax;
            Long maxpacketSent = zero, minpacketSent = valorMax;
            Long maxpacketReceived = zero, minpacketReceived = valorMax;
+           Integer maxPacketLoss = 0, minPacketLoss = 99999999;
 
             List<Logs> miniLista = new ArrayList<>();
             for (int k = 0; k < duracao_min && k < listaLogsTotal.size(); k++) {
@@ -141,6 +143,13 @@ public class TratamentoAlertas {
                             minSwap = Math.min(minSwap, logAtual.getMemoria_swap());
                         }
                     } else if (tipo.equalsIgnoreCase("REDE")) {
+
+                        if (logAtual.getDropin() + logAtual.getDropout() > (logAtual.getPacotes_recebidos() + logAtual.getPacotes_enviados()) * 0.01){
+                            existeAlertaPcktLoss = true;
+                            maxPacketLoss = (logAtual.getDropin() + logAtual.getDropout());
+                            minPacketLoss = (logAtual.getDropin() + logAtual.getDropout());
+                        }
+
                         if (unidadeMedida.equalsIgnoreCase("DOWNLOAD")) {
                             if (logAtual.getDownload_bytes() < max) {
                                 contadorDownload++;
@@ -201,6 +210,9 @@ public class TratamentoAlertas {
             } else if (contadorPacketReceived == duracao_min) {
                 gerarAlerta(con, fk_parametroAlerta, fk_servidor, miniLista,
                         "Rede", "Pacotes recebidos", maxpacketReceived, minpacketReceived, duracao_min);
+            } else if (existeAlertaPcktLoss) {
+                gerarAlerta(con, fk_parametroAlerta, fk_servidor, miniLista,
+                        "Rede", "Pacotes perdidos", maxPacketLoss, minPacketLoss, 1);
             }
         }
     }

@@ -111,20 +111,19 @@ public class TratamentoRede {
         }
 
 
-        int minutosIntervalo;
-        DateTimeFormatter formatadorSaida;
+        int minutosIntervalo = 0;
+        DateTimeFormatter formatadorSaida = null;
 
-        if (tempoHoras == 1) {
+        if (tempoHoras.equals(1)) {
             minutosIntervalo = 1;
             formatadorSaida = DateTimeFormatter.ofPattern("HH:mm");
-        } else if (tempoHoras == 24) {
+        } else if (tempoHoras.equals(24)) {
             minutosIntervalo = 15;
             formatadorSaida = DateTimeFormatter.ofPattern("dd HH:mm");
         } else {
             minutosIntervalo = 60;
             formatadorSaida = DateTimeFormatter.ofPattern("MM-dd HH");
         }
-
         DateTimeFormatter fmtBarra = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         DateTimeFormatter fmtTraco = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -136,6 +135,7 @@ public class TratamentoRede {
         Long ultimoValorPcktSnt = 0L;
         Long ultimoValorDown = 0L;
         Long ultimoValorUp = 0L;
+        Long ultimoValorPacketLoss = 0L;
 
         Double margemVariacao = 0.2;
         LocalDateTime limiteTempo = LocalDateTime.now().minusHours(tempoHoras);
@@ -165,7 +165,8 @@ public class TratamentoRede {
                             Math.abs(log.getDownload_bytes() - ultimoValorDown) > (ultimoValorDown * margemVariacao) ||
                                     Math.abs(log.getUpload_bytes() - ultimoValorUp) > (ultimoValorUp * margemVariacao) ||
                                     Math.abs(log.getPacotes_recebidos() - ultimoValorPcktRcvd) > (ultimoValorPcktRcvd * margemVariacao) ||
-                                    Math.abs(log.getPacotes_enviados() - ultimoValorPcktSnt) > (ultimoValorPcktSnt * margemVariacao);
+                                    Math.abs(log.getPacotes_enviados() - ultimoValorPcktSnt) > (ultimoValorPcktSnt * margemVariacao) ||
+                                    Math.abs((log.getDropout() + log.getDropin()) - ultimoValorPacketLoss) > ((log.getPacotes_recebidos() + log.getPacotes_enviados()) * 0.01);
 
 
                     if (dataLog.isAfter(ultimoLogData.plusMinutes(minutosIntervalo)) || teveVariacaoBrusca) {
