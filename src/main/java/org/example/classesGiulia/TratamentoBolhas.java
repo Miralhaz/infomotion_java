@@ -402,6 +402,7 @@ public class TratamentoBolhas {
             }
             saida.append("]");
             System.out.println("Arquivo Json de bolhas gerado com sucesso!");
+
         }
 
         catch (IOException erro) {

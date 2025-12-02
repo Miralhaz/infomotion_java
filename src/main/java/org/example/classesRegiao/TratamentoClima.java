@@ -8,12 +8,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class TratamentoClima {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -60,7 +57,8 @@ public class TratamentoClima {
 
 
                 if (r.getListaLogClima() != null || r.getListaLogRegiao() != null || !r.getListaLogClima().isEmpty() || !r.getListaLogRegiao().isEmpty()){
-                    criarLogPrevisao(r.getListaLogClima(), r.getListaLogRegiao());
+                    List <LogPrevisao> listaParaJson = criarLogPrevisao(r.getListaLogClima(), r.getListaLogRegiao());
+                    criarJsonPrevisao(listaParaJson,r.getId());
                 }
 
 
@@ -72,7 +70,7 @@ public class TratamentoClima {
 
     }
 
-    public static void criarLogPrevisao(List<LogClima> logClimaList ,List<LogRegiao> logRegiaoList){
+    public static  List <LogPrevisao>  criarLogPrevisao(List<LogClima> logClimaList ,List<LogRegiao> logRegiaoList){
         List <LogPrevisao> logPrevisaos = new ArrayList<>();
         LocalDate Datainicio = logClimaList.get(0).getDataHora().toLocalDate();
         LocalDate Datafinal = logClimaList.get(logClimaList.size() - 1).getDataHora().toLocalDate();
@@ -135,17 +133,39 @@ public class TratamentoClima {
         }
 
 
-
-
-
-
-
-
-
-
-
         }
+        return logPrevisaos;
+    }
 
+    public static  List <LogHorarioReq>  criarLogHorario(Regiao r){
+            List<LogHorarioReq> logHorarioReq = new ArrayList<>();
+            LocalTime dataInicio = r.getListaLogRegiao().get(0).getDataHora().toLocalTime();
+            LocalTime dataFinal = r.getListaLogRegiao().get(r.getListaLogRegiao().size() - 1).getDataHora().toLocalTime();
+
+            Integer minutosInicio = dataInicio.getMinute();
+            Integer minutosFinal = dataFinal.getMinute();
+            dataInicio.minusMinutes(minutosInicio);
+            dataFinal.minusMinutes(minutosFinal);
+
+            List<LocalTime> listaDeHorarios = new ArrayList<>();
+
+
+            for (int i = 0; i < listaDeHorarios.size(); i++) {
+                LocalTime horario = listaDeHorarios.get(i);
+                Integer horaDaVez = listaDeHorarios.get(i).getHour();
+                Integer totalDeReq = 0;
+
+                for (LogRegiao log : r.getListaLogRegiao()) {
+                    Integer horarioLog = log.getDataHora().getHour();
+                    if (horaDaVez == horarioLog) {
+                        totalDeReq += log.getQtdRequisicoes();
+                    }
+                }
+
+                LogHorarioReq lhr = new LogHorarioReq(horario,totalDeReq);
+                logHorarioReq.add(lhr);
+            }
+            return logHorarioReq;
     }
 
     public static List<LogClima> buscarClimaRegiao(Integer idRegiao , Integer argumentoArquivo){
@@ -271,6 +291,131 @@ public class TratamentoClima {
         }
     }
 
+    public static void criarJsonPrevisao(List<LogPrevisao> lista, Integer idRegiao){
+        String nomeArq = "RegiaoPrevisao" + idRegiao;
+        String nome = nomeArq.endsWith(".json") ? nomeArq : nomeArq + ".json";
+        OutputStreamWriter saida = null;
+        Boolean deuRuim = false;
 
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida.append("[");
+            Integer contador = 0;
+            for (LogPrevisao log : lista) {
+                if (contador > 0) {
+                    saida.append(",");
+                }
+
+                String data = log.getData().toString();
+                Integer requisicoes = log.getQtdRequisicao();
+                Double chance = log.chanceDeAlteracao();
+                Double percentual = log.percentualDeAumento(log.getQtdRequisicao().intValue(),log.qtdReqPrevistas().intValue());
+
+
+
+
+                saida.write(String.format(Locale.US,""" 
+                           {
+                           "Data": %s,
+                           "Requsicoes": %d,
+                           "ChanceDeAlteracao": %.2f,
+                           "PorcentagemDeAumento": %.2f,
+                           }""",data,requisicoes,chance,percentual
+
+                        ));
+                contador ++;
+            }
+            saida.append("]");
+            System.out.println("Arquivo Json de previsão gerado com sucesso!");
+
+
+            awsConnection.uploadBucketClient(nomePasta,nomeArq);
+        }
+
+        catch (IOException erro) {
+            System.out.println("Erro ao gravar o arquivo de previsao");
+            erro.printStackTrace();
+            deuRuim = true;
+        }
+
+        finally {
+
+            try {
+                if (saida != null){
+                    saida.close();
+                }
+            }
+
+            catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+
+            if (deuRuim) {
+                System.exit(1);
+            }
+        }
+    }
+
+    public static void criarJsonTempo(List<LogHorarioReq> lr,Integer idRegiao){
+        String nomeArq = "RegiaoHorario" + idRegiao;
+        String nome = nomeArq.endsWith(".json") ? nomeArq : nomeArq + ".json";
+        OutputStreamWriter saida = null;
+        Boolean deuRuim = false;
+
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida.append("[");
+            Integer contador = 0;
+            for (LocalTime  localTime: listaDeHorarios) {
+
+                if (contador > 0) {
+                    saida.append(",");
+                }
+
+
+
+
+                saida.write(String.format(Locale.US,""" 
+                           {
+                           "Data": %s,
+                           "Requsicoes": %d,
+                           "ChanceDeAlteracao": %.2f,
+                           "PorcentagemDeAumento": %.2f,
+                           }"""
+                ));
+                contador ++;
+            }
+            saida.append("]");
+            System.out.println("Arquivo Json de previsão gerado com sucesso!");
+
+
+            awsConnection.uploadBucketClient(nomePasta,nomeArq);
+        }
+
+        catch (IOException erro) {
+            System.out.println("Erro ao gravar o arquivo de previsao");
+            erro.printStackTrace();
+            deuRuim = true;
+        }
+
+        finally {
+
+            try {
+                if (saida != null){
+                    saida.close();
+                }
+            }
+
+            catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+
+            if (deuRuim) {
+                System.exit(1);
+            }
+        }
+    }
 
 }

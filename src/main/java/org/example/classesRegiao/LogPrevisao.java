@@ -90,6 +90,18 @@ public class LogPrevisao {
         return req * 0.003;
     }
 
+    public Double percentualDeAumento(Integer req,Integer reqPrevista){
+        Double umPorcento = req.doubleValue() / 100;
+        Integer multiplicador;
+
+        if (req > reqPrevista){
+            multiplicador = req - reqPrevista ;
+        }else {
+            multiplicador = reqPrevista - req;
+        }
+
+        return umPorcento * multiplicador;
+    }
 
     @Override
     public String toString() {
