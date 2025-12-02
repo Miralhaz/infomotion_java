@@ -577,6 +577,13 @@ public class Main {
         tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
         // FIM DA ÁREA TRATAMENTO MIRALHA
 
+        aws.limparTemporarios();
+        // comeco tratamento willian
+        // Na main da equipe, apó  s instanciar aws e db:
+        ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
+        tratamentoDisco.executarTratamento();
+        // final tratamento willian
+
             for (Logs log : logsConsolidados) {
                 Boolean idJaAdicionado = false;
                 Integer idDaVez = log.getFk_servidor();
@@ -612,6 +619,8 @@ public class Main {
             tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
             tratamentoBolhas.gerarBolhasRam(logsConsolidados);
             tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
+            tratamentoBolhas.gerarBolhasTempCpu(logsConsolidados);
+            tratamentoBolhas.gerarBolhasTempDisco(logsConsolidados);
 
             TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
             tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
@@ -625,21 +634,6 @@ public class Main {
 
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
-
-
-
-        // tratamento willian inicio
-        System.out.println("🚀 Iniciando ETL de Disco (Willian)...");
-
-        AwsConnection aws = new AwsConnection();
-        Connection db = new Connection();
-
-        ProcessadorDiscoWillian processador = new ProcessadorDiscoWillian(aws, db);
-        processador.executarTratamento();
-
-        System.out.println("✅ ETL de Disco concluído!");
-
-        // tratamento willian final
 
             aws.limparTemporarios();
         }

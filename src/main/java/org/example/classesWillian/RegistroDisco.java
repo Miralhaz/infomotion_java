@@ -36,4 +36,56 @@ public class RegistroDisco {
         this.tempo_leitura = tempo_leitura;
         this.tempo_escrita = tempo_escrita;
     }
+
+    public void setFk_servidor(Integer fk_servidor) {
+        this.fk_servidor = fk_servidor;
+    }
+
+    public void setFk_empresa(Integer fk_empresa) {
+        this.fk_empresa = fk_empresa;
+    }
+
+    public void setNomeMaquina(String nomeMaquina) {
+        this.nomeMaquina = nomeMaquina;
+    }
+
+    public void setTimestamp(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public void setDisco(Double disco) {
+        this.disco = disco;
+    }
+
+    public void setTemperatura_disco(Double temperatura_disco) {
+        this.temperatura_disco = temperatura_disco;
+    }
+
+    public void setQuantidade_processos(Integer quantidade_processos) {
+        this.quantidade_processos = quantidade_processos;
+    }
+
+    public void setNumero_leituras(Double numero_leituras) {
+        this.numero_leituras = numero_leituras;
+    }
+
+    public void setNumero_escritas(Double numero_escritas) {
+        this.numero_escritas = numero_escritas;
+    }
+
+    public void setBytes_lidos(Double bytes_lidos) {
+        this.bytes_lidos = bytes_lidos;
+    }
+
+    public void setBytes_escritos(Double bytes_escritos) {
+        this.bytes_escritos = bytes_escritos;
+    }
+
+    public void setTempo_leitura(Double tempo_leitura) {
+        this.tempo_leitura = tempo_leitura;
+    }
+
+    public void setTempo_escrita(Double tempo_escrita) {
+        this.tempo_escrita = tempo_escrita;
+    }
 }

@@ -7,63 +7,190 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ProcessadorDiscoWillian {
-    private final AwsConnection awsConnection;
-    private final Connection dbConnection;
-    private static final DateTimeFormatter CSV_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    public final AwsConnection awsConnection;
+    public final Connection dbConnection;
+    public static final DateTimeFormatter CSV_DATE_FORMAT = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 
     public ProcessadorDiscoWillian(AwsConnection awsConnection, Connection dbConnection) {
         this.awsConnection = awsConnection;
         this.dbConnection = dbConnection;
     }
 
-    public void executarTratamento() {
-        String nomeArquivoCsv = "logs_consolidados_servidores.csv";
+    // inicio de tratamento e ordenacao
 
-        // 1. Baixa o CSV do S3 Trusted para o disco local
-        awsConnection.downloadBucketTrusted(nomeArquivoCsv);
+    public List<RegistroDisco> pegarUltimoRegistroPorServidor(List<RegistroDisco> registros) {
+        List<RegistroDisco> ultimos = new ArrayList<>();
 
-        // 2. Agora abre o arquivo local como InputStream
-        try (InputStream csvStream = new FileInputStream(nomeArquivoCsv)) {
-            // 3. Lê e processa normalmente
-            List<RegistroDisco> todosRegistros = lerCsvDisco(csvStream);
-            System.out.println("Registros de disco lidos: " + todosRegistros.size());
+        for (int i = 0; i < registros.size(); i++) {
+            RegistroDisco atual = registros.get(i);
+            boolean jaAdicionado = false;
 
-            completarFkEmpresa(todosRegistros);
-            List<Integer> empresasUnicas = pegarEmpresasUnicas(todosRegistros);
-
-            for (int i = 0; i < empresasUnicas.size(); i++) {
-                Integer idEmpresa = empresasUnicas.get(i);
-                List<RegistroDisco> registrosDaEmpresa = new ArrayList<>();
-
-                for (int j = 0; j < todosRegistros.size(); j++) {
-                    RegistroDisco r = todosRegistros.get(j);
-                    if (r.fk_empresa != null && r.fk_empresa.equals(idEmpresa)) {
-                        registrosDaEmpresa.add(r);
+            // Verifica se já temos esse servidor na lista de "últimos"
+            for (int j = 0; j < ultimos.size(); j++) {
+                RegistroDisco existente = ultimos.get(j);
+                if (existente.fk_servidor.equals(atual.fk_servidor)) {
+                    jaAdicionado = true;
+                    // Se o atual for mais recente, substitui
+                    if (atual.timestamp.isAfter(existente.timestamp)) {
+                        ultimos.set(j, atual);
                     }
+                    break;
                 }
-
-                String nomeArquivoJson = "DiscoTratamentoEmpresa_" + idEmpresa + ".json";
-                gerarJson(registrosDaEmpresa, nomeArquivoJson);
-                awsConnection.uploadBucketClient("TratamentosWillian", nomeArquivoJson);
-                System.out.println("JSON gerado e enviado: " + nomeArquivoJson);
             }
 
+            if (!jaAdicionado) {
+                ultimos.add(atual);
+            }
+        }
 
+        return ultimos;
+    }
 
-        } catch (IOException e) {
-            System.err.println("Erro ao abrir o arquivo CSV baixado: " + e.getMessage());
-            return;
+    // Ordena por disco (uso %) - maior primeiro
+    public List<RegistroDisco> ordenarPorDisco(List<RegistroDisco> registros) {
+        List<RegistroDisco> copia = new ArrayList<>(registros);
+        int n = copia.size();
+
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (copia.get(j).disco < copia.get(j + 1).disco) {
+                    // troca
+                    RegistroDisco temp = copia.get(j);
+                    copia.set(j, copia.get(j + 1));
+                    copia.set(j + 1, temp);
+                }
+            }
+        }
+        return copia;
+    }
+
+    // Ordena por temperatura
+    public List<RegistroDisco> ordenarPorTemperatura(List<RegistroDisco> registros) {
+        List<RegistroDisco> copia = new ArrayList<>(registros);
+        int n = copia.size();
+
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (copia.get(j).temperatura_disco < copia.get(j + 1).temperatura_disco) {
+                    RegistroDisco temp = copia.get(j);
+                    copia.set(j, copia.get(j + 1));
+                    copia.set(j + 1, temp);
+                }
+            }
+        }
+        return copia;
+    }
+
+    // Ordena por bytes escritos
+    public List<RegistroDisco> ordenarPorBytesEscritos(List<RegistroDisco> registros) {
+        List<RegistroDisco> copia = new ArrayList<>(registros);
+        int n = copia.size();
+
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (copia.get(j).bytes_escritos < copia.get(j + 1).bytes_escritos) {
+                    RegistroDisco temp = copia.get(j);
+                    copia.set(j, copia.get(j + 1));
+                    copia.set(j + 1, temp);
+                }
+            }
+        }
+        return copia;
+    }
+    //final ordenacao e tratamento
+
+    public void executarTratamento() {
+        try {
+            System.out.println("🚀 Iniciando tratamento de disco (Willian)...");
+
+            String nomeArquivoCsv = "logs_consolidados_servidores.csv";
+            awsConnection.downloadBucketTrusted(nomeArquivoCsv);
+            System.out.println("✅ CSV baixado com sucesso do bucket trusted.");
+
+            try (InputStream csvStream = new FileInputStream(nomeArquivoCsv)) {
+                List<RegistroDisco> todosRegistros = lerCsvDisco(csvStream);
+                System.out.println("Registros de disco lidos: " + todosRegistros.size());
+
+                completarFkEmpresa(todosRegistros);
+                List<Integer> empresasUnicas = pegarEmpresasUnicas(todosRegistros);
+
+                for (int i = 0; i < empresasUnicas.size(); i++) {
+                    Integer idEmpresa = empresasUnicas.get(i);
+                    List<RegistroDisco> registrosDaEmpresa = new ArrayList<>();
+
+                    for (int j = 0; j < todosRegistros.size(); j++) {
+                        RegistroDisco r = todosRegistros.get(j);
+                        if (r.fk_empresa != null && r.fk_empresa.equals(idEmpresa)) {
+                            registrosDaEmpresa.add(r);
+                        }
+                    }
+
+                    // Processa últimos registros
+                    List<RegistroDisco> servidoresAtuais = pegarUltimoRegistroPorServidor(registrosDaEmpresa);
+                    List<Integer> idsServidores = new ArrayList<>();
+                    List<ParametroAlerta> parametrosLista = new ArrayList<>();
+
+                    for (int j = 0; j < servidoresAtuais.size(); j++) {
+                        RegistroDisco r = servidoresAtuais.get(j);
+                        if (r.fk_servidor == null) continue;
+                        idsServidores.add(r.fk_servidor);
+                        ParametroAlerta p = buscarParametroPorServidor(r.fk_servidor);
+                        parametrosLista.add(p);
+                    }
+
+                    // Gera JSON principal (últimos registros + parâmetros)
+                    String nomeJsonAtual = "DiscoTratamentoEmpresa_" + idEmpresa + ".json";
+                    gerarJsonComParametros(servidoresAtuais, idsServidores, parametrosLista, nomeJsonAtual);
+                    awsConnection.uploadBucketClient("tratamento_willian", nomeJsonAtual);
+                    System.out.println("Upload concluído para CLIENT: " + nomeJsonAtual);
+
+                    // 👇 NOVO: Gera JSON de HISTÓRICO (todos os registros)
+                    String nomeJsonHistorico = "DiscoHistoricoEmpresa_" + idEmpresa + ".json";
+                    gerarJsonHistorico(registrosDaEmpresa, nomeJsonHistorico);
+                    awsConnection.uploadBucketClient("tratamento_willian", nomeJsonHistorico);
+                    System.out.println("Upload concluído para CLIENT: " + nomeJsonHistorico);
+                }
+
+                System.out.println("✅ Tratamento de disco concluído com sucesso!");
+            }
+        } catch (Exception e) {
+            System.err.println("💥 ERRO FATAL no tratamento de disco: " + e.getMessage());
+            e.printStackTrace(); // ← ISSO É IMPORTANTE!
         }
 
         System.out.println("Tratamento concluído com sucesso!");
     }
+
+    public void gerarJsonHistorico(List<RegistroDisco> registros, String nomeArquivo) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(nomeArquivo), StandardCharsets.UTF_8)) {
+            writer.write("[\n");
+            for (int i = 0; i < registros.size(); i++) {
+                RegistroDisco r = registros.get(i);
+                writer.write(String.format(Locale.US,
+                        "  {\"fk_servidor\":%d,\"timestamp\":\"%s\",\"disco\":%.2f,\"temperatura_disco\":%.2f}",
+                        r.fk_servidor,
+                        r.timestamp.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+                        r.disco,
+                        r.temperatura_disco
+                ));
+                if (i < registros.size() - 1) writer.write(",");
+                writer.write("\n");
+            }
+            writer.write("]\n");
+        } catch (IOException e) {
+            System.err.println("Erro ao gerar histórico: " + e.getMessage());
+        }
+    }
+
 
 
     public List<RegistroDisco> lerCsvDisco(InputStream csvStream) {
@@ -94,7 +221,14 @@ public class ProcessadorDiscoWillian {
                 r.tempo_escrita = parseDoubleComVirgula(colunas[21].trim());
 
                 registros.add(r);
+                // Dentro do while, após pular o cabeçalho:
+                if (registros.size() < 2) {
+                    System.out.println("Linha lida: " + linha);
+                    System.out.println("Número de colunas: " + colunas.length);
+                    if (colunas.length > 5) System.out.println("Exemplo coluna 5 (disco): '" + colunas[5] + "'");
+                }
             }
+
             return registros;
         } catch (Exception e) {
             System.err.println("Erro ao ler CSV: " + e.getMessage());
@@ -112,14 +246,54 @@ public class ProcessadorDiscoWillian {
     }
 
     public void completarFkEmpresa(List<RegistroDisco> registros) {
+        // 1. Pegar todos os servidores únicos
+        List<Integer> servidoresUnicos = new ArrayList<>();
+        for (int i = 0; i < registros.size(); i++) {
+            Integer servidor = registros.get(i).fk_servidor;
+            if (servidor != null) {
+                boolean jaExiste = false;
+                for (int j = 0; j < servidoresUnicos.size(); j++) {
+                    if (servidoresUnicos.get(j).equals(servidor)) {
+                        jaExiste = true;
+                        break;
+                    }
+                }
+                if (!jaExiste) {
+                    servidoresUnicos.add(servidor);
+                }
+            }
+        }
+
+        // 2. Para cada servidor único, buscar sua empresa e guardar em duas listas paralelas
+        List<Integer> listaServidores = new ArrayList<>();
+        List<Integer> listaEmpresas = new ArrayList<>();
+
+        for (int i = 0; i < servidoresUnicos.size(); i++) {
+            Integer servidor = servidoresUnicos.get(i);
+            Integer empresa = buscarFkEmpresaPorServidor(servidor);
+            listaServidores.add(servidor);
+            listaEmpresas.add(empresa); // pode ser -1 se não encontrar
+        }
+
+        // 3. Preencher fk_empresa em cada registro com base nas listas paralelas
         for (int i = 0; i < registros.size(); i++) {
             RegistroDisco r = registros.get(i);
-            Integer empresa = buscarFkEmpresaPorServidor(r.fk_servidor);
-            r.fk_empresa = empresa;
+            if (r.fk_servidor != null) {
+                Integer empresaEncontrada = -1;
+                for (int j = 0; j < listaServidores.size(); j++) {
+                    if (listaServidores.get(j).equals(r.fk_servidor)) {
+                        empresaEncontrada = listaEmpresas.get(j);
+                        break;
+                    }
+                }
+                r.fk_empresa = empresaEncontrada;
+            } else {
+                r.fk_empresa = -1;
+            }
         }
     }
 
-    private Integer buscarFkEmpresaPorServidor(Integer fkServidor) {
+    public Integer buscarFkEmpresaPorServidor(Integer fkServidor) {
         java.sql.Connection conn = null;
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -167,28 +341,71 @@ public class ProcessadorDiscoWillian {
         return empresas;
     }
 
-    public void gerarJson(List<RegistroDisco> registros, String nomeArquivo) {
+
+    public class AlertaServidor {
+        public Integer fk_servidor;
+        public Integer quantidade;
+        public String detalheDisco; // ex: "SSD Samsung 870 (512GB)"
+
+        public AlertaServidor(Integer fk, Integer qtd, String detalhe) {
+            this.fk_servidor = fk;
+            this.quantidade = qtd;
+            this.detalheDisco = detalhe;
+        }
+    }
+
+    public void gerarJsonComParametros(
+            List<RegistroDisco> registros,
+            List<Integer> idsServidores,
+            List<ParametroAlerta> parametrosLista,
+            String nomeArquivo) {
+
         try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(nomeArquivo), StandardCharsets.UTF_8)) {
-            writer.write("[\n");
+
+            // Início do JSON como objeto
+            writer.write("{\n");
+
+            // 1. Parâmetros de alerta
+            writer.write("  \"parametrosAlerta\": {\n");
+            for (int i = 0; i < idsServidores.size(); i++) {
+                if (i >= parametrosLista.size()) {
+                    System.err.println("⚠️ Aviso: parâmetro faltando para servidor na posição " + i);
+                    continue;
+                }
+                Integer id = idsServidores.get(i);
+                ParametroAlerta p = parametrosLista.get(i);
+                writer.write(String.format( Locale.US,
+                        "    \"%d\": { \"limiteDisco\": %.2f, \"limiteTemperatura\": %.2f }",
+                        id,
+                        p.limiteDisco,
+                        p.limiteTemperatura
+                ));
+                if (i < idsServidores.size() - 1) writer.write(",");
+                writer.write("\n");
+            }
+            writer.write("  },\n");
+
+            // 2. Lista de servidores (seu código antigo, mas dentro de "servidores")
+            writer.write("  \"servidores\": [\n");
             for (int i = 0; i < registros.size(); i++) {
                 RegistroDisco r = registros.get(i);
                 String timestampIso = r.timestamp.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
                 writer.write(String.format(Locale.US,
-                        "  {\n" +
-                                "    \"fk_servidor\": %d,\n" +
-                                "    \"nomeMaquina\": \"%s\",\n" +
-                                "    \"timestamp\": \"%s\",\n" +
-                                "    \"disco\": %.2f,\n" +
-                                "    \"temperatura_disco\": %.2f,\n" +
-                                "    \"quantidade_processos\": %d,\n" +
-                                "    \"numero_leituras\": %.0f,\n" +
-                                "    \"numero_escritas\": %.0f,\n" +
-                                "    \"bytes_lidos\": %.0f,\n" +
-                                "    \"bytes_escritos\": %.0f,\n" +
-                                "    \"tempo_leitura\": %.0f,\n" +
-                                "    \"tempo_escrita\": %.0f\n" +
-                                "  }",
+                        "    {\n" +
+                                "      \"fk_servidor\": %d,\n" +
+                                "      \"nomeMaquina\": \"%s\",\n" +
+                                "      \"timestamp\": \"%s\",\n" +
+                                "      \"disco\": %.2f,\n" +
+                                "      \"temperatura_disco\": %.2f,\n" +
+                                "      \"quantidade_processos\": %d,\n" +
+                                "      \"numero_leituras\": %.0f,\n" +
+                                "      \"numero_escritas\": %.0f,\n" +
+                                "      \"bytes_lidos\": %.0f,\n" +
+                                "      \"bytes_escritos\": %.0f,\n" +
+                                "      \"tempo_leitura\": %.0f,\n" +
+                                "      \"tempo_escrita\": %.0f\n" +
+                                "    }",
                         r.fk_servidor,
                         r.nomeMaquina.replace("\"", "\\\""),
                         timestampIso,
@@ -203,15 +420,113 @@ public class ProcessadorDiscoWillian {
                         r.tempo_escrita
                 ));
 
-                if (i < registros.size() - 1) {
-                    writer.write(",\n");
-                } else {
-                    writer.write("\n");
-                }
+                if (i < registros.size() - 1) writer.write(",");
+                else writer.write("\n");
             }
-            writer.write("]\n");
+            writer.write("  ]\n");
+            writer.write("}\n");
+
         } catch (IOException e) {
-            System.err.println("Erro ao gerar JSON " + nomeArquivo + ": " + e.getMessage());
+            System.err.println("Erro ao gerar JSON com parâmetros: " + e.getMessage());
         }
     }
+
+    public void escreverArrayHistorico(OutputStreamWriter writer, List<RegistroDisco> registros) throws IOException {
+        writer.write("[\n");
+        for (int i = 0; i < registros.size(); i++) {
+            RegistroDisco r = registros.get(i);
+            String ts = r.timestamp.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            writer.write(String.format(
+                    "        { \"timestamp\": \"%s\", \"disco\": %.2f }",
+                    ts, r.disco
+            ));
+            if (i < registros.size() - 1) writer.write(",");
+            writer.write("\n");
+        }
+        writer.write("      ]");
+    }
+
+    // buscando parametro no banco, para tratar
+    public class ParametroAlerta {
+        public Double limiteDisco;
+        public Double limiteTemperatura;
+        public ParametroAlerta(Double disco, Double temp) {
+            this.limiteDisco = disco;
+            this.limiteTemperatura = temp;
+        }
+    }
+
+    // Busca parâmetros por lista de servidores
+    public void buscarParametrosAlerta(List<Integer> servidores, Map<Integer, ParametroAlerta> destino) {
+        // Simples: faça um loop e chame o banco para cada servidor
+        for (int i = 0; i < servidores.size(); i++) {
+            Integer id = servidores.get(i);
+            ParametroAlerta p = buscarParametroPorServidor(id);
+            if (p != null) {
+                destino.put(id, p);
+            }
+        }
+    }
+
+    // Dentro de ProcessadorDiscoWillian
+    private void buscarParametrosParaServidores(
+            List<Integer> idsServidores,
+            List<ParametroAlerta> listaParametros) {
+
+
+        idsServidores.clear();
+        listaParametros.clear();
+
+    }
+
+    public ParametroAlerta buscarParametroPorServidor(Integer fkServidor) {
+        Double limiteDisco = 90.0;   // valor padrão
+        Double limiteTemperatura = 45.0; // valor padrão
+
+        java.sql.Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = dbConnection.getDataSource().getConnection();
+
+            // 1. Busca limite para DISCO (%)
+            String sqlDisco = "SELECT p.max FROM parametro_alerta p " +
+                    "INNER JOIN servidor s ON s.id = p.fk_servidor " +
+                    "INNER JOIN componentes c ON c.fk_servidor = s.id " +
+                    "WHERE p.fk_servidor = ? AND c.tipo = 'DISCO' AND p.unidade_medida = '%'";
+            stmt = conn.prepareStatement(sqlDisco);
+            stmt.setInt(1, fkServidor);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                limiteDisco = rs.getDouble("max");
+            }
+            rs.close();
+            stmt.close();
+
+            // 2. Busca limite para TEMPERATURA (°C)
+            String sqlTemp = "SELECT p.max FROM parametro_alerta p " +
+                    "INNER JOIN servidor s ON s.id = p.fk_servidor " +
+                    "INNER JOIN componentes c ON c.fk_servidor = s.id " +
+                    "WHERE p.fk_servidor = ? AND c.tipo = 'DISCO' AND p.unidade_medida = 'C'";
+            stmt = conn.prepareStatement(sqlTemp);
+            stmt.setInt(1, fkServidor);
+            rs = stmt.executeQuery();
+            if (rs.next()) {
+                limiteTemperatura = rs.getDouble("max");
+            }
+
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar parâmetros para servidor " + fkServidor + ": " + e.getMessage());
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
+        }
+
+        return new ParametroAlerta(limiteDisco, limiteTemperatura);
+    }
+
+
+
 }
