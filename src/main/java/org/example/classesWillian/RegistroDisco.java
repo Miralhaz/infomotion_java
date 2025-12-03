@@ -16,12 +16,11 @@ public class RegistroDisco {
     public Double bytes_escritos;
     public Double tempo_leitura;
     public Double tempo_escrita;
-
+    public String apelidoDisco = null;
     public RegistroDisco(){
-
     }
 
-    public RegistroDisco(Integer fk_servidor, Integer fk_empresa, String nomeMaquina, LocalDateTime timestamp, Double disco, Double temperatura_disco, Integer quantidade_processos, Double numero_leituras, Double numero_escritas, Double bytes_lidos, Double bytes_escritos, Double tempo_leitura, Double tempo_escrita) {
+    public RegistroDisco(Integer fk_servidor, Integer fk_empresa, String nomeMaquina, LocalDateTime timestamp, Double disco, Double temperatura_disco, Integer quantidade_processos, Double numero_leituras, Double numero_escritas, Double bytes_lidos, Double bytes_escritos, Double tempo_leitura, Double tempo_escrita, String apelidoDisco) {
         this.fk_servidor = fk_servidor;
         this.fk_empresa = fk_empresa;
         this.nomeMaquina = nomeMaquina;
@@ -35,6 +34,7 @@ public class RegistroDisco {
         this.bytes_escritos = bytes_escritos;
         this.tempo_leitura = tempo_leitura;
         this.tempo_escrita = tempo_escrita;
+        this.apelidoDisco = apelidoDisco;
     }
 
     public void setFk_servidor(Integer fk_servidor) {

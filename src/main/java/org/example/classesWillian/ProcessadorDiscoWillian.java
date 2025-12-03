@@ -55,58 +55,36 @@ public class ProcessadorDiscoWillian {
         return ultimos;
     }
 
-    // Ordena por disco (uso %) - maior primeiro
-    public List<RegistroDisco> ordenarPorDisco(List<RegistroDisco> registros) {
-        List<RegistroDisco> copia = new ArrayList<>(registros);
-        int n = copia.size();
+    private String buscarApelidoDisco(Integer fkServidor) {
+        java.sql.Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (copia.get(j).disco < copia.get(j + 1).disco) {
-                    // troca
-                    RegistroDisco temp = copia.get(j);
-                    copia.set(j, copia.get(j + 1));
-                    copia.set(j + 1, temp);
-                }
+        try {
+            conn = dbConnection.getDataSource().getConnection();
+
+            // Sua query para pegar o apelido do disco
+            String sql =
+                    "SELECT c.apelido " +
+                            "FROM componentes c " +
+                            "WHERE c.fk_servidor = ? AND c.tipo = 'DISCO'";
+
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, fkServidor);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("apelido");
             }
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar apelido do disco para servidor " + fkServidor);
+        } finally {
+            // feche recursos
         }
-        return copia;
+
+        return "Disco-" + fkServidor; // fallback
     }
 
-    // Ordena por temperatura
-    public List<RegistroDisco> ordenarPorTemperatura(List<RegistroDisco> registros) {
-        List<RegistroDisco> copia = new ArrayList<>(registros);
-        int n = copia.size();
-
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (copia.get(j).temperatura_disco < copia.get(j + 1).temperatura_disco) {
-                    RegistroDisco temp = copia.get(j);
-                    copia.set(j, copia.get(j + 1));
-                    copia.set(j + 1, temp);
-                }
-            }
-        }
-        return copia;
-    }
-
-    // Ordena por bytes escritos
-    public List<RegistroDisco> ordenarPorBytesEscritos(List<RegistroDisco> registros) {
-        List<RegistroDisco> copia = new ArrayList<>(registros);
-        int n = copia.size();
-
-        for (int i = 0; i < n - 1; i++) {
-            for (int j = 0; j < n - i - 1; j++) {
-                if (copia.get(j).bytes_escritos < copia.get(j + 1).bytes_escritos) {
-                    RegistroDisco temp = copia.get(j);
-                    copia.set(j, copia.get(j + 1));
-                    copia.set(j + 1, temp);
-                }
-            }
-        }
-        return copia;
-    }
-    //final ordenacao e tratamento
 
     public void executarTratamento() {
         try {
@@ -135,9 +113,10 @@ public class ProcessadorDiscoWillian {
                     }
 
                     // Processa últimos registros
-                    List<RegistroDisco> servidoresAtuais = pegarUltimoRegistroPorServidor(registrosDaEmpresa);
+
                     List<Integer> idsServidores = new ArrayList<>();
                     List<ParametroAlerta> parametrosLista = new ArrayList<>();
+                    List<RegistroDisco> servidoresAtuais = pegarUltimoRegistroPorServidor(registrosDaEmpresa);
 
                     for (int j = 0; j < servidoresAtuais.size(); j++) {
                         RegistroDisco r = servidoresAtuais.get(j);
@@ -145,6 +124,9 @@ public class ProcessadorDiscoWillian {
                         idsServidores.add(r.fk_servidor);
                         ParametroAlerta p = buscarParametroPorServidor(r.fk_servidor);
                         parametrosLista.add(p);
+                        if (r.fk_servidor != null) {
+                            r.apelidoDisco = buscarApelidoDisco(r.fk_servidor);
+                        }
                     }
 
                     // Gera JSON principal (últimos registros + parâmetros)
@@ -342,18 +324,6 @@ public class ProcessadorDiscoWillian {
     }
 
 
-    public class AlertaServidor {
-        public Integer fk_servidor;
-        public Integer quantidade;
-        public String detalheDisco; // ex: "SSD Samsung 870 (512GB)"
-
-        public AlertaServidor(Integer fk, Integer qtd, String detalhe) {
-            this.fk_servidor = fk;
-            this.quantidade = qtd;
-            this.detalheDisco = detalhe;
-        }
-    }
-
     public void gerarJsonComParametros(
             List<RegistroDisco> registros,
             List<Integer> idsServidores,
@@ -404,7 +374,8 @@ public class ProcessadorDiscoWillian {
                                 "      \"bytes_lidos\": %.0f,\n" +
                                 "      \"bytes_escritos\": %.0f,\n" +
                                 "      \"tempo_leitura\": %.0f,\n" +
-                                "      \"tempo_escrita\": %.0f\n" +
+                                "      \"tempo_escrita\": %.0f,\n" +
+                                "      \"apelidoDisco\": \"%s\"\n" +
                                 "    }",
                         r.fk_servidor,
                         r.nomeMaquina.replace("\"", "\\\""),
@@ -417,7 +388,8 @@ public class ProcessadorDiscoWillian {
                         r.bytes_lidos,
                         r.bytes_escritos,
                         r.tempo_leitura,
-                        r.tempo_escrita
+                        r.tempo_escrita,
+                        r.apelidoDisco
                 ));
 
                 if (i < registros.size() - 1) writer.write(",");
@@ -431,21 +403,6 @@ public class ProcessadorDiscoWillian {
         }
     }
 
-    public void escreverArrayHistorico(OutputStreamWriter writer, List<RegistroDisco> registros) throws IOException {
-        writer.write("[\n");
-        for (int i = 0; i < registros.size(); i++) {
-            RegistroDisco r = registros.get(i);
-            String ts = r.timestamp.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-            writer.write(String.format(
-                    "        { \"timestamp\": \"%s\", \"disco\": %.2f }",
-                    ts, r.disco
-            ));
-            if (i < registros.size() - 1) writer.write(",");
-            writer.write("\n");
-        }
-        writer.write("      ]");
-    }
-
     // buscando parametro no banco, para tratar
     public class ParametroAlerta {
         public Double limiteDisco;
@@ -456,28 +413,6 @@ public class ProcessadorDiscoWillian {
         }
     }
 
-    // Busca parâmetros por lista de servidores
-    public void buscarParametrosAlerta(List<Integer> servidores, Map<Integer, ParametroAlerta> destino) {
-        // Simples: faça um loop e chame o banco para cada servidor
-        for (int i = 0; i < servidores.size(); i++) {
-            Integer id = servidores.get(i);
-            ParametroAlerta p = buscarParametroPorServidor(id);
-            if (p != null) {
-                destino.put(id, p);
-            }
-        }
-    }
-
-    // Dentro de ProcessadorDiscoWillian
-    private void buscarParametrosParaServidores(
-            List<Integer> idsServidores,
-            List<ParametroAlerta> listaParametros) {
-
-
-        idsServidores.clear();
-        listaParametros.clear();
-
-    }
 
     public ParametroAlerta buscarParametroPorServidor(Integer fkServidor) {
         Double limiteDisco = 90.0;   // valor padrão

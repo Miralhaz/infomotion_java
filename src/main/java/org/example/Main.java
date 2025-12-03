@@ -576,7 +576,13 @@ public class Main {
         TratamentoProcessos tratarProcessos = new TratamentoProcessos(aws, con);
         tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
         // FIM DA ÁREA TRATAMENTO MIRALHA
-
+        aws.limparTemporarios();
+        // começo tratamento Willian
+        // Na main da equipe, após instanciar aws e db:
+        ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
+        tratamentoDisco.executarTratamento();
+        // final tratamento Willian
+        aws.limparTemporarios();
             for (Logs log : logsConsolidados) {
                 Boolean idJaAdicionado = false;
                 Integer idDaVez = log.getFk_servidor();
@@ -632,11 +638,6 @@ public class Main {
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
-            // começo tratamento Willian
-            // Na main da equipe, após instanciar aws e db:
-            ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
-            tratamentoDisco.executarTratamento();
-            // final tratamento Willian
 
             aws.limparTemporarios();
         }
