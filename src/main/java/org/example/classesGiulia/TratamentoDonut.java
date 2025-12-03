@@ -349,103 +349,79 @@ public class TratamentoDonut {
                 numSnt= calcularAcimaComponente(logsServidor, limiteSnt, duracaoSnt, "REDE", "PCKT_SNT");
             }
 
-            String classificacao;
             Integer maiorMinuto = Math.max(minCpu, Math.max(minRam, minDisco));
 
             if (maiorMinuto >= 30 || (numTempCpu == 2 || numTempDisco == 2) || (numUp == 2 || numDown == 2 || numRcvd == 2 || numSnt == 2)){
-                classificacao = "CRITICO";
                 contadorCritico++;
             }
 
             else if(maiorMinuto >= 5 || (numTempCpu == 1 || numTempDisco == 1) || (numUp == 1 || numDown == 1 || numRcvd == 1 || numSnt == 1)){
-                classificacao = "ATENCAO";
                 contadorAtencao++;
             }
 
             else {
-                classificacao = "OK";
                 contadorOk++;
             }
-
-            for (LogsGiuliaCriticidade log : logsServidor){
-                log.setClassificacao(classificacao);
-                log.setMinutos(maiorMinuto);
-            }
         }
-        gravaArquivoJson(listaLogs, "nivelCriticidadeGiulia");
-        awsCon.uploadBucketClient(PASTA_CLIENT, "nivelCriticidadeGiulia.json");
+
+        if(contadorOk == null){
+            contadorOk = 0;
+        }
+
+        if(contadorAtencao == null){
+            contadorAtencao = 0;
+        }
+
+        if(contadorCritico == null){
+            contadorCritico = 0;
+        }
+
+        gravaArquivoJson(contadorOk, contadorAtencao, contadorCritico, "nivelCriticidadeDonut");
+        awsCon.uploadBucketClient(PASTA_CLIENT, "nivelCriticidadeDonut.json");
 
         System.out.printf("Donut:  OK: %d | ATENCAO: %d | CRITICO: %d%n", contadorOk, contadorAtencao, contadorCritico);
     }
 
-    public static void gravaArquivoJson(List<LogsGiuliaCriticidade> lista, String nomeArq) {
+    public static void gravaArquivoJson(Integer ok, Integer atencao, Integer critico, String nomeArq) {
 
         String nome = nomeArq.endsWith(".json") ? nomeArq : nomeArq + ".json";
-        OutputStreamWriter saida = null;
-        Boolean deuRuim = false;
+
+        if(ok == null){
+            ok = 0;
+        }
+
+        if(atencao == null){
+            atencao = 0;
+        }
+
+        if(critico == null){
+            critico = 0;
+        }
+
+        Integer total = (ok + atencao + critico);
+        Double porcOk = total == 0 ? 0 : (ok * 100.0 / total);
+        Double porcAtencao = total == 0 ? 0 : (atencao * 100.0 / total);
+        Double porcCritico = total == 0 ? 0 : (critico * 100.0 / total);
+
+                String json = (String.format(Locale.US,""" 
+                           [
+                               {"classificacao": "OK", "quantidade": %d, "percentual": %.2f},
+                               {"classificacao": "ATENCAO", "quantidade": %d, "percentual": %.2f},
+                               {"classificacao": "CRITICO", "quantidade": %d, "percentual": %.2f}
+                           ]
+                           """, ok, porcOk, atencao, porcAtencao, critico, porcCritico
+                        ));
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
-            saida.append("[");
-            Integer contador = 0;
-
-            for (LogsGiuliaCriticidade log : lista) {
-
-                if (contador > 0) {
-                    saida.append(",");
-                }
-
-                DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-                String timestamp = (log.getTimestamp() == null) ? "" : log.getTimestamp().format(formatador);
-
-                saida.write(String.format(Locale.US,""" 
-                           {
-                           "fk_servidor": %d,
-                           "apelido": "%s",
-                           "timestamp": "%s",
-                           "minutos": %d,
-                           "cpu": %.2f,
-                           "ram": %.2f,
-                           "disco": %.2f,
-                           "tempCpu": %.2f,
-                           "tempDisco": %.2f,
-                           "uploadByte": %d,
-                           "downloadByte": %d,
-                           "packetReceived": %d,
-                           "packetSent": %d,
-                           "classificacao": "%s"
-                           }""",
-                        log.getFk_servidor(), log.getApelido(), timestamp, log.getMinutos() == null ? 0 : log.getMinutos(), log.getUsoCpu(), log.getUsoRam(), log.getUsoDisco(), log.getTempCpu(), log.getTempDisco(), log.getUploadByte(), log.getDownloadByte(), log.getPacketReceived(), log.getPacketSent(), log.getClassificacao() == null ? "" : log.getClassificacao()));
-
-                contador ++;
-            }
-            saida.append("]");
+            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida.write(json);
+            saida.flush();
             System.out.println("Arquivo Json de Criticidade (donut) gerado com sucesso!");
-
         }
 
         catch (IOException erro) {
             System.out.println("Erro ao gravar o arquivo Json de Criticidade (donut)!");
             erro.printStackTrace();
-            deuRuim = true;
-        }
-
-        finally {
-
-            try {
-                if (saida != null){
-                    saida.close();
-                }
-            }
-
-            catch (IOException erro) {
-                System.out.println("Erro ao fechar o arquivo Json de donut");
-                deuRuim = true;
-            }
-
-            if (deuRuim) {
-                System.exit(1);
-            }
         }
     }
 }
