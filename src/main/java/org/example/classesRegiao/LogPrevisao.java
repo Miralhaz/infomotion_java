@@ -68,16 +68,29 @@ public class LogPrevisao {
     }
 
     public Double qtdReqPrevistas(){
-        return qtdRequisicao * chuvaEmMM * 0.25 + temperatura * 0.5;
+        Double qtdReqPrevistas = 0.0;
+
+        qtdReqPrevistas += qtdRequisicao * (chuvaEmMM + 1);
+        qtdReqPrevistas += qtdRequisicao + (umidade * 0.1);
+
+        if (temperatura > 30 || temperatura < 0){
+            qtdReqPrevistas += qtdReqPrevistas * 0.02;
+        }
+
+        if (chanceDeChuva > 50){
+            qtdReqPrevistas  += qtdReqPrevistas * 0.05;
+        }
+
+        return qtdReqPrevistas;
     }
 
     public Double chanceDeAlteracao(){
         Double chance = chanceDeChuva;
 
         if (temperatura > 30 || temperatura < 5 ){
-            chance += 5.0;
+            chance += chance * 0.05;
         } else if (temperatura > 20 || temperatura < 10) {
-            chance += 2.0;
+            chance += chance * 0.02;
         }
 
         if (chance > 100.00){

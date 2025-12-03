@@ -553,7 +553,7 @@ public class Main {
             }
 
             Integer fk_servidor_arquivo = logsDoArquivo.get(0).getFk_servidor();
-            TratamentoCardsServidores.atualizarStatusServidor(fk_servidor_arquivo, logsDoArquivo, aws, con);
+           // TratamentoCardsServidores.atualizarStatusServidor(fk_servidor_arquivo, logsDoArquivo, aws, con);
         }
         aws.limparTemporarios();
         // Fim da área tratamento alertas
@@ -566,40 +566,41 @@ public class Main {
 
 
         // AREA TRATAMENTO MIRALHA
-        TratamentoTemperaturaCpu tratarTemperatura = new TratamentoTemperaturaCpu(aws, con);
-        tratarTemperatura.tratamentoDeTemperaturaCpu(logsConsolidados, "temperaturaUsoCpu");
+//        TratamentoTemperaturaCpu tratarTemperatura = new TratamentoTemperaturaCpu(aws, con);
+//        tratarTemperatura.tratamentoDeTemperaturaCpu(logsConsolidados, "temperaturaUsoCpu");
+//
+//        TratamentoTemperaturaDisco tratarTemperaturaDisco = new TratamentoTemperaturaDisco(aws, con);
+//        tratarTemperaturaDisco.tratamentoDeTemperaturaDisco(logsConsolidados, "temperaturaUsoDisco");
+//
+//        TratamentoProcessos.consolidarArquivosRawProcessos();
+//        TratamentoProcessos tratarProcessos = new TratamentoProcessos(aws, con);
+//        tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
+//        // FIM DA ÁREA TRATAMENTO MIRALHA
 
-        TratamentoTemperaturaDisco tratarTemperaturaDisco = new TratamentoTemperaturaDisco(aws, con);
-        tratarTemperaturaDisco.tratamentoDeTemperaturaDisco(logsConsolidados, "temperaturaUsoDisco");
-
-        TratamentoProcessos.consolidarArquivosRawProcessos();
-        TratamentoProcessos tratarProcessos = new TratamentoProcessos(aws, con);
-        tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
-        // FIM DA ÁREA TRATAMENTO MIRALHA
-
-        aws.limparTemporarios();
-        // comeco tratamento willian
-        // Na main da equipe, apó  s instanciar aws e db:
-        ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
-        tratamentoDisco.executarTratamento();
-        // final tratamento willian
-
-            for (Logs log : logsConsolidados) {
-                Boolean idJaAdicionado = false;
-                Integer idDaVez = log.getFk_servidor();
-                for (int i : listaIdServidores) {
-                    if (idDaVez == i) {
-                        idJaAdicionado = true;
-                    }
-                }
-                if (!idJaAdicionado) {
-                    listaIdServidores.add(idDaVez);
-                }
-            }
+//        aws.limparTemporarios();
+//        // comeco tratamento willian
+//        // Na main da equipe, apó  s instanciar aws e db:
+//        ProcessadorDiscoWillian tratamentoDisco = new ProcessadorDiscoWillian(aws, connection);
+//        tratamentoDisco.executarTratamento();
+//        // final tratamento willian
+//
+//            for (Logs log : logsConsolidados) {
+//                Boolean idJaAdicionado = false;
+//                Integer idDaVez = log.getFk_servidor();
+//                for (int i : listaIdServidores) {
+//                    if (idDaVez == i) {
+//                        idJaAdicionado = true;
+//                    }
+//                }
+//                if (!idJaAdicionado) {
+//                    listaIdServidores.add(idDaVez);
+//                }
+//            }
             //AREA TRATAMENTO DERECK
         System.out.println("--------------------iniciando tratamento regiao------------------");
             TratamentoClima tratamentoClima = new TratamentoClima(aws,con);
             tratamentoClima.buscarRegioes(con,logsConsolidados);
+        System.out.println("--------------------finalizando tratamento regiao------------------");
 
         //FIM AREA TRATAMENTO DERECK
             // Pegando o id do servidor
