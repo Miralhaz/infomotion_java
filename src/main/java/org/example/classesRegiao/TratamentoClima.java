@@ -71,6 +71,7 @@ public class TratamentoClima {
                     criarJsonPrevisao(listaParaJsonPre,r.getId());
                     List <LogHorarioReq> listaParaJsonHora = criarLogHorario(r);
                     criarJsonHora(listaParaJsonHora,r.getId());
+                    criarJsonKpi(listaParaJsonPre,r.getId());
                 }
 
 
@@ -356,6 +357,82 @@ public class TratamentoClima {
                         ));
                 contador ++;
             }
+            saida.append("]");
+            System.out.println("Arquivo Json de previsão gerado com sucesso!");
+
+
+
+        }
+
+        catch (IOException erro) {
+            System.out.println("Erro ao gravar o arquivo de previsao");
+            erro.printStackTrace();
+            deuRuim = true;
+        }
+
+        finally {
+
+            try {
+                if (saida != null){
+                    saida.close();
+                }
+            }
+
+            catch (IOException erro) {
+                System.out.println("Erro ao fechar o arquivo");
+                deuRuim = true;
+            }
+
+            if (deuRuim) {
+                System.exit(1);
+            }
+        }
+        awsConnection.uploadBucketClient(nomePasta,nome);
+    }
+
+    public static void criarJsonKpi(List<LogPrevisao> lista, Integer idRegiao){
+        String nomeArq = "RegiaoKpi" + idRegiao;
+        String nome = nomeArq.endsWith(".json") ? nomeArq : nomeArq + ".json";
+        OutputStreamWriter saida = null;
+        Boolean deuRuim = false;
+
+        try {
+            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida.append("[");
+                    saida.append(",");
+
+
+            LogPrevisao maiorRisco = lista.get(0);
+            LogPrevisao maiorQtdRec = lista.get(0);
+
+            for (LogPrevisao log : lista) {
+                if (log.getQtdRequisicao() > maiorRisco.getQtdRequisicao() && log.chanceDeAlteracao() > maiorRisco.chanceDeAlteracao()){
+                    maiorRisco = log;
+                }
+                if (log.getQtdRequisicao() > maiorQtdRec.getQtdRequisicao()){
+                    maiorQtdRec = log;
+                }
+            }
+
+            String data = maiorRisco.getData().toString();
+            Integer requisicoes = maiorRisco.getQtdRequisicao();
+            Double chance = maiorRisco.chanceDeAlteracao();
+            Double percentual = maiorRisco.percentualDeAumento(maiorRisco.getQtdRequisicao(), maiorRisco.qtdReqPrevistas().intValue());
+            Double qtdRamPossivel =  maiorQtdRec.usoRAM(maiorQtdRec.qtdReqPrevistas());
+
+
+
+            saida.write(String.format(Locale.US,""" 
+                           {
+                           "Data": "%s",
+                           "Requsicoes": %d,
+                           "ChanceDeAlteracao": %.2f,
+                           "PorcentagemDeAumento": %.2f,
+                           "UsoDeRam:" %.2f
+                           }""",data,requisicoes,chance,percentual,qtdRamPossivel
+
+                ));
+
             saida.append("]");
             System.out.println("Arquivo Json de previsão gerado com sucesso!");
 
