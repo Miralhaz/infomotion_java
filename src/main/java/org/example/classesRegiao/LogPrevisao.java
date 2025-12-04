@@ -1,8 +1,12 @@
 package org.example.classesRegiao;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.time.LocalDate;
 
 public class LogPrevisao {
+    private static final Logger log = LoggerFactory.getLogger(LogPrevisao.class);
     private LocalDate data;
     private Integer qtdRequisicao;
     private Double chanceDeChuva;
@@ -69,17 +73,24 @@ public class LogPrevisao {
 
     public Double qtdReqPrevistas(){
         Double qtdReqPrevistas = 0.0;
+        qtdReqPrevistas += qtdRequisicao;
 
-        qtdReqPrevistas += qtdRequisicao * (chuvaEmMM + 1);
-        qtdReqPrevistas += qtdRequisicao + (umidade * 0.1);
+        if (chanceDeChuva > 0) {
+            if (temperatura > 30 || temperatura < 0) {
+                qtdReqPrevistas += (qtdRequisicao * 0.05);
+            }
 
-        if (temperatura > 30 || temperatura < 0){
-            qtdReqPrevistas += qtdReqPrevistas * 0.02;
+            if (chuvaEmMM > 3.0) {
+                qtdReqPrevistas += qtdRequisicao * 0.35;
+            } else if (chuvaEmMM > 2.0) {
+                qtdReqPrevistas += qtdRequisicao * 0.25;
+            } else if (chuvaEmMM > 1.0) {
+                qtdReqPrevistas += qtdRequisicao * 0.10;
+            }else if (chuvaEmMM < 1.0) {
+                qtdReqPrevistas += qtdRequisicao * 0.05;
+            }
         }
 
-        if (chanceDeChuva > 50){
-            qtdReqPrevistas  += qtdReqPrevistas * 0.05;
-        }
 
         return qtdReqPrevistas;
     }
@@ -87,10 +98,10 @@ public class LogPrevisao {
     public Double chanceDeAlteracao(){
         Double chance = chanceDeChuva;
 
-        if (temperatura > 30 || temperatura < 5 ){
-            chance += chance * 0.05;
+        if (temperatura > 30 || temperatura < 0 ){
+            chance += chance * 0.005;
         } else if (temperatura > 20 || temperatura < 10) {
-            chance += chance * 0.02;
+            chance += chance * 0.007;
         }
 
         if (chance > 100.00){
@@ -104,16 +115,20 @@ public class LogPrevisao {
     }
 
     public Double percentualDeAumento(Integer req,Integer reqPrevista){
-        Double umPorcento = req.doubleValue() / 100;
-        Integer multiplicador;
-
+        Integer resultado;
         if (req > reqPrevista){
-            multiplicador = req - reqPrevista ;
+            resultado = req - reqPrevista ;
         }else {
-            multiplicador = reqPrevista - req;
+            resultado = reqPrevista - req;
         }
 
-        return umPorcento * multiplicador;
+
+        return (resultado/req.doubleValue()) * 100.00;
+
+
+
+
+
     }
 
     @Override

@@ -1,0 +1,37 @@
+[{
+"fk_servidor": 2,
+"apelido": "DESKTOP-G2ODTKO",
+"captura": 80.90,
+"minutos": 3596,
+"classificacao": "CRITICO"
+},{
+"fk_servidor": 4,
+"apelido": "DESKTOP-K5L8ML3",
+"captura": 96.10,
+"minutos": 5286,
+"classificacao": "CRITICO"
+},{
+"fk_servidor": 5,
+"apelido": "DESKTOP-886AGFM",
+"captura": 77.80,
+"minutos": 1477,
+"classificacao": "CRITICO"
+},{
+"fk_servidor": 6,
+"apelido": "DESKTOP-HMMLF0T",
+"captura": 93.90,
+"minutos": 3,
+"classificacao": "OK"
+},{
+"fk_servidor": 7,
+"apelido": "DESKTOP-21227JH",
+"captura": 79.00,
+"minutos": 2,
+"classificacao": "OK"
+},{
+"fk_servidor": 8,
+"apelido": "DESKTOP-3N4TKBA",
+"captura": 96.30,
+"minutos": 103,
+"classificacao": "CRITICO"
+}]
