@@ -636,8 +636,7 @@ public class Main {
         tratamentoHistoricoServidor.classificarAlertas(30);
 
             //Criando json Near Real Time
-            tratamentoNearRealTime.logsEspecifico(logsConsolidados);
-
+           tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
             aws.limparTemporarios();
         }
