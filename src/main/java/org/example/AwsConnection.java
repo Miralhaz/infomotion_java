@@ -28,7 +28,7 @@ public class AwsConnection {
                         .bucket("s3-raw-infomotion-1")
                         .key(key)
                         .build(),
-                Paths.get(nomeArq)
+                Paths.get("/tmp/", nomeArq)
         );
     }
 
@@ -113,7 +113,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("application/json")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("  → Upload concluído: " + key);
@@ -133,7 +133,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("application/json")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("  → Upload concluído: " + key);
@@ -146,7 +146,7 @@ public class AwsConnection {
 
     public void downloadBucketTrusted(String nomeArq) {
         String key = nomeArq;
-        Path destino = Paths.get(nomeArq);
+        Path destino = Paths.get("/tmp/", nomeArq);
 
         try {
             if (destino.getParent() != null) {
@@ -178,7 +178,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("text/csv")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("Upload concluído: " + nomeArq);
@@ -190,7 +190,7 @@ public class AwsConnection {
 
     public void downloadBucketProcessosTrusted(String nomeArq) {
         String key = nomeArq;
-        Path destino = Paths.get(nomeArq);
+        Path destino = Paths.get("/tmp/", nomeArq);
 
         try {
             if (destino.getParent() != null) {
@@ -221,7 +221,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("text/csv")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("Upload concluído para CLIENT: " + nomeArq);
@@ -241,7 +241,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("text/csv")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("Upload concluído para CLIENT: " + nomeArq);
@@ -261,7 +261,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("text/csv")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("Upload concluído: " + nomeArq + "\n");
@@ -281,7 +281,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("text/csv")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("Upload concluído: " + nomeArq + "\n");
@@ -301,7 +301,7 @@ public class AwsConnection {
                             .bucket("s3-client-infomotion-1")
                             .key(key)
                             .build(),
-                    Paths.get(nomeArq)
+                    Paths.get("/tmp/", nomeArq)
             );
         } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
             System.out.println("Aviso: Arquivo '" + nomeArq + "' não encontrado no S3 Trusted. Será criado um novo.");
@@ -320,7 +320,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("text/csv")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("Upload concluído: " + nomeArq + "\n");
@@ -340,7 +340,7 @@ public class AwsConnection {
                             .bucket("s3-client-infomotion-1")
                             .key(key)
                             .build(),
-                    Paths.get(nomeArq)
+                    Paths.get("/tmp/", nomeArq)
             );
         } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
             System.out.println("Arquivo de status não encontrado. Será criado um novo.");
@@ -359,7 +359,7 @@ public class AwsConnection {
                             .key(key)
                             .contentType("application/json")
                             .build(),
-                    RequestBody.fromFile(Path.of(nomeArq))
+                    RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
             System.out.println("Upload concluído: " + key);
@@ -372,7 +372,7 @@ public class AwsConnection {
 
     public void deleteCsvLocal(String nomeArq){
         try {
-            Path caminho = Path.of(nomeArq);
+            Path caminho = Path.of("/tmp/", nomeArq);
             java.nio.file.Files.deleteIfExists(caminho);
             System.out.println("  → Arquivo local deletado: " + nomeArq);
         } catch (Exception e) {
@@ -382,7 +382,7 @@ public class AwsConnection {
 
     public void limparTemporarios() {
         try {
-            var arquivos = java.nio.file.Files.list(Path.of("."))
+            var arquivos = java.nio.file.Files.list(Path.of("/tmp"))
                     .filter(p -> p.toString().endsWith(".csv") || p.toString().endsWith(".json"))
                     .toList();
 

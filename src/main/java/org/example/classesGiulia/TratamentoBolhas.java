@@ -102,7 +102,7 @@ public class TratamentoBolhas {
         Boolean deuRuim = false;
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.append("[");
 
             for (int i = 0; i < lista.size(); i++) {

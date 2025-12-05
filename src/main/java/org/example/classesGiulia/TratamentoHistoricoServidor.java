@@ -50,7 +50,7 @@ public class TratamentoHistoricoServidor {
 
 
     public void classificarAlertas(Integer dias) {
-        out.println("\n⚠\uFE0F Classificando alertas de um servidor...");
+        out.println("\n⚠️ Classificando alertas de um servidor...");
 
         LocalDateTime inicio = LocalDateTime.now().minusDays(dias);
         Timestamp inicioTs = Timestamp.valueOf(inicio);
@@ -72,7 +72,7 @@ public class TratamentoHistoricoServidor {
 
         List<Map<String, Object>> lista = con.queryForList(select, dias, dias);
 
-        String nome = "historicoAlertasLinhas_" + dias;
+        String nome = "historicoAlertasLinhasServidor_" + dias; // Renomeei para evitar conflito com TratamentoHistorico
         gravaArquivoJson(lista, nome);
         awsCon.uploadBucketClient(PASTA_CLIENT, nome + ".json");
     }
@@ -84,7 +84,8 @@ public class TratamentoHistoricoServidor {
         Boolean deuRuim = false;
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            // CORREÇÃO: Usando /tmp/ para I/O temporário
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.append("[");
 
             for (int i = 0; i < lista.size(); i++) {

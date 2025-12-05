@@ -25,8 +25,6 @@ public class ProcessadorDiscoWillian {
         this.dbConnection = dbConnection;
     }
 
-    // inicio de tratamento e ordenacao
-
     public List<RegistroDisco> pegarUltimoRegistroPorServidor(List<RegistroDisco> registros) {
         List<RegistroDisco> ultimos = new ArrayList<>();
 
@@ -34,12 +32,10 @@ public class ProcessadorDiscoWillian {
             RegistroDisco atual = registros.get(i);
             boolean jaAdicionado = false;
 
-            // Verifica se já temos esse servidor na lista de "últimos"
             for (int j = 0; j < ultimos.size(); j++) {
                 RegistroDisco existente = ultimos.get(j);
                 if (existente.fk_servidor.equals(atual.fk_servidor)) {
                     jaAdicionado = true;
-                    // Se o atual for mais recente, substitui
                     if (atual.timestamp.isAfter(existente.timestamp)) {
                         ultimos.set(j, atual);
                     }
@@ -63,7 +59,6 @@ public class ProcessadorDiscoWillian {
         try {
             conn = dbConnection.getDataSource().getConnection();
 
-            // Sua query para pegar o apelido do disco
             String sql =
                     "SELECT c.apelido " +
                             "FROM componentes c " +
@@ -79,10 +74,12 @@ public class ProcessadorDiscoWillian {
         } catch (Exception e) {
             System.err.println("Erro ao buscar apelido do disco para servidor " + fkServidor);
         } finally {
-            // feche recursos
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
         }
 
-        return "Disco-" + fkServidor; // fallback
+        return "Disco-" + fkServidor;
     }
 
 
@@ -94,7 +91,7 @@ public class ProcessadorDiscoWillian {
             awsConnection.downloadBucketTrusted(nomeArquivoCsv);
             System.out.println("✅ CSV baixado com sucesso do bucket trusted.");
 
-            try (InputStream csvStream = new FileInputStream(nomeArquivoCsv)) {
+            try (InputStream csvStream = new FileInputStream("/tmp/" + nomeArquivoCsv)) {
                 List<RegistroDisco> todosRegistros = lerCsvDisco(csvStream);
                 System.out.println("Registros de disco lidos: " + todosRegistros.size());
 
@@ -112,8 +109,6 @@ public class ProcessadorDiscoWillian {
                         }
                     }
 
-                    // Processa últimos registros
-
                     List<Integer> idsServidores = new ArrayList<>();
                     List<ParametroAlerta> parametrosLista = new ArrayList<>();
                     List<RegistroDisco> servidoresAtuais = pegarUltimoRegistroPorServidor(registrosDaEmpresa);
@@ -129,13 +124,11 @@ public class ProcessadorDiscoWillian {
                         }
                     }
 
-                    // Gera JSON principal (últimos registros + parâmetros)
                     String nomeJsonAtual = "DiscoTratamentoEmpresa_" + idEmpresa + ".json";
                     gerarJsonComParametros(servidoresAtuais, idsServidores, parametrosLista, nomeJsonAtual);
                     awsConnection.uploadBucketClient("tratamento_willian", nomeJsonAtual);
                     System.out.println("Upload concluído para CLIENT: " + nomeJsonAtual);
 
-                    // 👇 NOVO: Gera JSON de HISTÓRICO (todos os registros)
                     String nomeJsonHistorico = "DiscoHistoricoEmpresa_" + idEmpresa + ".json";
                     gerarJsonHistorico(registrosDaEmpresa, nomeJsonHistorico);
                     awsConnection.uploadBucketClient("tratamento_willian", nomeJsonHistorico);
@@ -146,14 +139,14 @@ public class ProcessadorDiscoWillian {
             }
         } catch (Exception e) {
             System.err.println("💥 ERRO FATAL no tratamento de disco: " + e.getMessage());
-            e.printStackTrace(); // ← ISSO É IMPORTANTE!
+            e.printStackTrace();
         }
 
         System.out.println("Tratamento concluído com sucesso!");
     }
 
     public void gerarJsonHistorico(List<RegistroDisco> registros, String nomeArquivo) {
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(nomeArquivo), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArquivo), StandardCharsets.UTF_8)) {
             writer.write("[\n");
             for (int i = 0; i < registros.size(); i++) {
                 RegistroDisco r = registros.get(i);
@@ -183,7 +176,7 @@ public class ProcessadorDiscoWillian {
             while ((linha = reader.readLine()) != null) {
                 if (primeira) {
                     primeira = false;
-                    continue; // pula cabeçalho
+                    continue;
                 }
                 String[] colunas = linha.split(";");
                 if (colunas.length < 22) continue;
@@ -203,7 +196,6 @@ public class ProcessadorDiscoWillian {
                 r.tempo_escrita = parseDoubleComVirgula(colunas[21].trim());
 
                 registros.add(r);
-                // Dentro do while, após pular o cabeçalho:
                 if (registros.size() < 2) {
                     System.out.println("Linha lida: " + linha);
                     System.out.println("Número de colunas: " + colunas.length);
@@ -228,7 +220,6 @@ public class ProcessadorDiscoWillian {
     }
 
     public void completarFkEmpresa(List<RegistroDisco> registros) {
-        // 1. Pegar todos os servidores únicos
         List<Integer> servidoresUnicos = new ArrayList<>();
         for (int i = 0; i < registros.size(); i++) {
             Integer servidor = registros.get(i).fk_servidor;
@@ -246,7 +237,6 @@ public class ProcessadorDiscoWillian {
             }
         }
 
-        // 2. Para cada servidor único, buscar sua empresa e guardar em duas listas paralelas
         List<Integer> listaServidores = new ArrayList<>();
         List<Integer> listaEmpresas = new ArrayList<>();
 
@@ -254,10 +244,9 @@ public class ProcessadorDiscoWillian {
             Integer servidor = servidoresUnicos.get(i);
             Integer empresa = buscarFkEmpresaPorServidor(servidor);
             listaServidores.add(servidor);
-            listaEmpresas.add(empresa); // pode ser -1 se não encontrar
+            listaEmpresas.add(empresa);
         }
 
-        // 3. Preencher fk_empresa em cada registro com base nas listas paralelas
         for (int i = 0; i < registros.size(); i++) {
             RegistroDisco r = registros.get(i);
             if (r.fk_servidor != null) {
@@ -330,12 +319,10 @@ public class ProcessadorDiscoWillian {
             List<ParametroAlerta> parametrosLista,
             String nomeArquivo) {
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(nomeArquivo), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArquivo), StandardCharsets.UTF_8)) {
 
-            // Início do JSON como objeto
             writer.write("{\n");
 
-            // 1. Parâmetros de alerta
             writer.write("  \"parametrosAlerta\": {\n");
             for (int i = 0; i < idsServidores.size(); i++) {
                 if (i >= parametrosLista.size()) {
@@ -355,7 +342,6 @@ public class ProcessadorDiscoWillian {
             }
             writer.write("  },\n");
 
-            // 2. Lista de servidores (seu código antigo, mas dentro de "servidores")
             writer.write("  \"servidores\": [\n");
             for (int i = 0; i < registros.size(); i++) {
                 RegistroDisco r = registros.get(i);
@@ -403,7 +389,6 @@ public class ProcessadorDiscoWillian {
         }
     }
 
-    // buscando parametro no banco, para tratar
     public class ParametroAlerta {
         public Double limiteDisco;
         public Double limiteTemperatura;
@@ -415,8 +400,8 @@ public class ProcessadorDiscoWillian {
 
 
     public ParametroAlerta buscarParametroPorServidor(Integer fkServidor) {
-        Double limiteDisco = 90.0;   // valor padrão
-        Double limiteTemperatura = 45.0; // valor padrão
+        Double limiteDisco = 90.0;
+        Double limiteTemperatura = 45.0;
 
         java.sql.Connection conn = null;
         PreparedStatement stmt = null;
@@ -425,7 +410,6 @@ public class ProcessadorDiscoWillian {
         try {
             conn = dbConnection.getDataSource().getConnection();
 
-            // 1. Busca limite para DISCO (%)
             String sqlDisco = "SELECT p.max FROM parametro_alerta p " +
                     "INNER JOIN servidor s ON s.id = p.fk_servidor " +
                     "INNER JOIN componentes c ON c.fk_servidor = s.id " +
@@ -439,7 +423,6 @@ public class ProcessadorDiscoWillian {
             rs.close();
             stmt.close();
 
-            // 2. Busca limite para TEMPERATURA (°C)
             String sqlTemp = "SELECT p.max FROM parametro_alerta p " +
                     "INNER JOIN servidor s ON s.id = p.fk_servidor " +
                     "INNER JOIN componentes c ON c.fk_servidor = s.id " +

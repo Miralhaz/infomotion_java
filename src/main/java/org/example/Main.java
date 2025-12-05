@@ -33,7 +33,7 @@ public class Main {
         boolean arquivoExisteAntesDaEscrita = arquivoLocal.exists();
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq, append), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq, append), StandardCharsets.UTF_8);
 
         }catch (IOException erro){
             System.err.println("Erro ao abrir o arquivo " + nomeCompletoArq + " em gravaArquivoCsv");
@@ -70,18 +70,19 @@ public class Main {
     }
 
     public static void consolidarArquivosRaw(JdbcTemplate con) {
-        final String arquivoConsolidadoTrusted = "logs_consolidados_servidores";
+        final String arquivoConsolidadoTrusted = "logs_consolidados_servidores.csv";
+        String caminhoLocal = "/tmp/" + arquivoConsolidadoTrusted;
 
         System.out.println("\nIniciando consolidação...");
 
-        aws.downloadBucketTrusted(arquivoConsolidadoTrusted + ".csv");
+        aws.downloadBucketTrusted(arquivoConsolidadoTrusted);
 
         List<Logs> logsConsolidadosExistentes = new ArrayList<>();
-        File arquivoLocal = new File(arquivoConsolidadoTrusted + ".csv");
+        File arquivoLocal = new File(caminhoLocal);
 
         if (arquivoLocal.exists()) {
             try {
-                logsConsolidadosExistentes = leImportaArquivoCsv(arquivoConsolidadoTrusted + ".csv");
+                logsConsolidadosExistentes = leImportaArquivoCsv(arquivoConsolidadoTrusted);
                 System.out.printf("Arquivo consolidado existente possui %d logs.\n", logsConsolidadosExistentes.size());
             } catch (Exception e) {
                 System.err.println("Erro ao ler arquivo consolidado existente: " + e.getMessage());
@@ -96,7 +97,6 @@ public class Main {
 
         if (arquivosRawParaProcessar.isEmpty()) {
             System.out.println("Nenhum arquivo RAW novo encontrado para processamento (Padrão: data[n].csv).");
-            return;
         }
 
         System.out.printf("Encontrados %d arquivos RAW para processar.\n", arquivosRawParaProcessar.size());
@@ -123,34 +123,29 @@ public class Main {
             }
         }
 
-        if (logsNovosParaConsolidar.isEmpty()) {
-            System.out.println("Nenhum novo log válido foi lido e consolidado. Upload para Trusted abortado.");
-            return;
-        }
-
         logsConsolidadosExistentes.addAll(logsNovosParaConsolidar);
         System.out.printf("Total de logs após consolidação: %d\n", logsConsolidadosExistentes.size());
 
-        gravaArquivoCsv(logsConsolidadosExistentes, arquivoConsolidadoTrusted, false);
+        gravaArquivoCsv(logsConsolidadosExistentes, "logs_consolidados_servidores", false);
 
-        aws.uploadBucketTrusted(arquivoConsolidadoTrusted + ".csv");
+        aws.uploadBucketTrusted(arquivoConsolidadoTrusted);
 
         System.out.println("\nConsolidação concluída");
     }
 
     public static void consolidarEspecificacoesRaw(JdbcTemplate con) {
         final String arquivoEspecificadosConsolidadoTrusted = "logs_especificados_consolidados_servidores";
+        final String nomeCompletoArq = arquivoEspecificadosConsolidadoTrusted + ".csv";
 
-        System.out.println("\nIniciando consolidação...");
+        System.out.println("\nIniciando consolidação de especificações...");
 
-        aws.downloadTemperaturaBucket(arquivoEspecificadosConsolidadoTrusted + ".csv");
+        aws.downloadTemperaturaBucket(nomeCompletoArq);
 
         List<String> arquivosRawParaProcessar = aws.listarEspecificacoesRaw();
         List<LogsEspecificacoes> logsNovosParaConsolidar = new ArrayList<>();
 
         if (arquivosRawParaProcessar.isEmpty()) {
-            System.out.println("Nenhum arquivo RAW novo encontrado para processamento (Padrão: data[n].csv).");
-            return;
+            System.out.println("Nenhum arquivo RAW de especificações novo encontrado para processamento (Padrão: data[n].csv).");
         }
 
         System.out.printf("Encontrados %d arquivos RAW para processar.\n", arquivosRawParaProcessar.size());
@@ -170,13 +165,8 @@ public class Main {
             }
         }
 
-        if (logsNovosParaConsolidar.isEmpty()) {
-            System.out.println("Nenhum novo log válido foi lido e consolidado. Upload para Trusted abortado.");
-            return;
-        }
-
         gravaArquivoCsvEspecificacoes(logsNovosParaConsolidar, arquivoEspecificadosConsolidadoTrusted);
-        aws.uploadBucketTrusted(arquivoEspecificadosConsolidadoTrusted + ".csv");
+        aws.uploadBucketTrusted(nomeCompletoArq);
 
 
         System.out.println("\nConsolidação concluída");
@@ -188,7 +178,7 @@ public class Main {
         nomeArq += ".csv";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
 
         }catch (IOException erro){
             System.out.println("Erro ao abrir o arquivo gravaArquivoCsv");
@@ -228,7 +218,7 @@ public class Main {
         List<Logs> listaLogs = new ArrayList<>();
 
         try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            arq = new InputStreamReader(new FileInputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
             System.out.println("Erro ao abrir o arquivo leImportaArquivoCsv");
@@ -243,7 +233,7 @@ public class Main {
             // separa cada da linha usando o delimitador ";"
             // resgistro = linha.split(";");
             // printa os titulos da coluna
-             System.out.println("Lendo e Importando CSV de dados do bucket-raw");
+            System.out.println("Lendo e Importando CSV de dados do bucket-raw");
 
             String[] header = linha.split(";");
             int offset = (header[0].isEmpty() || header[0].matches("\\d+")) ? 1 : 0;
@@ -309,7 +299,7 @@ public class Main {
         nomeArq += ".csv";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
         } catch (IOException erro) {
             System.out.println("Erro ao abrir o arquivo gravaArquivoCsvEspecificacoes");
             System.exit(1);
@@ -376,7 +366,7 @@ public class Main {
         List<LogsEspecificacoes> lista = new ArrayList<>();
 
         try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            arq = new InputStreamReader(new FileInputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
             System.out.println("Erro ao abrir arquivo de especificações");
@@ -464,7 +454,7 @@ public class Main {
         List<Logs> listaLogs = new ArrayList<>();
 
         try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            arq = new InputStreamReader(new FileInputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
             System.out.println("Erro ao abrir o arquivo leImportaArquivoCsv");
@@ -583,32 +573,32 @@ public class Main {
         tratamentoDisco.executarTratamento();
         // final tratamento Willian
         aws.limparTemporarios();
-            for (Logs log : logsConsolidados) {
-                Boolean idJaAdicionado = false;
-                Integer idDaVez = log.getFk_servidor();
-                for (int i : listaIdServidores) {
-                    if (idDaVez == i) {
-                        idJaAdicionado = true;
-                    }
-                }
-                if (!idJaAdicionado) {
-                    listaIdServidores.add(idDaVez);
+        for (Logs log : logsConsolidados) {
+            Boolean idJaAdicionado = false;
+            Integer idDaVez = log.getFk_servidor();
+            for (int i : listaIdServidores) {
+                if (idDaVez == i) {
+                    idJaAdicionado = true;
                 }
             }
-            //AREA TRATAMENTO DERECK
+            if (!idJaAdicionado) {
+                listaIdServidores.add(idDaVez);
+            }
+        }
+        //AREA TRATAMENTO DERECK
         System.out.println("--------------------iniciando tratamento regiao------------------");
-            TratamentoClima tratamentoClima = new TratamentoClima(aws,con);
-            tratamentoClima.buscarRegioes(con,logsConsolidados);
+        TratamentoClima tratamentoClima = new TratamentoClima(aws,con);
+        tratamentoClima.buscarRegioes(con,logsConsolidados);
 
         //FIM AREA TRATAMENTO DERECK
-            // Pegando o id do servidor
-            Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
+        // Pegando o id do servidor
+        Integer fk_servidor = logsConsolidados.get(1).getFk_servidor();
 
-            // TRATAMENTO REDE
-            // Criando Json de rede
-            TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores, con, aws);
-            // Criando json de conexao
-            TratamentoRede.gravaArquivoJson(listaIdServidores, aws);
+        // TRATAMENTO REDE
+        // Criando Json de rede
+        TratamentoRede.gravaArquivoJsonRede(logsConsolidados, listaIdServidores, con, aws);
+        // Criando json de conexao
+        TratamentoRede.gravaArquivoJson(listaIdServidores, aws);
 
         // TRATAMENTO - GIULIA
         TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
@@ -635,10 +625,10 @@ public class Main {
         tratamentoHistoricoServidor.classificarAlertas(7);
         tratamentoHistoricoServidor.classificarAlertas(30);
 
-            //Criando json Near Real Time
-            tratamentoNearRealTime.logsEspecifico(logsConsolidados);
+        //Criando json Near Real Time
+        tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
 
-            aws.limparTemporarios();
-        }
+        aws.limparTemporarios();
     }
+}

@@ -1,29 +1,25 @@
 package org.example.classesGiulia;
 
-import org.example.*;
+import org.example.AwsConnection;
+import org.example.Logs;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class TratamentoDonut {
 
-    // Atributos:
     private AwsConnection awsCon;
     private final JdbcTemplate con;
     private static final String PASTA_CLIENT = "tratamentos_giulia";
 
-    // Construtor:
     public TratamentoDonut(AwsConnection awsCon, JdbcTemplate con) {
         this.awsCon = awsCon;
         this.con = con;
     }
 
-    // Métodos:
     private List<LogsGiuliaCriticidade> transformarLogs(List<Logs> logs){
         List<LogsGiuliaCriticidade> listaLogs = new ArrayList<>();
 
@@ -103,19 +99,20 @@ public class TratamentoDonut {
         Double porcAtencao = total == 0 ? 0 : (atencao * 100.0 / total);
         Double porcCritico = total == 0 ? 0 : (critico * 100.0 / total);
 
-                String json = (String.format(Locale.US,""" 
+        String json = (String.format(Locale.US,""" 
                            [
                                {"classificacao": "OK", "quantidade": %d, "percentual": %.2f},
                                {"classificacao": "ATENCAO", "quantidade": %d, "percentual": %.2f},
                                {"classificacao": "CRITICO", "quantidade": %d, "percentual": %.2f}
                            ]
                            """, ok, porcOk, atencao, porcAtencao, critico, porcCritico
-                        ));
+        ));
 
         try {
-            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.write(json);
             saida.flush();
+            saida.close();
             System.out.println("Arquivo Json de Criticidade (donut) gerado com sucesso!");
         }
 

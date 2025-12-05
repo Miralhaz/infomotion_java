@@ -17,6 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class TratamentoClima {
     private static final DateTimeFormatter INPUT_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -65,7 +67,7 @@ public class TratamentoClima {
                 System.out.println(lista);
 
 
-                if (r.getListaLogClima() != null || r.getListaLogRegiao() != null || !r.getListaLogClima().isEmpty() || !r.getListaLogRegiao().isEmpty()){
+                if (r.getListaLogClima() != null && r.getListaLogRegiao() != null && !r.getListaLogClima().isEmpty() && !r.getListaLogRegiao().isEmpty()){
 
                     List <LogPrevisao> listaParaJsonPre = criarLogPrevisao(r.getListaLogClima(), r.getListaLogRegiao());
                     criarJsonPrevisao(listaParaJsonPre,r.getId());
@@ -96,10 +98,10 @@ public class TratamentoClima {
         }
 
         for (int i = 0; i < datas.size(); i++) {
-             LocalDate data = datas.get(i);
-             Integer qtdRequisicao =  0;
-             Double chanceDeChuva = 0.0;
-             Double chuvaEmMM = 0.0;
+            LocalDate data = datas.get(i);
+            Integer qtdRequisicao =  0;
+            Double chanceDeChuva = 0.0;
+            Double chuvaEmMM = 0.0;
             Double temperatura = 0.0;
             Double umidade = 0.0;
             for (LogClima clima : logClimaList){
@@ -136,7 +138,7 @@ public class TratamentoClima {
     }
 
     public static  List <LogHorarioReq>  criarLogHorario(Regiao r){
-            List<LogHorarioReq> logHorarioReq = new ArrayList<>();
+        List<LogHorarioReq> logHorarioReq = new ArrayList<>();
 
 
         List<LocalTime> horariosDoDia = new ArrayList<>();
@@ -161,20 +163,20 @@ public class TratamentoClima {
         for (LocalTime hora : horariosDoDia) {
             Integer qtdReq = 0;
             for (LogRegiao lr : listaSeteDiasAtras) {
-            if (lr.getDataHora().toLocalTime().getHour() == hora.getHour()) {
-                if (lr.getQtdRequisicoes() > qtdReq){
-                    qtdReq = lr.getQtdRequisicoes();
-                }
+                if (lr.getDataHora().toLocalTime().getHour() == hora.getHour()) {
+                    if (lr.getQtdRequisicoes() > qtdReq){
+                        qtdReq = lr.getQtdRequisicoes();
+                    }
                 }
             }
 
             LogHorarioReq log = new LogHorarioReq(hora,qtdReq);
             if (log.getRequisicao() > 0){
-            logHorarioReq.add(log);
+                logHorarioReq.add(log);
             }
         }
 
-            return logHorarioReq;
+        return logHorarioReq;
     }
 
     public static List<LogClima> buscarClimaRegiao(Integer idRegiao , Integer argumentoArquivo){
@@ -190,7 +192,7 @@ public class TratamentoClima {
         awsConnection.downloadBucketTrusted(nomeArq);
 
         try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            arq = new InputStreamReader(new FileInputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
             System.out.println("Erro ao abrir o arquivo [csvClima]");
@@ -270,59 +272,45 @@ public class TratamentoClima {
     }
 
     public static Double retornarResidual(List<LogRegiao> listaLogRegiao){
-        Integer media = 0;
+        List<LogRegiao> listaLogsSemZero = listaLogRegiao.stream()
+                .filter(log -> log.getQtdRequisicoes() > 0)
+                .collect(Collectors.toList());
 
-        for (LogRegiao log : listaLogRegiao ){
-            if(log.getQtdRequisicoes() == 0){
-                listaLogRegiao.remove(log);
-            }
-        }
+        if (listaLogsSemZero.isEmpty()) return 0.0;
 
-        for (int i = 0; i < listaLogRegiao.size(); i++) {
-            media +=  listaLogRegiao.get(i).getQtdRequisicoes();
-        }
-        media = media / listaLogRegiao.size();
+        Integer media = listaLogsSemZero.stream()
+                .mapToInt(LogRegiao::getQtdRequisicoes)
+                .sum() / listaLogsSemZero.size();
+
         System.out.println(media + " media");
         Double totalResiduo = 0.0;
 
         int contador = 0;
-        for (int i = 0; i < listaLogRegiao.size(); i++) {
-            Integer qtdReq = listaLogRegiao.get(i).getQtdRequisicoes();
-                Integer residuo = 0;
-                if (media > qtdReq) {
-                    residuo = media - qtdReq;
-                } else {
-                    residuo = qtdReq - media;
-                }
-                totalResiduo += Math.pow(residuo,2);
-           contador++;
+        for (int i = 0; i < listaLogsSemZero.size(); i++) {
+            Integer qtdReq = listaLogsSemZero.get(i).getQtdRequisicoes();
+            Integer residuo = Math.abs(qtdReq - media);
+            totalResiduo += Math.pow(residuo,2);
+            contador++;
         }
         return Math.sqrt(totalResiduo/contador);
     }
 
     public static Integer retornarMediana(List<LogRegiao> listaLogRegiao){
-        List<LogRegiao> l = listaLogRegiao;
+        List<LogRegiao> l = listaLogRegiao.stream()
+                .filter(log -> log.getQtdRequisicoes() > 0)
+                .collect(Collectors.toList());
 
-        for (LogRegiao log : l ){
-            if(log.getQtdRequisicoes() == 0){
-                l.remove(log);
-            }
-        }
+        if (l.isEmpty()) return 0;
 
-        for (int i = 0; i < l.size(); i++) {
-            for (int j = 1; j < l.size(); j++) {
-                if (l.get(j - 1).getQtdRequisicoes() > l.get(j).getQtdRequisicoes()) {
-                    LogRegiao aux = l.get(j);
-                    l.set(j, l.get(j - 1));
-                    l.set(j - 1, aux);
-                }
-            }
-        }
+        l.sort(Comparator.comparing(LogRegiao::getQtdRequisicoes));
 
-        if (l.size() % 2 == 0 ){
-            return    l.get(l.size() / 2 - 1).getQtdRequisicoes();
+        int tamanho = l.size();
+        int meio = tamanho / 2;
+
+        if (tamanho % 2 == 0 ){
+            return l.get(meio - 1).getQtdRequisicoes();
         }else {
-            return    l.get(l.size() / 2 - 2).getQtdRequisicoes();
+            return l.get(meio).getQtdRequisicoes();
         }
     }
 
@@ -333,7 +321,7 @@ public class TratamentoClima {
         Boolean deuRuim = false;
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.append("[");
             Integer contador = 0;
             for (LogPrevisao log : lista) {
@@ -354,7 +342,7 @@ public class TratamentoClima {
                            "PorcentagemDeAumento": %.2f
                            }""",data,requisicoes,chance,percentual
 
-                        ));
+                ));
                 contador ++;
             }
             saida.append("]");
@@ -397,9 +385,8 @@ public class TratamentoClima {
         Boolean deuRuim = false;
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.append("[");
-                    saida.append(",");
 
 
             LogPrevisao maiorRisco = lista.get(0);
@@ -428,10 +415,10 @@ public class TratamentoClima {
                            "Requsicoes": %d,
                            "ChanceDeAlteracao": %.2f,
                            "PorcentagemDeAumento": %.2f,
-                           "UsoDeRam:" %.2f
+                           "UsoDeRam": %.2f
                            }""",data,requisicoes,chance,percentual,qtdRamPossivel
 
-                ));
+            ));
 
             saida.append("]");
             System.out.println("Arquivo Json de previsão gerado com sucesso!");
@@ -474,7 +461,7 @@ public class TratamentoClima {
 
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.append("[");
             Integer contador = 0;
 
