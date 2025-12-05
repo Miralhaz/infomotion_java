@@ -52,38 +52,20 @@ public class TratamentoBolhas {
         System.out.println("\n-> Gerando bolhas...");
 
         String select = """
-                SELECT
-                s.id AS fk_servidor,
-                s.apelido AS apelido,
-                ROUND(COALESCE(MAX(a.max), 0), 2) AS captura,
-                CASE
-                WHEN MAX(
-                CASE
-                WHEN CAST(REPLACE(REPLACE(a.duracao,'min',''),' ','') AS UNSIGNED)
-                >= (CAST(pa.duracao_min AS UNSIGNED) * 2)
-                THEN 1 ELSE 0
-                END
-                ) = 1 THEN 'CRITICO'
-                WHEN MAX(
-                CASE
-                WHEN CAST(REPLACE(REPLACE(a.duracao,'min',''),' ','') AS UNSIGNED)
-                >= CAST(pa.duracao_min AS UNSIGNED)
-                THEN 1 ELSE 0
-                END
-                ) = 1 THEN 'ATENCAO'
-                ELSE 'OK'
-                END AS classificacao
-                FROM servidor s
-                JOIN parametro_alerta pa ON pa.fk_servidor = s.id
-                JOIN componentes c ON c.id = pa.fk_componente
-                JOIN alertas a
-                ON a.fk_parametro = pa.id
-                AND a.dt_registro >= (NOW() - INTERVAL 1 DAY)
-                WHERE c.tipo = (?)
-                AND pa.unidade_medida = (?)
-                GROUP BY s.id, s.apelido
-                HAVING classificacao <> 'OK'
-                ORDER BY s.id;
+                select s.id as fk_servidor, s.apelido as apelido, round(coalesce(max(a.max), 0), 2) as captura,
+                case
+                when max(case when cast(replace(replace(a.duracao,'min',''),' ','') as unsigned) >= (cast(pa.duracao_min as unsigned) * 2) then 1 else 0 end) = 1 then 'CRITICO'
+                when max(case when cast(replace(replace(a.duracao,'min',''),' ','') as unsigned) >= cast(pa.duracao_min as unsigned) then 1 else 0 end) = 1 then 'ATENCAO'
+                else 'OK'
+                end as classificacao from servidor s
+                join parametro_alerta pa on pa.fk_servidor = s.id
+                join componentes c on c.id = pa.fk_componente
+                join alertas a on a.fk_parametro = pa.id
+                and a.dt_registro >= (select date_sub(coalesce(max(dt_registro), now()), interval 1 day) from alertas)
+                where c.tipo = (?) and pa.unidade_medida = (?)
+                group by s.id, s.apelido
+                having classificacao <> 'OK'
+                order by s.id;
                 """;
 
         List<Map<String, Object>> lista = con.queryForList(select, tipo, unidade);
@@ -92,7 +74,6 @@ public class TratamentoBolhas {
         awsCon.uploadBucketClient(PASTA_CLIENT, nome + ".json");
 
     }
-
 
 
     public static void gravaArquivoJson(List<Map<String, Object>> lista, String nomeArq) {

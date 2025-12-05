@@ -33,7 +33,7 @@ public class Main {
         boolean arquivoExisteAntesDaEscrita = arquivoLocal.exists();
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq, append), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq, append), StandardCharsets.UTF_8);
 
         }catch (IOException erro){
             System.err.println("Erro ao abrir o arquivo " + nomeCompletoArq + " em gravaArquivoCsv");
@@ -625,10 +625,9 @@ public class Main {
         tratamentoHistoricoServidor.classificarAlertas(7);
         tratamentoHistoricoServidor.classificarAlertas(30);
 
-        //Criando json Near Real Time
-        tratamentoNearRealTime.logsEspecifico(logsConsolidados);
+            //Criando json Near Real Time
+           tratamentoNearRealTime.logsEspecifico(logsConsolidados);
 
-
-        aws.limparTemporarios();
+            aws.limparTemporarios();
+        }
     }
-}

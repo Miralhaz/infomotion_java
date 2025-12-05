@@ -46,7 +46,7 @@ public class TratamentoDonut {
                 from servidor s
                 left join parametro_alerta pa on pa.fk_servidor = s.id
                 left join alertas a on a.fk_parametro = pa.id
-                and a.dt_registro >= (now() - interval 1 day)
+                and a.dt_registro >= (SELECT DATE_SUB(COALESCE(MAX(dt_registro), NOW()), INTERVAL 1 DAY) FROM alertas)
                 group by s.id, s.apelido
                 ) x
                 group by classificacao;

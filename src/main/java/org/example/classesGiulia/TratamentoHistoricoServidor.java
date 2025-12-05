@@ -54,8 +54,10 @@ public class TratamentoHistoricoServidor {
 
         LocalDateTime inicio = LocalDateTime.now().minusDays(dias);
         Timestamp inicioTs = Timestamp.valueOf(inicio);
+        String select;
 
-        String select = """
+        if(dias != 1) {
+            select = """
                     select s.id as fk_servidor, s.apelido, date_format(a.dt_registro, '%d/%m/%Y') as timestamp, (?) as dias,
                     sum(case when c.tipo = 'CPU' then 1 else 0 end) as alertasCpu,
                     sum(case when c.tipo = 'RAM' then 1 else 0 end) as alertasRam,
@@ -67,8 +69,24 @@ public class TratamentoHistoricoServidor {
                     join servidor s on s.id = pa.fk_servidor
                     where a.dt_registro >= (now() - interval (?) day)
                     group by s.id, s.apelido, timestamp
-                    order by s.id, timestamp;
+                    order by s.id, timestamp asc;
                     """;
+        } else{
+            select = """
+                    select s.id as fk_servidor, s.apelido, date_format(a.dt_registro, '%d/%m/%Y %h:%i') as timestamp, (?) as dias,
+                    sum(case when c.tipo = 'CPU' then 1 else 0 end) as alertasCpu,
+                    sum(case when c.tipo = 'RAM' then 1 else 0 end) as alertasRam,
+                    sum(case when c.tipo = 'DISCO' then 1 else 0 end) as alertasDisco,
+                    sum(case when c.tipo = 'REDE' then 1 else 0 end) as alertasRede
+                    from alertas a
+                    join parametro_alerta pa on pa.id = a.fk_parametro
+                    join componentes c on c.id = pa.fk_componente
+                    join servidor s on s.id = pa.fk_servidor
+                    where a.dt_registro >= (now() - interval (?) day)
+                    group by s.id, s.apelido, timestamp
+                    order by s.id, timestamp asc;
+                    """;
+        }
 
         List<Map<String, Object>> lista = con.queryForList(select, dias, dias);
 
