@@ -612,28 +612,28 @@ public class Main {
 
         // TRATAMENTO - GIULIA
         TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
-        tratamentoDonut.classificarCriticidade(logsConsolidados);
+        tratamentoDonut.classificarCriticidade();
 
         TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
-        tratamentoBolhas.gerarBolhasCpu(logsConsolidados);
-        tratamentoBolhas.gerarBolhasRam(logsConsolidados);
-        tratamentoBolhas.gerarBolhasDisco(logsConsolidados);
-        tratamentoBolhas.gerarBolhasTempCpu(logsConsolidados);
-        tratamentoBolhas.gerarBolhasTempDisco(logsConsolidados);
-        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "UPLOAD");
-        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "DOWNLOAD");
-        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "PCKT_RCVD");
-        tratamentoBolhas.gerarBolhasRede(logsConsolidados, "PCKT_SNT");
+        tratamentoBolhas.gerarBolhas("CPU", "%");
+        tratamentoBolhas.gerarBolhas("CPU", "C");
+        tratamentoBolhas.gerarBolhas("RAM", "%");
+        tratamentoBolhas.gerarBolhas("DISCO", "%");
+        tratamentoBolhas.gerarBolhas("DISCO", "C");
+        tratamentoBolhas.gerarBolhas("REDE", "UPLOAD");
+        tratamentoBolhas.gerarBolhas("REDE", "DOWNLOAD");
+        tratamentoBolhas.gerarBolhas("REDE", "PCKT_RCVD");
+        tratamentoBolhas.gerarBolhas("REDE", "PCKT_SNT");
 
         TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
-        tratamentoHistorico.classificarAlertas(logsConsolidados, 1);
-        tratamentoHistorico.classificarAlertas(logsConsolidados, 7);
-        tratamentoHistorico.classificarAlertas(logsConsolidados, 30);
+        tratamentoHistorico.classificarAlertas(1);
+        tratamentoHistorico.classificarAlertas(7);
+        tratamentoHistorico.classificarAlertas(30);
 
         TratamentoHistoricoServidor tratamentoHistoricoServidor = new TratamentoHistoricoServidor(aws, con);
-        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 1);
-        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 7);
-        tratamentoHistoricoServidor.classificarAlertas(logsConsolidados, 30);
+        tratamentoHistoricoServidor.classificarAlertas(1);
+        tratamentoHistoricoServidor.classificarAlertas(7);
+        tratamentoHistoricoServidor.classificarAlertas(30);
 
             //Criando json Near Real Time
             tratamentoNearRealTime.logsEspecifico(logsConsolidados);
