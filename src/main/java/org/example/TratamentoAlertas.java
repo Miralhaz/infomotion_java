@@ -2,6 +2,7 @@ package org.example;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,10 +15,20 @@ public class TratamentoAlertas {
                                    List<Logs> miniLista, String componente, String unidade,
                                    double maxValor, double minValor, int duracao_min){
 
-        con.update("INSERT INTO alertas (fk_parametro, max, min) VALUES ((?),(?),(?));",
-                fk_parametroAlerta, maxValor, minValor);
-
         Logs ultimoLog = miniLista.get(miniLista.size() - 1);
+
+        LocalDateTime dtCorte = ultimoLog.getDataHora().minusMinutes(5);
+
+        String checarAlertasDuplicados = "SELECT COUNT(id) FROM alertas WHERE fk_parametro = ? AND dt_alerta >= ?";
+        Integer contador = con.queryForObject(checarAlertasDuplicados, Integer.class, fk_parametroAlerta, dtCorte);
+
+        if (contador != null && contador > 0) {
+            System.out.println("Alerta duplicado com o parâmetro " + fk_parametroAlerta + "; Pulando alerta.");
+            return;
+        }
+
+        con.update("INSERT INTO alertas (fk_parametro, max, min, dt_alerta) VALUES ((?),(?),(?),(?));",
+                fk_parametroAlerta, maxValor, minValor, ultimoLog.getDataHora());
 
         String tituloJira = String.format("Alerta Crítico: %s %s em %.2f no Servidor %d",
                 componente, unidade, maxValor, fk_servidor);
