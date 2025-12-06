@@ -88,11 +88,9 @@ public class ProcessadorDiscoWillian {
 
     public void executarTratamento() {
         try {
-            System.out.println("🚀 Iniciando tratamento de disco (Willian)...");
 
             String nomeArquivoCsv = "logs_consolidados_servidores.csv";
             awsConnection.downloadBucketTrusted(nomeArquivoCsv);
-            System.out.println("✅ CSV baixado com sucesso do bucket trusted.");
 
             try (InputStream csvStream = new FileInputStream(nomeArquivoCsv)) {
                 List<RegistroDisco> todosRegistros = lerCsvDisco(csvStream);
@@ -129,31 +127,28 @@ public class ProcessadorDiscoWillian {
                         }
                     }
 
-                    // Gera JSON principal (últimos registros + parâmetros)
                     String nomeJsonAtual = "DiscoTratamentoEmpresa_" + idEmpresa + ".json";
                     gerarJsonComParametros(servidoresAtuais, idsServidores, parametrosLista, nomeJsonAtual);
                     awsConnection.uploadBucketClient("tratamento_willian", nomeJsonAtual);
                     System.out.println("Upload concluído para CLIENT: " + nomeJsonAtual);
 
-                    // 👇 NOVO: Gera JSON de HISTÓRICO (todos os registros)
                     String nomeJsonHistorico = "DiscoHistoricoEmpresa_" + idEmpresa + ".json";
                     gerarJsonHistorico(registrosDaEmpresa, nomeJsonHistorico);
                     awsConnection.uploadBucketClient("tratamento_willian", nomeJsonHistorico);
                     System.out.println("Upload concluído para CLIENT: " + nomeJsonHistorico);
                 }
 
-                System.out.println("✅ Tratamento de disco concluído com sucesso!");
             }
         } catch (Exception e) {
             System.err.println("💥 ERRO FATAL no tratamento de disco: " + e.getMessage());
-            e.printStackTrace(); // ← ISSO É IMPORTANTE!
+            e.printStackTrace();
         }
 
         System.out.println("Tratamento concluído com sucesso!");
     }
 
     public void gerarJsonHistorico(List<RegistroDisco> registros, String nomeArquivo) {
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(nomeArquivo), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArquivo), StandardCharsets.UTF_8)) {
             writer.write("[\n");
             for (int i = 0; i < registros.size(); i++) {
                 RegistroDisco r = registros.get(i);
@@ -330,7 +325,7 @@ public class ProcessadorDiscoWillian {
             List<ParametroAlerta> parametrosLista,
             String nomeArquivo) {
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(nomeArquivo), StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArquivo), StandardCharsets.UTF_8)) {
 
             // Início do JSON como objeto
             writer.write("{\n");
