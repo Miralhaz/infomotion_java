@@ -1,25 +1,29 @@
 package org.example.classesGiulia;
 
-import org.example.AwsConnection;
-import org.example.Logs;
+import org.example.*;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class TratamentoDonut {
 
+    // Atributos:
     private AwsConnection awsCon;
     private final JdbcTemplate con;
     private static final String PASTA_CLIENT = "tratamentos_giulia";
 
+    // Construtor:
     public TratamentoDonut(AwsConnection awsCon, JdbcTemplate con) {
         this.awsCon = awsCon;
         this.con = con;
     }
 
+    // Métodos:
     private List<LogsGiuliaCriticidade> transformarLogs(List<Logs> logs){
         List<LogsGiuliaCriticidade> listaLogs = new ArrayList<>();
 
@@ -32,27 +36,26 @@ public class TratamentoDonut {
     }
 
 
-    public void classificarCriticidade() {
-        System.out.println("\n Classificando criticidade de componentes...");
+    public void classificarCriticidade(Integer dias) {
+        System.out.println("\n-> Classificando criticidade de componentes...");
 
         String select = """
                 select classificacao, count(*) as quantidade
                 from (select s.id as fk_servidor, s.apelido,
-                case
-                when max(case when (replace(a.duracao,'min','')+0) >= (pa.duracao_min * 2) then 1 else 0 end) = 1 then 'CRITICO'
-                when max(case when (replace(a.duracao,'min','')+0) >= pa.duracao_min  then 1 else 0 end) = 1 then 'ATENCAO'
+                case when max(case when cast(replace(replace(a.duracao,'min',''),' ','') as unsigned) >= (cast(pa.duracao_min as unsigned) * 2) 
+                then 1 else 0 end) = 1 then 'CRITICO'
+                when max(case when cast(replace(replace(a.duracao,'min',''),' ','') as unsigned) >= cast(pa.duracao_min as unsigned)
+                then 1 else 0 end) = 1 then 'ATENCAO'
                 else 'OK'
                 end as classificacao
                 from servidor s
                 left join parametro_alerta pa on pa.fk_servidor = s.id
-                left join alertas a on a.fk_parametro = pa.id
-                and a.dt_registro >= (SELECT DATE_SUB(COALESCE(MAX(dt_registro), NOW()), INTERVAL 1 DAY) FROM alertas)
-                group by s.id, s.apelido
-                ) x
+                left join alertas a on a.fk_parametro = pa.id and a.dt_registro >= (now() - interval ? day)
+                group by s.id, s.apelido) x
                 group by classificacao;
                 """;
 
-        List<Map<String, Object>> lista = con.queryForList(select);
+        List<Map<String, Object>> lista = con.queryForList(select, dias);
 
         Integer ok = 0;
         Integer atencao = 0;
@@ -72,8 +75,9 @@ public class TratamentoDonut {
 
         }
 
-        gravaArquivoJson(ok, atencao, critico, "nivelCriticidadeDonut");
-        awsCon.uploadBucketClient(PASTA_CLIENT, "nivelCriticidadeDonut.json");
+        String nomeArq = "nivelCriticidadeDonut_" + dias;
+        gravaArquivoJson(ok, atencao, critico, nomeArq);
+        awsCon.uploadBucketClient(PASTA_CLIENT, nomeArq + ".json");
 
         System.out.printf("Donut:  OK: %d | ATENCAO: %d | CRITICO: %d%n", ok, atencao, critico);
     }
@@ -99,20 +103,19 @@ public class TratamentoDonut {
         Double porcAtencao = total == 0 ? 0 : (atencao * 100.0 / total);
         Double porcCritico = total == 0 ? 0 : (critico * 100.0 / total);
 
-        String json = (String.format(Locale.US,""" 
+                String json = (String.format(Locale.US,""" 
                            [
                                {"classificacao": "OK", "quantidade": %d, "percentual": %.2f},
                                {"classificacao": "ATENCAO", "quantidade": %d, "percentual": %.2f},
                                {"classificacao": "CRITICO", "quantidade": %d, "percentual": %.2f}
                            ]
                            """, ok, porcOk, atencao, porcAtencao, critico, porcCritico
-        ));
+                        ));
 
         try {
-            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
+            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
             saida.write(json);
             saida.flush();
-            saida.close();
             System.out.println("Arquivo Json de Criticidade (donut) gerado com sucesso!");
         }
 

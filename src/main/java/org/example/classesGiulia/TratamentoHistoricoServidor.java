@@ -50,7 +50,7 @@ public class TratamentoHistoricoServidor {
 
 
     public void classificarAlertas(Integer dias) {
-        out.println("\n⚠️ Classificando alertas de um servidor...");
+        out.println("\n-> Classificando alertas de um servidor...");
 
         LocalDateTime inicio = LocalDateTime.now().minusDays(dias);
         Timestamp inicioTs = Timestamp.valueOf(inicio);
@@ -58,7 +58,7 @@ public class TratamentoHistoricoServidor {
 
         if(dias != 1) {
             select = """
-                    select s.id as fk_servidor, s.apelido, date_format(a.dt_registro, '%d/%m/%Y') as timestamp, (?) as dias,
+                    select s.id as fk_servidor, s.apelido, date_format(a.dt_registro, '%Y-%m-%d') as timestamp, (?) as dias,
                     sum(case when c.tipo = 'CPU' then 1 else 0 end) as alertasCpu,
                     sum(case when c.tipo = 'RAM' then 1 else 0 end) as alertasRam,
                     sum(case when c.tipo = 'DISCO' then 1 else 0 end) as alertasDisco,
@@ -73,7 +73,7 @@ public class TratamentoHistoricoServidor {
                     """;
         } else{
             select = """
-                    select s.id as fk_servidor, s.apelido, date_format(a.dt_registro, '%d/%m/%Y %h:%i') as timestamp, (?) as dias,
+                    select s.id as fk_servidor, s.apelido, date_format(a.dt_registro, '%d/%m/%Y %H:00') as timestamp, (?) as dias,
                     sum(case when c.tipo = 'CPU' then 1 else 0 end) as alertasCpu,
                     sum(case when c.tipo = 'RAM' then 1 else 0 end) as alertasRam,
                     sum(case when c.tipo = 'DISCO' then 1 else 0 end) as alertasDisco,
@@ -90,7 +90,7 @@ public class TratamentoHistoricoServidor {
 
         List<Map<String, Object>> lista = con.queryForList(select, dias, dias);
 
-        String nome = "historicoAlertasLinhasServidor_" + dias; // Renomeei para evitar conflito com TratamentoHistorico
+        String nome = "historicoAlertasLinhas_" + dias;
         gravaArquivoJson(lista, nome);
         awsCon.uploadBucketClient(PASTA_CLIENT, nome + ".json");
     }
@@ -102,8 +102,7 @@ public class TratamentoHistoricoServidor {
         Boolean deuRuim = false;
 
         try {
-            // CORREÇÃO: Usando /tmp/ para I/O temporário
-            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
             saida.append("[");
 
             for (int i = 0; i < lista.size(); i++) {

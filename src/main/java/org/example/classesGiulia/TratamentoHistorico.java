@@ -44,7 +44,7 @@ public class TratamentoHistorico {
         LocalDateTime fim = LocalDateTime.now();
         LocalDateTime inicio = fim.minusDays(dias);
 
-        String select = """
+            String select = """
                     select s.id as fk_servidor, s.apelido, (?) as dias,
                     sum(case when c.tipo = 'CPU' then 1 else 0 end) as alertasCpu,
                     sum(case when c.tipo = 'RAM' then 1 else 0 end) as alertasRam,
@@ -58,9 +58,9 @@ public class TratamentoHistorico {
                     group by s.id, s.apelido;
                     """;
 
-        List<Map<String, Object>> lista = con.queryForList(
-                select, dias, Timestamp.valueOf(inicio), Timestamp.valueOf(fim)
-        );
+            List<Map<String, Object>> lista = con.queryForList(
+                    select, dias, Timestamp.valueOf(inicio), Timestamp.valueOf(fim)
+            );
 
         String nome = "historicoAlertas_" + dias;
         gravaArquivoJson(lista, nome);
@@ -74,7 +74,7 @@ public class TratamentoHistorico {
         Boolean deuRuim = false;
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
             saida.append("[");
 
             for (int i = 0; i < lista.size(); i++) {
