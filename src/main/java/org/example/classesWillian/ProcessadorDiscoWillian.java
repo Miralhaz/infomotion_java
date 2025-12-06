@@ -92,7 +92,7 @@ public class ProcessadorDiscoWillian {
             String nomeArquivoCsv = "logs_consolidados_servidores.csv";
             awsConnection.downloadBucketTrusted(nomeArquivoCsv);
 
-            try (InputStream csvStream = new FileInputStream(nomeArquivoCsv)) {
+            try (InputStream csvStream = new FileInputStream("/tmp/" + nomeArquivoCsv)) {
                 List<RegistroDisco> todosRegistros = lerCsvDisco(csvStream);
                 System.out.println("Registros de disco lidos: " + todosRegistros.size());
 
