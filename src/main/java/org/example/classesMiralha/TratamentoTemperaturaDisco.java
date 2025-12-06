@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -39,7 +40,7 @@ public class TratamentoTemperaturaDisco {
     }
 
     private void gerarJsonsPorServidorEPeriodo(List<LogsMiralhaDisco> logs) {
-        LocalDateTime agora = LocalDateTime.now();
+        LocalDateTime agora = LocalDateTime.now(ZoneId.of("UTC")); // por conta do Lambda estar em um país diferente
 
         Map<Integer, List<LogsMiralhaDisco>> logsPorServidor = logs.stream()
                 .collect(Collectors.groupingBy(LogsMiralhaDisco::getFk_servidor));
