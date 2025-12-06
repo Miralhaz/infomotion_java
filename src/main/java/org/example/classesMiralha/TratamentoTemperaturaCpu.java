@@ -96,7 +96,7 @@ public class TratamentoTemperaturaCpu {
         String nomeCompletoArq = nomeArq + ".csv";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaCpu log : lista) {
                 saida.write(String.format(Locale.US, "%d;%s;%.2f;%.2f\n",
@@ -117,13 +117,12 @@ public class TratamentoTemperaturaCpu {
         OutputStreamWriter saida = null;
         String nomeCompletoArq = nomeArq;
 
-        // Adiciona .json apenas se não tiver
         if (!nomeCompletoArq.endsWith(".json")) {
             nomeCompletoArq += ".json";
         }
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
             saida.append("[\n");
 
             for (int i = 0; i < lista.size(); i++) {

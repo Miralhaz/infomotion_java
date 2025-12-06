@@ -36,350 +36,50 @@ public class TratamentoDonut {
     }
 
 
-    public Integer calcularAcimaComponente(List<LogsGiuliaCriticidade> logsServidor, Double limite, Integer duracao, String componente, String medida) {
+    public void classificarCriticidade(Integer dias) {
+        System.out.println("\n-> Classificando criticidade de componentes...");
 
-        Integer contadorMinutos = 0;
-        Integer contadorDuracao = 0;
-        LocalDateTime dataInicioCaptura = null;
+        String select = """
+                select classificacao, count(*) as quantidade
+                from (select s.id as fk_servidor, s.apelido,
+                case when max(case when cast(replace(replace(a.duracao,'min',''),' ','') as unsigned) >= (cast(pa.duracao_min as unsigned) * 2) 
+                then 1 else 0 end) = 1 then 'CRITICO'
+                when max(case when cast(replace(replace(a.duracao,'min',''),' ','') as unsigned) >= cast(pa.duracao_min as unsigned)
+                then 1 else 0 end) = 1 then 'ATENCAO'
+                else 'OK'
+                end as classificacao
+                from servidor s
+                left join parametro_alerta pa on pa.fk_servidor = s.id
+                left join alertas a on a.fk_parametro = pa.id and a.dt_registro >= (now() - interval ? day)
+                group by s.id, s.apelido) x
+                group by classificacao;
+                """;
 
-        if (medida.equals("%")) {
+        List<Map<String, Object>> lista = con.queryForList(select, dias);
 
-            for (int i = 0; i < logsServidor.size(); i++) {
-                LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                Double uso = 0.0;
+        Integer ok = 0;
+        Integer atencao = 0;
+        Integer critico = 0;
 
-                if (componente.equalsIgnoreCase("CPU")) {
-                    uso = logAtual.getUsoCpu();
-                }
+        for (Map<String, Object> l : lista){
+            String c = l.get("classificacao").toString();
+            Integer qtd = ((Number) l.get("quantidade")).intValue();
 
-                if (componente.equalsIgnoreCase("RAM")) {
-                    uso = logAtual.getUsoRam();
-                }
-
-                if (componente.equalsIgnoreCase("DISCO")) {
-                    uso = logAtual.getUsoDisco();
-                }
-
-                Boolean acimaLimite = uso > limite;
-
-                if (acimaLimite) {
-                    contadorDuracao++;
-
-                    if (contadorDuracao == 1) {
-                        dataInicioCaptura = logAtual.getTimestamp();
-                    }
-                } else {
-                    if (contadorDuracao >= duracao && dataInicioCaptura != null) {
-                        LocalDateTime dataFinalCaptura = logsServidor.get(i - 1).getTimestamp();
-                        long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
-                        Integer minutos = (int) Math.max(1, (seg + 59) / 60);
-                        contadorMinutos += minutos;
-                    }
-                    contadorDuracao = 0;
-                    dataInicioCaptura = null;
-                }
+            if ("OK".equalsIgnoreCase(c)){
+                ok = qtd;
+            } else if ("ATENCAO".equalsIgnoreCase(c)){
+                atencao = qtd;
+            } else if ("CRITICO".equalsIgnoreCase(c)){
+                critico = qtd;
             }
 
-            if (contadorDuracao >= duracao && dataInicioCaptura != null) {
-                LocalDateTime dataFinalCaptura = logsServidor.get(logsServidor.size() - 1).getTimestamp();
-                long seg = Duration.between(dataInicioCaptura, dataFinalCaptura).toSeconds();
-                Integer minutos = (int) Math.max(1, (seg + 59) / 60);
-                contadorMinutos += minutos;
-            }
-            return contadorMinutos;
-
-        } else if (medida.equals("C")) {
-
-            Boolean tevePico = false;
-            Integer nivel = 0;
-            LocalDateTime inicioPico = null;
-            Boolean comPico = false;
-
-            for (int i = 0; i < logsServidor.size(); i++) {
-                LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                LocalDateTime t = logAtual.getTimestamp();
-                if (t == null) continue;
-
-                Double temp = 0.0;
-                if (componente.equalsIgnoreCase("CPU")){
-                    temp = logAtual.getTempCpu();
-                }
-
-                if (componente.equalsIgnoreCase("DISCO")){
-                    temp = logAtual.getTempDisco();
-                }
-
-                Boolean acima = temp > limite;
-                if (acima) {
-                    tevePico = true;
-                    nivel = 1;
-                    if (!comPico) {
-                        comPico = true;
-                        inicioPico = t;
-                    }
-                } else {
-                    if (comPico && inicioPico != null) {
-                        LocalDateTime fimPico = logsServidor.get(i - 1).getTimestamp();
-                        long seg = Duration.between(inicioPico, fimPico).toSeconds();
-                        long minutos = Math.max(1, (seg + 59) / 60);
-                        if (minutos >= duracao) return 2;
-                    }
-                    comPico = false;
-                    inicioPico = null;
-                }
-            }
-
-            if (comPico && inicioPico != null) {
-                LocalDateTime fimPico = logsServidor.get(logsServidor.size() - 1).getTimestamp();
-                long seg = Duration.between(inicioPico, fimPico).toSeconds();
-                long minutos = Math.max(1, (seg + 59) / 60);
-                if (minutos >= duracao) return 2;
-            }
-            return tevePico ? 1 : 0;
         }
 
-        else {
+        String nomeArq = "nivelCriticidadeDonut_" + dias;
+        gravaArquivoJson(ok, atencao, critico, nomeArq);
+        awsCon.uploadBucketClient(PASTA_CLIENT, nomeArq + ".json");
 
-            Integer piorNivel = 0;
-            Boolean teveProblema = false;
-            Integer nivelFaixa = 0;
-            LocalDateTime inicioProblema = null;
-            LocalDateTime fimProblema = null;
-
-            for (int i = 0; i < logsServidor.size(); i++) {
-                LogsGiuliaCriticidade logAtual = logsServidor.get(i);
-                LocalDateTime t = logAtual.getTimestamp();
-                if (t == null) {
-                    continue;
-                }
-                long uso = 0;
-
-                if (medida.equalsIgnoreCase("UPLOAD")) {
-                    uso = logAtual.getUploadByte();
-                }
-
-                if (medida.equalsIgnoreCase("DOWNLOAD")) {
-                    uso = logAtual.getDownloadByte();
-                }
-
-                if (medida.equalsIgnoreCase("PCKT_RCVD")) {
-                    uso = logAtual.getPacketReceived();
-                }
-
-                if (medida.equalsIgnoreCase("PCKT_SNT")) {
-                    uso = logAtual.getPacketSent();
-                }
-
-                Integer nivelAtual;
-
-                if (uso < limite) {
-                    nivelAtual = 2; // CRITICO
-                } else if (uso <= (2 * limite)) {
-                    nivelAtual = 1; // ATENCAO
-                } else {
-                    nivelAtual = 0; // OK
-                }
-
-                if (teveProblema && nivelAtual != nivelFaixa) {
-                    long seg = Duration.between(inicioProblema, fimProblema).toSeconds();
-                    long minutos = Math.max(1, (seg + 59) / 60);
-
-                    if (minutos >= duracao) {
-                        piorNivel = Math.max(piorNivel, nivelFaixa);
-                        if (piorNivel == 2) {
-                            return 2;
-                        }
-                    }
-                    teveProblema = false;
-                    inicioProblema = null;
-                    fimProblema = null;
-                }
-                if (nivelAtual > 0) {
-                    if (!teveProblema) {
-                        teveProblema = true;
-                        nivelFaixa = nivelAtual;
-                        inicioProblema = t;
-                    }
-                    fimProblema = t;
-                }
-            }
-
-                if (teveProblema && (inicioProblema != null && fimProblema != null)){
-                    long seg =  Duration.between(inicioProblema, fimProblema).toSeconds();
-                    long minutos = Math.max(1, (seg + 59)/60);
-
-                    if (minutos >= duracao){
-                        piorNivel = Math.max(piorNivel, nivelFaixa);
-                    }
-                }
-                return piorNivel;
-        }
-    }
-
-
-    public void classificarCriticidade(List<Logs> logsConsolidados) {
-        System.out.println("\n\uD83C\uDF69 Classificando criticidade de componentes...");
-
-        if (logsConsolidados == null || logsConsolidados.isEmpty()) {
-            System.out.println("Nenhum log recebido para calcular criticidade (donut).");
-            return;
-        }
-
-        List<LogsGiuliaCriticidade> listaLogs = transformarLogs(logsConsolidados);
-
-        Set<Integer> idsServidores = new LinkedHashSet<>();
-        for (LogsGiuliaCriticidade log : listaLogs) {
-            idsServidores.add(log.getFk_servidor());
-        }
-
-        Integer contadorOk = 0;
-        Integer contadorAtencao = 0;
-        Integer contadorCritico = 0;
-
-        String selectTipo = ("""
-                select cast(pa.max as decimal(10,2)) as limite
-                from parametro_alerta pa
-                inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = (?);
-            """);
-
-        String selectDuracao = ("""
-                select cast(pa.duracao_min as unsigned) as duracao
-                from parametro_alerta pa
-                inner join componentes c on c.id = pa.fk_componente
-                where c.tipo = (?) and pa.fk_servidor = (?) and pa.unidade_medida = (?);
-            """);
-
-        for (Integer id : idsServidores){
-            List<LogsGiuliaCriticidade> logsServidor = new ArrayList<>();
-
-            for (LogsGiuliaCriticidade log : listaLogs){
-                if (log.getFk_servidor().equals(id)){
-                    logsServidor.add(log);
-                }
-            }
-
-            logsServidor.sort(Comparator.comparing(LogsGiuliaCriticidade::getTimestamp));
-
-            List<Double> listaCpu = con.queryForList(selectTipo, Double.class, "CPU", id, "%");
-            List<Double> listaRam = con.queryForList(selectTipo, Double.class, "RAM", id, "%");
-            List<Double> listaDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "%");
-            List<Double> listaTempCpu = con.queryForList(selectTipo, Double.class, "CPU", id, "C");
-            List<Double> listaTempDisco = con.queryForList(selectTipo, Double.class, "DISCO", id, "C");
-            List<Double> listaUp = con.queryForList(selectTipo, Double.class, "REDE", id, "UPLOAD");
-            List<Double> listaDown = con.queryForList(selectTipo, Double.class, "REDE", id, "DOWNLOAD");
-            List<Double> listaRcvd = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_RCVD");
-            List<Double> listaSnt = con.queryForList(selectTipo, Double.class, "REDE", id, "PCKT_SNT");
-
-            if (listaCpu.isEmpty() || listaRam.isEmpty() || listaDisco.isEmpty() || listaTempCpu.isEmpty() || listaTempDisco.isEmpty() || listaUp.isEmpty() || listaDown.isEmpty() || listaRcvd.isEmpty() || listaSnt.isEmpty()) {
-                System.out.printf("Servidor %d sem parametro_alerta completo (CPU/RAM/DISCO/TempCPU/TempDISCO/UPLOAD/DOWNLOAD/PACKT_RCVD/PCKT_SNT). Pulando.%n", id);
-                continue;
-            }
-
-            Double limiteCpu = listaCpu.get(0);
-            Double limiteRam = listaRam.get(0);
-            Double limiteDisco = listaDisco.get(0);
-            Double limiteTempCpu = listaTempCpu.get(0);
-            Double limiteTempDisco = listaTempDisco.get(0);
-            Double limiteUp = listaUp.get(0);
-            Double limiteDown = listaDown.get(0);
-            Double limiteRcvd = listaRcvd.get(0);
-            Double limiteSnt = listaSnt.get(0);
-
-            List<Integer> listaDuracaoCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "%");
-            List<Integer> listaDuracaoRam = con.queryForList(selectDuracao, Integer.class, "RAM", id, "%");
-            List<Integer> listaDuracaoDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "%");
-            List<Integer> listaDuracaoTempCpu = con.queryForList(selectDuracao, Integer.class, "CPU", id, "C");
-            List<Integer> listaDuracaoTempDisco = con.queryForList(selectDuracao, Integer.class, "DISCO", id, "C");
-            List<Integer> listaDuracaoUp = con.queryForList(selectDuracao, Integer.class, "REDE", id, "UPLOAD");
-            List<Integer> listaDuracaoDown = con.queryForList(selectDuracao, Integer.class, "REDE", id, "DOWNLOAD");
-            List<Integer> listaDuracaoRcvd = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_RCVD");
-            List<Integer> listaDuracaoSnt = con.queryForList(selectDuracao, Integer.class, "REDE", id, "PCKT_SNT");
-
-            if (listaDuracaoCpu.isEmpty() || listaDuracaoRam.isEmpty() || listaDuracaoDisco.isEmpty() || listaDuracaoTempCpu.isEmpty() || listaDuracaoTempDisco.isEmpty() || listaDuracaoUp.isEmpty() || listaDuracaoDown.isEmpty() || listaDuracaoRcvd.isEmpty() || listaDuracaoSnt.isEmpty()) {
-                System.out.printf("Servidor %d sem duracao_min completo. Pulando.%n", id);
-                continue;
-            }
-
-            Integer duracaoCpu = listaDuracaoCpu.get(0);
-            Integer duracaoRam = listaDuracaoRam.get(0);
-            Integer duracaoDisco = listaDuracaoDisco.get(0);
-            Integer duracaoTempCpu = listaDuracaoTempCpu.get(0);
-            Integer duracaoTempDisco = listaDuracaoTempDisco.get(0);
-            Integer duracaoUp = listaDuracaoUp.get(0);
-            Integer duracaoDown = listaDuracaoDown.get(0);
-            Integer duracaoRcvd = listaDuracaoRcvd.get(0);
-            Integer duracaoSnt = listaDuracaoSnt.get(0);
-
-            Integer minCpu = 0;
-            Integer minRam = 0;
-            Integer minDisco = 0;
-            Integer numTempCpu = 0;
-            Integer numTempDisco = 0;
-            Integer numUp = 0;
-            Integer numDown = 0;
-            Integer numRcvd = 0;
-            Integer numSnt = 0;
-
-            if (limiteCpu != null && duracaoCpu != null) {
-                minCpu = calcularAcimaComponente(logsServidor, limiteCpu, duracaoCpu, "CPU", "%");
-            }
-            if (limiteRam != null && duracaoRam != null) {
-                minRam = calcularAcimaComponente(logsServidor, limiteRam, duracaoRam, "RAM", "%");
-            }
-            if (limiteDisco != null && duracaoDisco != null) {
-                minDisco = calcularAcimaComponente(logsServidor, limiteDisco, duracaoDisco, "DISCO", "%");
-            }
-            if (limiteTempCpu != null && duracaoTempCpu != null){
-                numTempCpu = calcularAcimaComponente(logsServidor, limiteTempCpu, duracaoTempCpu, "CPU", "C");
-            }
-            if (limiteTempDisco != null && duracaoTempDisco != null){
-                numTempDisco = calcularAcimaComponente(logsServidor, limiteTempDisco, duracaoTempDisco, "DISCO", "C");
-            }
-            if (limiteUp != null && duracaoUp != null){
-                numUp = calcularAcimaComponente(logsServidor, limiteUp, duracaoUp, "REDE", "UPLOAD");
-            }
-            if (limiteDown != null && duracaoDown != null){
-                numDown = calcularAcimaComponente(logsServidor, limiteDown, duracaoDown, "REDE", "DOWNLOAD");
-            }
-            if (limiteRcvd != null && duracaoRcvd != null){
-                numRcvd = calcularAcimaComponente(logsServidor, limiteRcvd, duracaoRcvd, "REDE", "PCKT_RCVD");
-            }
-            if (limiteSnt != null && duracaoSnt != null){
-                numSnt= calcularAcimaComponente(logsServidor, limiteSnt, duracaoSnt, "REDE", "PCKT_SNT");
-            }
-
-            Integer maiorMinuto = Math.max(minCpu, Math.max(minRam, minDisco));
-
-            if (maiorMinuto >= 30 || (numTempCpu == 2 || numTempDisco == 2) || (numUp == 2 || numDown == 2 || numRcvd == 2 || numSnt == 2)){
-                contadorCritico++;
-            }
-
-            else if(maiorMinuto >= 5 || (numTempCpu == 1 || numTempDisco == 1) || (numUp == 1 || numDown == 1 || numRcvd == 1 || numSnt == 1)){
-                contadorAtencao++;
-            }
-
-            else {
-                contadorOk++;
-            }
-        }
-
-        if(contadorOk == null){
-            contadorOk = 0;
-        }
-
-        if(contadorAtencao == null){
-            contadorAtencao = 0;
-        }
-
-        if(contadorCritico == null){
-            contadorCritico = 0;
-        }
-
-        gravaArquivoJson(contadorOk, contadorAtencao, contadorCritico, "nivelCriticidadeDonut");
-        awsCon.uploadBucketClient(PASTA_CLIENT, "nivelCriticidadeDonut.json");
-
-        System.out.printf("Donut:  OK: %d | ATENCAO: %d | CRITICO: %d%n", contadorOk, contadorAtencao, contadorCritico);
+        System.out.printf("Donut:  OK: %d | ATENCAO: %d | CRITICO: %d%n", ok, atencao, critico);
     }
 
     public static void gravaArquivoJson(Integer ok, Integer atencao, Integer critico, String nomeArq) {
@@ -413,7 +113,7 @@ public class TratamentoDonut {
                         ));
 
         try {
-            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.write(json);
             saida.flush();
             System.out.println("Arquivo Json de Criticidade (donut) gerado com sucesso!");

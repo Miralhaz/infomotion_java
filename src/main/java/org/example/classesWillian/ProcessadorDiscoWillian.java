@@ -78,6 +78,8 @@ public class ProcessadorDiscoWillian {
             }
         } catch (Exception e) {
             System.err.println("Erro ao buscar apelido do disco para servidor " + fkServidor);
+        } finally {
+            // feche recursos
         }
 
         return "Disco-" + fkServidor; // fallback
@@ -86,11 +88,11 @@ public class ProcessadorDiscoWillian {
 
     public void executarTratamento() {
         try {
-            System.out.println("inicio do meu tratamento de disco (Willian)...");
+            System.out.println("🚀 Iniciando tratamento de disco (Willian)...");
 
             String nomeArquivoCsv = "logs_consolidados_servidores.csv";
             awsConnection.downloadBucketTrusted(nomeArquivoCsv);
-            System.out.println("baixando csv do bucket trusted.");
+            System.out.println("✅ CSV baixado com sucesso do bucket trusted.");
 
             try (InputStream csvStream = new FileInputStream(nomeArquivoCsv)) {
                 List<RegistroDisco> todosRegistros = lerCsvDisco(csvStream);
@@ -124,7 +126,6 @@ public class ProcessadorDiscoWillian {
                         parametrosLista.add(p);
                         if (r.fk_servidor != null) {
                             r.apelidoDisco = buscarApelidoDisco(r.fk_servidor);
-                            r.capacidade = buscarCapacidadeDisco(r.fk_servidor);
                         }
                     }
 
@@ -374,8 +375,7 @@ public class ProcessadorDiscoWillian {
                                 "      \"bytes_escritos\": %.0f,\n" +
                                 "      \"tempo_leitura\": %.0f,\n" +
                                 "      \"tempo_escrita\": %.0f,\n" +
-                                "      \"apelidoDisco\": \"%s\",\n" +
-                                "      \"capacidade\": \"%s\"\n" +
+                                "      \"apelidoDisco\": \"%s\"\n" +
                                 "    }",
                         r.fk_servidor,
                         r.nomeMaquina.replace("\"", "\\\""),
@@ -389,8 +389,7 @@ public class ProcessadorDiscoWillian {
                         r.bytes_escritos,
                         r.tempo_leitura,
                         r.tempo_escrita,
-                        r.apelidoDisco,
-                        r.capacidade
+                        r.apelidoDisco
                 ));
 
                 if (i < registros.size() - 1) writer.write(",");
@@ -440,7 +439,7 @@ public class ProcessadorDiscoWillian {
             rs.close();
             stmt.close();
 
-            // 2. Busca limite de temp
+            // 2. Busca limite para TEMPERATURA (°C)
             String sqlTemp = "SELECT p.max FROM parametro_alerta p " +
                     "INNER JOIN servidor s ON s.id = p.fk_servidor " +
                     "INNER JOIN componentes c ON c.fk_servidor = s.id " +
@@ -463,38 +462,6 @@ public class ProcessadorDiscoWillian {
         return new ParametroAlerta(limiteDisco, limiteTemperatura);
     }
 
-    private String buscarCapacidadeDisco(Integer fkServidor) {
-        java.sql.Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
 
-        try {
-            conn = dbConnection.getDataSource().getConnection();
-
-            String sql =
-                    "SELECT e.valor " +
-                            "FROM especificacao_componente e " +
-                            "INNER JOIN componentes c ON c.id = e.fk_componente " +
-                            "INNER JOIN servidor s ON s.id = c.fk_servidor " +
-                            "WHERE s.id = ? AND c.tipo = 'DISCO' AND e.nome_especificacao = 'Capacidade total disco (GB)'";
-
-            stmt = conn.prepareStatement(sql);
-            stmt.setInt(1, fkServidor);
-            rs = stmt.executeQuery();
-
-            if (rs.next()) {
-                return rs.getString("valor");
-            }
-            return "Desconhecido";
-
-        } catch (Exception e) {
-            System.err.println("Erro ao buscar capacidade: " + e.getMessage());
-            return "Desconhecido";
-        } finally {
-            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
-            try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
-            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
-        }
-    }
 
 }

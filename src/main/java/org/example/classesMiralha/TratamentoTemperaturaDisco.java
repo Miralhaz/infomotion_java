@@ -96,7 +96,7 @@ public class TratamentoTemperaturaDisco {
         String nomeCompletoArq = nomeArq + ".csv";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaDisco log : lista) {
                 saida.write(String.format(Locale.US, "%d;%s;%.2f;%.2f\n",
@@ -122,7 +122,7 @@ public class TratamentoTemperaturaDisco {
         }
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
             saida.append("[\n");
 
             for (int i = 0; i < lista.size(); i++) {

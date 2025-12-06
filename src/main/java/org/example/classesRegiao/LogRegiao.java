@@ -2,7 +2,6 @@ package org.example.classesRegiao;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Random;
 
 public class LogRegiao {
     private Integer fkServidor;

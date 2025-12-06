@@ -56,6 +56,9 @@ public class tratamentoNearRealTime {
         List<LogsNearRealTime> logServidor = new ArrayList<>();
         List<LogsNearRealTime> logfinal = new ArrayList<>();
 
+        String caminhoEspecificacoes = "/tmp/logs_especificados_consolidados_servidores.csv";
+        Map<Integer, LogsEspecificacoes> mapaEspecificacoes = carregarEspecificacoes(caminhoEspecificacoes);
+
         for (int i = 0; i < listaIds.size(); i++) {
             logServidor.clear();
             for (int j = 0; j < listalog.size(); j++) {
@@ -68,11 +71,11 @@ public class tratamentoNearRealTime {
                 logfinal.add(ultimoLog);
 
                 String nomeArquivo = "data" + ultimoLog.getFk_servidor() + ".json";
+
                 JdbcTemplate con = new JdbcTemplate(new Connection().getDataSource());
                 ParametrosServidor params = carregarParametros(ultimoLog.getFk_servidor(), con);
-                Map<Integer, LogsEspecificacoes> mapaEspecificacoes = carregarEspecificacoes("logs_especificados_consolidados_servidores.csv");
-                LogsEspecificacoes espec = mapaEspecificacoes.get(ultimoLog.getFk_servidor());
 
+                LogsEspecificacoes espec = mapaEspecificacoes.get(ultimoLog.getFk_servidor());
 
                 try {
                     gerarJson(ultimoLog, params, espec, nomeArquivo);
@@ -154,17 +157,27 @@ public class tratamentoNearRealTime {
     public static Map<Integer, LogsEspecificacoes> carregarEspecificacoes(String caminhoCsv) throws IOException {
         Map<Integer, LogsEspecificacoes> mapa = new HashMap<>();
 
+        AwsConnection aws = new AwsConnection();
+
+        aws.downloadBucketTrusted("logs_especificados_consolidados_servidores.csv");
+
+        if (!Files.exists(Paths.get(caminhoCsv))) {
+            System.out.println("Aviso: Arquivo de especificações não encontrado: " + caminhoCsv);
+            System.out.println("Continuando sem especificações de hardware...");
+            return mapa;
+        }
+
         List<String> linhas = Files.readAllLines(Paths.get(caminhoCsv), StandardCharsets.UTF_8);
 
-        if (linhas.size() <= 1) return mapa; // sem dados
+        if (linhas.size() <= 1) return mapa;
 
         for (int i = 1; i < linhas.size(); i++) {
             String linha = linhas.get(i);
             if (linha == null || linha.isBlank()) continue;
 
-            String[] campos = linha.split(";", -1); // -1 preserva campos vazios
+            String[] campos = linha.split(";", -1);
             try {
-                // Proteção contra linhas curtas:
+
                 if (campos.length < 9) {
                     System.err.printf("Linha ignorada (campos insuf.): %d -> %s%n", i+1, linha);
                     continue;
@@ -183,7 +196,7 @@ public class tratamentoNearRealTime {
                 Double capacidade = tryParseDouble(campos[5], 0.0);
                 Double qtdParticoes = tryParseDouble(campos[6], 0.0);
 
-                // campo das partições (ex: "C: 90.5% | D: 51.6% | E: 11.2%")
+
                 String textoParticoes = campos[7];
                 List<Particao> listaParticoes = new ArrayList<>();
 
@@ -191,14 +204,14 @@ public class tratamentoNearRealTime {
                     String[] blocos = textoParticoes.split("\\|");
                     for (String bloco : blocos) {
                         if (bloco == null) continue;
-                        bloco = bloco.trim(); // "C: 90.5%"
+                        bloco = bloco.trim();
 
                         if (bloco.isEmpty()) continue;
 
-                        // Alguns formatos usam somente "C: 90.5%" -> split em ":" resultará em 2 partes
+
                         String[] partes = bloco.split(":", 2);
                         if (partes.length < 2) {
-                            // tenta outro separador (seguro): pular
+
                             continue;
                         }
 
@@ -212,7 +225,7 @@ public class tratamentoNearRealTime {
                             listaParticoes.add(new Particao(nome, uso));
                         } catch (NumberFormatException nfe) {
                             System.err.printf("Uso inválido em partição na linha %d: '%s' (valor='%s')%n", i+1, bloco, valorStr);
-                            // skip esta partição
+
                         }
                     }
                 }
@@ -256,17 +269,18 @@ public class tratamentoNearRealTime {
             return defaultValue;
         }
     }
+
     public static void gerarJson(LogsNearRealTime log, ParametrosServidor params, LogsEspecificacoes espec, String nomeArq) throws IOException {
         OutputStreamWriter saida = null;
         boolean deuRuim = false;
 
         if (espec == null) {
-            espec = new LogsEspecificacoes( log.getFk_servidor() ); // usa o construtor auxiliar
+            espec = new LogsEspecificacoes( log.getFk_servidor() );
         }
 
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
 
             double uploadMB = log.getUploadByte() / 1024.0 / 1024.0;
             double downloadMB = log.getDownloadByte() / 1024.0 / 1024.0;
@@ -301,7 +315,7 @@ public class tratamentoNearRealTime {
                     log.getFk_servidor(),
                     log.getTimeStamp(),
 
-                    // ATUAIS
+
                     log.getRam(),
                     log.getCpu(),
                     log.getDisco(),
@@ -310,7 +324,7 @@ public class tratamentoNearRealTime {
                     uploadMB,
                     downloadMB,
 
-                    // MAXIMOS
+
                     params.maxRam,
                     params.maxCpuUso,
                     params.maxCpuTemp,
@@ -320,9 +334,8 @@ public class tratamentoNearRealTime {
                     maxUploadMB
             ));
 
-            // ------------------------------
-            //      LISTA DE PARTIÇÕES
-            // ------------------------------
+
+
             saida.write("""
             "particoes": [
         """);
@@ -341,7 +354,7 @@ public class tratamentoNearRealTime {
                 ));
             }
 
-            saida.write("\n    ]\n}\n"); // fecha JSON
+            saida.write("\n    ]\n}\n");
 
         } catch (IOException e) {
             deuRuim = true;
