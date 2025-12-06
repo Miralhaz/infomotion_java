@@ -116,7 +116,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("  → Upload concluído: " + key);
             deleteCsvLocal(nomeArq);
         }
         catch (Exception e) {
@@ -136,7 +135,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("  → Upload concluído: " + key);
             deleteCsvLocal(nomeArq);
         }
         catch (Exception e) {
@@ -160,7 +158,6 @@ public class AwsConnection {
                             .build(),
                     destino
             );
-            System.out.println("Download concluído: " + nomeArq);
         } catch (software.amazon.awssdk.services.s3.model.NoSuchKeyException e) {
             System.out.println("Aviso: Arquivo '" + nomeArq + "' não encontrado no S3 Trusted.");
         } catch (Exception e) {
@@ -181,7 +178,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("Upload concluído: " + nomeArq);
         }
         catch (Exception e) {
             System.err.println("Erro ao fazer upload de " + nomeArq + ": " + e.getMessage());
@@ -224,7 +220,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("Upload concluído para CLIENT: " + nomeArq);
         }
         catch (Exception e) {
             System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
@@ -244,7 +239,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("Upload concluído para CLIENT: " + nomeArq);
         }
         catch (Exception e) {
             System.err.println("Erro ao fazer upload para CLIENT " + nomeArq + ": " + e.getMessage());
@@ -264,7 +258,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("Upload concluído: " + nomeArq + "\n");
             deleteCsvLocal(nomeArq);
         }
         catch (Exception e) {
@@ -284,7 +277,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("Upload concluído: " + nomeArq + "\n");
             deleteCsvLocal(nomeArq);
         }
         catch (Exception e) {
@@ -323,7 +315,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("Upload concluído: " + nomeArq + "\n");
             deleteCsvLocal(nomeArq);
         }
         catch (Exception e) {
@@ -362,7 +353,6 @@ public class AwsConnection {
                     RequestBody.fromFile(Path.of("/tmp/", nomeArq))
             );
 
-            System.out.println("Upload concluído: " + key);
             deleteCsvLocal(nomeArq);
 
         } catch (Exception e) {
@@ -374,7 +364,6 @@ public class AwsConnection {
         try {
             Path caminho = Path.of("/tmp/", nomeArq);
             java.nio.file.Files.deleteIfExists(caminho);
-            System.out.println("  → Arquivo local deletado: " + nomeArq);
         } catch (Exception e) {
             System.err.println("Erro ao deletar o arquivo " + nomeArq + ": " + e.getMessage());
         }
@@ -389,7 +378,6 @@ public class AwsConnection {
             for (Path p : arquivos) {
                 try {
                     java.nio.file.Files.deleteIfExists(p);
-                    System.out.println("Arquivo temporário removido: " + p.getFileName());
                 } catch (Exception e) {
                     System.err.println("Erro ao deletar " + p.getFileName() + ": " + e.getMessage());
                 }

@@ -22,6 +22,12 @@ public class Main {
 
     public static List<Integer> listaIdServidores = new ArrayList<>();
     static AwsConnection aws = new AwsConnection();
+    private static final DateTimeFormatter CHAVE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    private static String criarChaveLog(Logs log) {
+        String timestampChave = log.getDataHora().format(CHAVE_FORMATTER);
+        return log.getFk_servidor() + "_" + timestampChave;
+    }
 
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq, boolean append){
         OutputStreamWriter saida = null;
@@ -32,7 +38,7 @@ public class Main {
         boolean arquivoExisteAntesDaEscrita = arquivoLocal.exists();
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq, append), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq, append), StandardCharsets.UTF_8);
 
         }catch (IOException erro){
             System.err.println("Erro ao abrir o arquivo " + nomeCompletoArq + " em gravaArquivoCsv");
@@ -72,7 +78,7 @@ public class Main {
         final String arquivoConsolidadoTrusted = "logs_consolidados_servidores.csv";
         String caminhoLocal = "/tmp/" + arquivoConsolidadoTrusted;
 
-        System.out.println("\nIniciando consolidação...");
+        Map<String, Logs> logsUnicos = new HashMap<>();
 
         aws.downloadBucketTrusted(arquivoConsolidadoTrusted);
 
@@ -82,6 +88,10 @@ public class Main {
         if (arquivoLocal.exists()) {
             try {
                 logsConsolidadosExistentes = leImportaArquivoCsv(arquivoConsolidadoTrusted);
+                for (Logs log : logsConsolidadosExistentes){
+                    String chave = log.getFk_servidor() + "_" + log.getDataHora().format(CHAVE_FORMATTER);
+                    logsUnicos.put(chave, log);
+                }
                 System.out.printf("Arquivo consolidado existente possui %d logs.\n", logsConsolidadosExistentes.size());
             } catch (Exception e) {
                 System.err.println("Erro ao ler arquivo consolidado existente: " + e.getMessage());
@@ -92,7 +102,6 @@ public class Main {
         }
 
         List<String> arquivosRawParaProcessar = aws.listarArquivosRaw();
-        List<Logs> logsNovosParaConsolidar = new ArrayList<>();
 
         if (arquivosRawParaProcessar.isEmpty()) {
             System.out.println("Nenhum arquivo RAW novo encontrado para processamento (Padrão: data[n].csv).");
@@ -105,16 +114,22 @@ public class Main {
                 aws.downloadBucketRaw(chaveRaw);
                 List<Logs> logsDoArquivo = leImportaArquivoCsv(chaveRaw);
 
-                Integer fk_servidor = logsDoArquivo.get(1).getFk_servidor();
-                try {
-                    TratamentoAlertas.TratamentoAlertas(con, fk_servidor, logsDoArquivo, aws);
-                    logsNovosParaConsolidar.addAll(logsDoArquivo);
-                } catch (Exception e) {
-                    System.out.println("Erro no tratamento de alertas");
-                    e.printStackTrace();
-                }
-                System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
+                if (!logsDoArquivo.isEmpty()) {
+                    Integer fk_servidor = logsDoArquivo.get(1).getFk_servidor();
+                    try {
+                        TratamentoAlertas.TratamentoAlertas(con, fk_servidor, logsDoArquivo, aws);
 
+                        for (Logs log : logsDoArquivo) {
+                            String chave = log.getFk_servidor() + "_" + log.getDataHora().format(CHAVE_FORMATTER);
+                            logsUnicos.put(chave, log);
+                        }
+                    } catch (Exception e) {
+                        System.out.println("Erro no tratamento de alertas");
+                        e.printStackTrace();
+                    }
+                }
+
+                System.out.printf("Conteúdo de '%s' lido com sucesso (%d novos logs).\n", chaveRaw, logsDoArquivo.size());
                 aws.deleteCsvLocal(chaveRaw);
 
             } catch (Exception e) {
@@ -122,21 +137,19 @@ public class Main {
             }
         }
 
-        logsConsolidadosExistentes.addAll(logsNovosParaConsolidar);
-        System.out.printf("Total de logs após consolidação: %d\n", logsConsolidadosExistentes.size());
+        List<Logs> logsFinaisConsolidados = new ArrayList<>(logsUnicos.values());
 
-        gravaArquivoCsv(logsConsolidadosExistentes, "logs_consolidados_servidores", false);
+        System.out.printf("Total de logs após consolidação: %d\n", logsFinaisConsolidados.size());
+
+        gravaArquivoCsv(logsFinaisConsolidados, "logs_consolidados_servidores", false);
 
         aws.uploadBucketTrusted(arquivoConsolidadoTrusted);
 
-        System.out.println("\nConsolidação concluída");
     }
 
     public static void consolidarEspecificacoesRaw(JdbcTemplate con) {
         final String arquivoEspecificadosConsolidadoTrusted = "logs_especificados_consolidados_servidores";
         final String nomeCompletoArq = arquivoEspecificadosConsolidadoTrusted + ".csv";
-
-        System.out.println("\nIniciando consolidação de especificações...");
 
         aws.downloadTemperaturaBucket(nomeCompletoArq);
 
@@ -167,8 +180,6 @@ public class Main {
         gravaArquivoCsvEspecificacoes(logsNovosParaConsolidar, arquivoEspecificadosConsolidadoTrusted);
         aws.uploadBucketTrusted(nomeCompletoArq);
 
-
-        System.out.println("\nConsolidação concluída");
     }
 
     public static void gravaArquivoCsv(List<Logs> lista, String nomeArq){
@@ -232,12 +243,9 @@ public class Main {
             // separa cada da linha usando o delimitador ";"
             // resgistro = linha.split(";");
             // printa os titulos da coluna
-            System.out.println("Lendo e Importando CSV de dados do bucket-raw");
 
             String[] header = linha.split(";");
             int offset = (header[0].isEmpty() || header[0].matches("\\d+")) ? 1 : 0;
-
-            System.out.println("Lendo e Importando CSV de dados (offset detectado: " + offset + ")");
 
             linha = entrada.readLine();
 

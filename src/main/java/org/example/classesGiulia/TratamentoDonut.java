@@ -113,7 +113,7 @@ public class TratamentoDonut {
                         ));
 
         try {
-            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream(nome), StandardCharsets.UTF_8);
+            OutputStreamWriter saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nome), StandardCharsets.UTF_8);
             saida.write(json);
             saida.flush();
             System.out.println("Arquivo Json de Criticidade (donut) gerado com sucesso!");

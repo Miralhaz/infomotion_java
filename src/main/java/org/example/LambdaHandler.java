@@ -3,7 +3,6 @@ package org.example;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
-import org.example.classesGiulia.TratamentoBolhas;
 import org.example.classesGiulia.TratamentoDonut;
 import org.example.classesGiulia.TratamentoHistorico;
 import org.example.classesGiulia.TratamentoHistoricoServidor;
@@ -65,11 +64,12 @@ public class LambdaHandler implements RequestHandler<Map<String, Object>, Map<St
         logger.log("Iniciando consolidação");
         Main.consolidarArquivosRaw(jdbcTemplate);
         Main.consolidarEspecificacoesRaw(jdbcTemplate);
+        logger.log("Consolidação concluída");
 
         logger.log("Lendo arquivo consolidado");
         List<Logs> logsArqConsolidado = Main.leImportaArquivoCsvTrusted("logs_consolidados_servidores.csv");
 
-        logger.log("Iniciando Tratamento Temperatura");
+        logger.log("Iniciando Tratamento Temperatura / Processos");
         TratamentoTemperaturaCpu tratamentoTemperaturaCpu = new TratamentoTemperaturaCpu(aws, jdbcTemplate);
         tratamentoTemperaturaCpu.tratamentoDeTemperaturaCpu(logsArqConsolidado, "temperaturaUsoCpu");
 
@@ -79,6 +79,7 @@ public class LambdaHandler implements RequestHandler<Map<String, Object>, Map<St
         TratamentoProcessos.consolidarArquivosRawProcessos();
         TratamentoProcessos tratarProcessos = new TratamentoProcessos(aws, jdbcTemplate);
         tratarProcessos.tratamentoProcessos("processos_consolidados_servidores.csv");
+        logger.log("Tratamento concluído");
 
         aws.limparTemporarios();
 
@@ -111,18 +112,9 @@ public class LambdaHandler implements RequestHandler<Map<String, Object>, Map<St
         // TRATAMENTO GIULIA
         logger.log("Iniciando tratamento Giulia...\n");
         TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, jdbcTemplate);
-        tratamentoDonut.classificarCriticidade();
-
-        TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, jdbcTemplate);
-        tratamentoBolhas.gerarBolhas("CPU", "%");
-        tratamentoBolhas.gerarBolhas("CPU", "C");
-        tratamentoBolhas.gerarBolhas("RAM", "%");
-        tratamentoBolhas.gerarBolhas("DISCO", "%");
-        tratamentoBolhas.gerarBolhas("DISCO", "C");
-        tratamentoBolhas.gerarBolhas("REDE", "UPLOAD");
-        tratamentoBolhas.gerarBolhas("REDE", "DOWNLOAD");
-        tratamentoBolhas.gerarBolhas("REDE", "PCKT_RCVD");
-        tratamentoBolhas.gerarBolhas("REDE", "PCKT_SNT");
+        tratamentoDonut.classificarCriticidade(1);
+        tratamentoDonut.classificarCriticidade(7);
+        tratamentoDonut.classificarCriticidade(30);
 
         TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, jdbcTemplate);
         tratamentoHistorico.classificarAlertas(1);

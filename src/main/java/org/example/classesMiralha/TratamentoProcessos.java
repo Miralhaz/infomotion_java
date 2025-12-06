@@ -55,7 +55,6 @@ public class TratamentoProcessos {
 
         try {
             String cabecalho = entrada.readLine();
-            System.out.println("Cabeçalho detectado: " + cabecalho);
 
             String linha = entrada.readLine();
             int linhaNumero = 2;
@@ -91,7 +90,6 @@ public class TratamentoProcessos {
                         usoRam = Double.valueOf(registro[4].trim().replace(",", "."));
 
                     } else {
-                        System.err.println("Linha " + linhaNumero + " ignorada por ter menos que 5 campos (" + registro.length + " campos): " + linha);
                         linha = entrada.readLine();
                         linhaNumero++;
                         continue;
@@ -117,8 +115,6 @@ public class TratamentoProcessos {
                 linha = entrada.readLine();
                 linhaNumero++;
             }
-
-            System.out.println("Total de registros importados: " + listaProcessos.size());
 
         } catch (IOException e) {
             System.out.println("Erro ao ler o arquivo: " + nomeArq);

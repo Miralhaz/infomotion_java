@@ -64,7 +64,6 @@ public class TratamentoAlertas {
         boolean jaFoiAlertaDisco = false;
 
         for (int i = 0; i < metrica.size(); i++) {
-            System.out.printf("ETL em processamento: %d/%d\n", i + 1, metrica.size());
 
             Integer fk_componente = metrica.get(i).getFk_componente();
             Double max = metrica.get(i).getMax();
