@@ -79,7 +79,9 @@ public class ProcessadorDiscoWillian {
         } catch (Exception e) {
             System.err.println("Erro ao buscar apelido do disco para servidor " + fkServidor);
         } finally {
-            // feche recursos
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
         }
 
         return "Disco-" + fkServidor; // fallback
