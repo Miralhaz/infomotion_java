@@ -1,6 +1,5 @@
 package org.example;
 
-import org.example.classesGiulia.TratamentoBolhas;
 import org.example.classesGiulia.TratamentoDonut;
 import org.example.classesGiulia.TratamentoHistorico;
 import org.example.classesGiulia.TratamentoHistoricoServidor;
@@ -602,18 +601,9 @@ public class Main {
 
         // TRATAMENTO - GIULIA
         TratamentoDonut tratamentoDonut = new TratamentoDonut(aws, con);
-        tratamentoDonut.classificarCriticidade();
-
-        TratamentoBolhas tratamentoBolhas = new TratamentoBolhas(aws, con);
-        tratamentoBolhas.gerarBolhas("CPU", "%");
-        tratamentoBolhas.gerarBolhas("CPU", "C");
-        tratamentoBolhas.gerarBolhas("RAM", "%");
-        tratamentoBolhas.gerarBolhas("DISCO", "%");
-        tratamentoBolhas.gerarBolhas("DISCO", "C");
-        tratamentoBolhas.gerarBolhas("REDE", "UPLOAD");
-        tratamentoBolhas.gerarBolhas("REDE", "DOWNLOAD");
-        tratamentoBolhas.gerarBolhas("REDE", "PCKT_RCVD");
-        tratamentoBolhas.gerarBolhas("REDE", "PCKT_SNT");
+        tratamentoDonut.classificarCriticidade(1);
+        tratamentoDonut.classificarCriticidade(7);
+        tratamentoDonut.classificarCriticidade(30);
 
         TratamentoHistorico tratamentoHistorico = new TratamentoHistorico(aws, con);
         tratamentoHistorico.classificarAlertas(1);
