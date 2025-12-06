@@ -126,6 +126,7 @@ public class ProcessadorDiscoWillian {
                         parametrosLista.add(p);
                         if (r.fk_servidor != null) {
                             r.apelidoDisco = buscarApelidoDisco(r.fk_servidor);
+                            r.capacidade = buscarCapacidadeDisco(r.fk_servidor);
                         }
                     }
 
@@ -375,7 +376,8 @@ public class ProcessadorDiscoWillian {
                                 "      \"bytes_escritos\": %.0f,\n" +
                                 "      \"tempo_leitura\": %.0f,\n" +
                                 "      \"tempo_escrita\": %.0f,\n" +
-                                "      \"apelidoDisco\": \"%s\"\n" +
+                                "      \"apelidoDisco\": \"%s\",\n" +
+                                "      \"capacidade\": \"%s\"\n" +
                                 "    }",
                         r.fk_servidor,
                         r.nomeMaquina.replace("\"", "\\\""),
@@ -389,7 +391,8 @@ public class ProcessadorDiscoWillian {
                         r.bytes_escritos,
                         r.tempo_leitura,
                         r.tempo_escrita,
-                        r.apelidoDisco
+                        r.apelidoDisco,
+                        r.capacidade
                 ));
 
                 if (i < registros.size() - 1) writer.write(",");
@@ -400,6 +403,40 @@ public class ProcessadorDiscoWillian {
 
         } catch (IOException e) {
             System.err.println("Erro ao gerar JSON com parâmetros: " + e.getMessage());
+        }
+    }
+
+    public String buscarCapacidadeDisco(Integer fkServidor) {
+        java.sql.Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            conn = dbConnection.getDataSource().getConnection();
+
+            String sql =
+                    "SELECT e.valor " +
+                            "FROM especificacao_componente e " +
+                            "INNER JOIN componentes c ON c.id = e.fk_componente " +
+                            "INNER JOIN servidor s ON s.id = c.fk_servidor " +
+                            "WHERE s.id = ? AND c.tipo = 'DISCO' AND e.nome_especificacao = 'Capacidade total disco (GB)'";
+
+            stmt = conn.prepareStatement(sql);
+            stmt.setInt(1, fkServidor);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("valor");
+            }
+            return "Desconhecido";
+
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar capacidade: " + e.getMessage());
+            return "Desconhecido";
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception ignored) {}
+            try { if (stmt != null) stmt.close(); } catch (Exception ignored) {}
+            try { if (conn != null) conn.close(); } catch (Exception ignored) {}
         }
     }
 
