@@ -103,8 +103,11 @@ public class Main {
 
         List<String> arquivosRawParaProcessar = aws.listarArquivosRaw();
 
+
+        Collections.sort(arquivosRawParaProcessar);
+
         if (arquivosRawParaProcessar.isEmpty()) {
-            System.out.println("Nenhum arquivo RAW novo encontrado para processamento (Padrão: data[n].csv).");
+            System.out.println("Nenhum arquivo RAW novo encontrado para processamento.");
         }
 
         System.out.printf("Encontrados %d arquivos RAW para processar.\n", arquivosRawParaProcessar.size());
@@ -137,7 +140,11 @@ public class Main {
             }
         }
 
+
         List<Logs> logsFinaisConsolidados = new ArrayList<>(logsUnicos.values());
+
+
+        logsFinaisConsolidados.sort(Comparator.comparing(Logs::getDataHora));
 
         System.out.printf("Total de logs após consolidação: %d\n", logsFinaisConsolidados.size());
 
