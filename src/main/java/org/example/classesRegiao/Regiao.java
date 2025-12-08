@@ -44,50 +44,6 @@ public class Regiao {
         this.listaLogRegiao = listaLogRegiao;
     }
 
-    public Double retornarResidual(){
-        Integer media = 0;
-
-        for (int i = 0; i < listaLogRegiao.size(); i++) {
-            media +=  listaLogRegiao.get(i).getQtdRequisicoes();
-        }
-        media = media / listaLogRegiao.size();
-
-        Double totalResiduo = 0.0;
-        for (int i = 0; i < listaLogRegiao.size(); i++) {
-            Integer qtdReq = listaLogRegiao.get(i).getQtdRequisicoes();
-            Integer residuo = 0;
-            if (media > qtdReq){
-                residuo = media - qtdReq;
-            }else {
-                residuo = qtdReq - media;
-            }
-            totalResiduo += Math.pow(residuo,2.0);
-        }
-        return totalResiduo / listaLogRegiao.size();
-    }
-
-    public Integer retornarMediana(){
-        List<LogRegiao> l = listaLogRegiao;
-
-
-        for (int i = 0; i < l.size(); i++) {
-                for (int j = 1; j < l.size(); j++) {
-                    if (l.get(j - 1).getQtdRequisicoes() > l.get(j).getQtdRequisicoes()) {
-                        LogRegiao aux = l.get(j);
-                        l.set(j, l.get(j - 1));
-                        l.set(j - 1, aux);
-                    }
-                }
-            }
-
-        if (l.size() % 2 == 0 ){
-            return    l.get(l.size() / 2 - 1).getQtdRequisicoes();
-        }else {
-            return    l.get(l.size() / 2 - 2).getQtdRequisicoes();
-        }
-    }
-
-
 
 
 

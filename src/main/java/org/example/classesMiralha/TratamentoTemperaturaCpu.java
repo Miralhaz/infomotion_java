@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.FileOutputStream;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -39,7 +40,7 @@ public class TratamentoTemperaturaCpu {
     }
 
     private void gerarJsonsPorServidorEPeriodo(List<LogsMiralhaCpu> logs) {
-        LocalDateTime agora = LocalDateTime.now();
+        LocalDateTime agora = LocalDateTime.now(ZoneId.of("UTC")); // por conta do Lambda estar em um país diferente
 
         Map<Integer, List<LogsMiralhaCpu>> logsPorServidor = logs.stream()
                 .collect(Collectors.groupingBy(LogsMiralhaCpu::getFk_servidor));
@@ -96,7 +97,7 @@ public class TratamentoTemperaturaCpu {
         String nomeCompletoArq = nomeArq + ".csv";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
 
             for (LogsMiralhaCpu log : lista) {
                 saida.write(String.format(Locale.US, "%d;%s;%.2f;%.2f\n",
@@ -117,13 +118,12 @@ public class TratamentoTemperaturaCpu {
         OutputStreamWriter saida = null;
         String nomeCompletoArq = nomeArq;
 
-        // Adiciona .json apenas se não tiver
         if (!nomeCompletoArq.endsWith(".json")) {
             nomeCompletoArq += ".json";
         }
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
             saida.append("[\n");
 
             for (int i = 0; i < lista.size(); i++) {

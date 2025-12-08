@@ -46,7 +46,7 @@ public class TratamentoProcessos {
         List<LogsProcessosMiralha> listaProcessos = new ArrayList<>();
 
         try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            arq = new InputStreamReader(new FileInputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
             System.out.println("Erro ao abrir o arquivo leImportaArquivoCsvProcessos: " + nomeArq);
@@ -54,8 +54,7 @@ public class TratamentoProcessos {
         }
 
         try {
-            String cabecalho = entrada.readLine(); // Lê o cabeçalho
-            System.out.println("Cabeçalho detectado: " + cabecalho);
+            String cabecalho = entrada.readLine();
 
             String linha = entrada.readLine();
             int linhaNumero = 2;
@@ -91,7 +90,6 @@ public class TratamentoProcessos {
                         usoRam = Double.valueOf(registro[4].trim().replace(",", "."));
 
                     } else {
-                        System.err.println("Linha " + linhaNumero + " ignorada por ter menos que 5 campos (" + registro.length + " campos): " + linha);
                         linha = entrada.readLine();
                         linhaNumero++;
                         continue;
@@ -118,8 +116,6 @@ public class TratamentoProcessos {
                 linhaNumero++;
             }
 
-            System.out.println("Total de registros importados: " + listaProcessos.size());
-
         } catch (IOException e) {
             System.out.println("Erro ao ler o arquivo: " + nomeArq);
             e.printStackTrace();
@@ -141,6 +137,7 @@ public class TratamentoProcessos {
         AwsConnection aws = new AwsConnection();
 
         final String arquivoProcessosConsolidadoTrusted = "processos_consolidados_servidores";
+        final String nomeArquivoConsolidadoComExtensao = arquivoProcessosConsolidadoTrusted + ".csv";
 
         List<String> arquivosRawParaProcessar = aws.listarArquivosRawProcessos();
         List<LogsProcessosMiralha> logsNovosParaConsolidar = new ArrayList<>();
@@ -170,8 +167,7 @@ public class TratamentoProcessos {
         }
 
         gravaArquivoCsvProcessos(logsNovosParaConsolidar, arquivoProcessosConsolidadoTrusted);
-        aws.uploadBucketTrusted(arquivoProcessosConsolidadoTrusted + ".csv");
-
+        aws.uploadBucketTrusted(nomeArquivoConsolidadoComExtensao);
     }
 
     private List<LogsProcessosMiralha> transformarParaLogsTop5PorServidor(List<LogsProcessosMiralha> logs) {
@@ -214,7 +210,7 @@ public class TratamentoProcessos {
         String nomeCompletoArq = nomeArq + ".csv";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
             saida.append("fk_servidor;timestamp;nome_processo;uso_cpu;uso_ram\n");
 
             for (LogsProcessosMiralha log : lista) {
@@ -241,7 +237,7 @@ public class TratamentoProcessos {
         String nomeCompletoArq = nomeArq + ".json";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeCompletoArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeCompletoArq), StandardCharsets.UTF_8);
             saida.append("[\n");
 
             for (int i = 0; i < lista.size(); i++) {
@@ -288,7 +284,7 @@ public class TratamentoProcessos {
         nomeArq += ".csv";
 
         try {
-            saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+            saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
 
         }catch (IOException erro){
             System.out.println("Erro ao abrir o arquivo gravaArquivoCsv");

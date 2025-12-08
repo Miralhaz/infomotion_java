@@ -27,7 +27,7 @@ public class TratamentoCardsServidores {
                 aws.downloadCardsServidoresBucket(nomeArquivo);
 
                 ObjectMapper mapper = new ObjectMapper();
-                File arquivo = new File(nomeArquivo);
+                File arquivo = new File("/tmp/" + nomeArquivo);
                 if (arquivo.exists()) {
                     todosStatus = mapper.readValue(arquivo, List.class); // uso o readValue para ler o arquivo local (JSON) e cria uma lista
                     // isso vira uma lista de Maps
@@ -61,7 +61,7 @@ public class TratamentoCardsServidores {
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.writerWithDefaultPrettyPrinter()
-                    .writeValue(new File(nomeArquivo), todosStatus);
+                    .writeValue(new File("/tmp/" + nomeArquivo), todosStatus);
 
             aws.uploadCardsServidoresBucket(nomeArquivo);
 

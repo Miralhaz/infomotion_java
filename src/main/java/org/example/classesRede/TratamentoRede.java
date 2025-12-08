@@ -28,15 +28,15 @@ public class TratamentoRede {
         String nomeArq = "conexoes" + idServidor;
 
 
-        Reader arq = null; // objeto aquivo
-        BufferedReader entrada = null; // objeto leitor de arquivo
+        Reader arq = null;
+        BufferedReader entrada = null;
         nomeArq += ".csv";
         List<LogConexao> listaLogsConexao = new ArrayList<>();
 
         awsConnection.downloadBucketRaw(nomeArq);
 
         try {
-            arq = new InputStreamReader(new FileInputStream(nomeArq), StandardCharsets.UTF_8);
+            arq = new InputStreamReader(new FileInputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
             entrada = new BufferedReader(arq);
         } catch (IOException e) {
             System.out.println("Erro ao abrir o arquivo [csvJsonConexao]");
@@ -45,16 +45,9 @@ public class TratamentoRede {
 
         try {
             String[] registro;
-            //readLine é usado para ler uma linha do arquivo
             String linha = entrada.readLine();
 
-            // separa cada da linha usando o delimitador ";"
-            // resgistro = linha.split(";");
-            // printa os titulos da coluna
-
             linha = entrada.readLine();
-            // converte de string para integer
-            // caso fosse de string para int usa-se parseint
             while (linha != null) {
 
                 registro = linha.split(";");
@@ -216,7 +209,7 @@ public class TratamentoRede {
             nomeArq += ".json";
 
             try {
-                saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+                saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
 
             } catch (IOException erro) {
                 System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
@@ -278,7 +271,6 @@ public class TratamentoRede {
 
     public static void gravaArquivoJsonRede(List<Logs> lista, List<Integer> idServidor, JdbcTemplate banco, AwsConnection awsConnection) {
 
-        // uma hora, um dia. 7 dias
         int[] listaHoras = {1, 24, 168};
 
         for (Integer i : idServidor) {
@@ -292,7 +284,7 @@ public class TratamentoRede {
                 nomeArq += ".json";
 
                 try {
-                    saida = new OutputStreamWriter(new FileOutputStream(nomeArq), StandardCharsets.UTF_8);
+                    saida = new OutputStreamWriter(new FileOutputStream("/tmp/" + nomeArq), StandardCharsets.UTF_8);
                 } catch (IOException erro) {
                     System.out.println("Erro ao abrir o arquivo gravaArquivoJson");
                     System.exit(1);
@@ -362,10 +354,4 @@ public class TratamentoRede {
         }
     }
 
-
-
-
-
 }
-
-
