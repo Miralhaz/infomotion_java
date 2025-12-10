@@ -40,7 +40,7 @@ public class TratamentoTemperaturaDisco {
     }
 
     private void gerarJsonsPorServidorEPeriodo(List<LogsMiralhaDisco> logs) {
-        LocalDateTime agora = LocalDateTime.now(ZoneId.of("UTC")); // por conta do Lambda estar em um país diferente
+        LocalDateTime agora = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")); // por conta do Lambda estar em um país diferente
 
         Map<Integer, List<LogsMiralhaDisco>> logsPorServidor = logs.stream()
                 .collect(Collectors.groupingBy(LogsMiralhaDisco::getFk_servidor));

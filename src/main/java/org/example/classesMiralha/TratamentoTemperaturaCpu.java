@@ -40,7 +40,7 @@ public class TratamentoTemperaturaCpu {
     }
 
     private void gerarJsonsPorServidorEPeriodo(List<LogsMiralhaCpu> logs) {
-        LocalDateTime agora = LocalDateTime.now(ZoneId.of("UTC")); // por conta do Lambda estar em um país diferente
+        LocalDateTime agora = LocalDateTime.now(ZoneId.of("America/Sao_Paulo")); // por conta do Lambda estar em um país diferente
 
         Map<Integer, List<LogsMiralhaCpu>> logsPorServidor = logs.stream()
                 .collect(Collectors.groupingBy(LogsMiralhaCpu::getFk_servidor));
